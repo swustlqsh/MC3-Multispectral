@@ -1,0 +1,16 @@
+{
+  "processors": ["stylelint-processor-html"],
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "declaration-empty-line-before": "never",
+    "rule-empty-line-before": "never",
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": [
+          "global", "local"
+        ]
+      }
+    ]
+  }
+}
