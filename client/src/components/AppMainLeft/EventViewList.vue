@@ -1,7 +1,16 @@
 <template>
-  <div class="event-view-main">
-    event-view-main
-  </div>
+    <div class="uk-grid event-view-main">
+      <div class="uk-width-1-1">
+        <ul class="uk-list uk-list-line">
+          <li>event-view-main</li>
+          <li>event-view-main</li>
+          <li>event-view-main</li>
+          <li>event-view-main</li>
+          <li>event-view-main</li>
+          <li>event-view-main</li>
+        </ul>
+      </div>
+    </div>
 </template>
 <script>
   export default {
@@ -14,11 +23,7 @@
 </script>
 <style lang="less" scoped>
   .event-view-main {
-    box-sizing: border-box;
-    position: relative;
-    width: 100%;
-    height: 60%;
-    min-height: 550px;
     border: 1px solid gray;
+    padding: 5px 10px;
   }
 </style>
