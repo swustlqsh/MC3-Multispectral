@@ -2,11 +2,11 @@
   <div id="AppMain">
     <div class="containter">
       <div class="uk-grid">
-        <div class="uk-width-3-10">
+        <div class="uk-width-2-10">
           <event-view-list></event-view-list>
           <image-tagged-view></image-tagged-view>
         </div>
-        <div class="uk-width-7-10">
+        <div class="uk-width-8-10">
           app-main-right
           <!--<app-main-right></app-main-right>-->
         </div>
