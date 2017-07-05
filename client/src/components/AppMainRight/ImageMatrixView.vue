@@ -58,7 +58,7 @@
           channelInfoObj[ channelName ].channelName = channelArray[ i ]
           channelInfoObj[ channelName ].imageHeight = imageHeight
         }
-      },
+      }
 //      appendOriginalDiv () {
 //        let channelArray = [ 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NVDI' ]
 //        for (var cI = 0; cI < channelArray.length; cI++) {
@@ -73,15 +73,12 @@
   .image-matrix-view {
     border: 1px solid gray;
   }
-
   .image-row {
     width: 100%;
   }
-
   .image-row-container {
     background-color: black;
     height: 45px;
     width: 100%;
-    background-color: gray;
   }
 </style>
