@@ -18,6 +18,11 @@
 </template>
 <script>
   import EG from 'ENGINES'
+  // d3v3 使用方式
+//  let d3 = require('../../../plugins/d3v3.min.js')
+//  console.log('d3v3', d3)
+//  // d3v4 使用方式
+//  console.log('d3v4', window.d3)
   export default {
     data () {
       return {
