@@ -37,7 +37,7 @@
       left: 20.8%;
       width: 79.2%;
       height: 33.3%;
-      background-color: #777;
+      overflow-y: auto;
     }
     #image-comparison {
       position: absolute;
