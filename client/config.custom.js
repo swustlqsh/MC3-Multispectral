@@ -27,7 +27,7 @@ var localConfig = require('./local.config')
 var PACKAGE_JSON = require('./package.json')
 
 var config = {
-  esLint: true, // 是否开启js代码检验
+  esLint: false, // 是否开启js代码检验
   styleLint: true, // 是否开启样式代码检验
   styleHash: true, // 是否开启样式Hash(避免样式名称重复)
   defineVars: null, // 通过DefinePlugin定义的变量, 用于在编译环境中使用, 通过process.SkyEye.defineVars进行访问

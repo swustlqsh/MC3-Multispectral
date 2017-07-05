@@ -12,16 +12,16 @@
         </div>
       </nav>
     </div>
-    <!--<div class="uk-width-1-1">-->
-      <!--<ul class="uk-list image-tagged-menu">-->
-        <!--<li>image-tagged-menu</li>-->
-        <!--<li>image-tagged-menu</li>-->
-        <!--<li>image-tagged-menu</li>-->
-        <!--<li>image-tagged-menu</li>-->
-        <!--<li>image-tagged-menu</li>-->
-        <!--<li>image-tagged-menu</li>-->
-      <!--</ul>-->
-    <!--</div>-->
+    <div class="uk-width-1-1">
+      <ul class="uk-list image-tagged-menu">
+        <li>image-tagged-menu</li>
+        <li>image-tagged-menu</li>
+        <li>image-tagged-menu</li>
+        <li>image-tagged-menu</li>
+        <li>image-tagged-menu</li>
+        <li>image-tagged-menu</li>
+      </ul>
+    </div>
   </div>
 </template>
 <script>

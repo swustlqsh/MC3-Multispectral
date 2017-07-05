@@ -1,29 +1,26 @@
 <template>
+  <!-- header main -->
   <div id="AppMain">
     <div class="containter">
-      <div class="uk-grid">
-        <div class="uk-width-2-10">
-          <event-view-list></event-view-list>
-          <image-tagged-view></image-tagged-view>
-        </div>
-        <div class="uk-width-8-10">
-          app-main-right
-          <!--<app-main-right></app-main-right>-->
-        </div>
-      </div>
+      <!--<div class="uk-grid">-->
+      <!--</div>-->
+      <app-main-left-view></app-main-left-view>
+      <app-main-right-view></app-main-right-view>
     </div>
   </div>
 </template>
 <script>
-  import EventViewList from './AppMainLeft/EventViewList.vue'
-  import ImageTaggedView from './AppMainLeft/ImageTaggedView.vue'
+  import AppMainLeftView from './AppMainLeft/Index.vue'
+  import AppMainRightView from './AppMainRight/Index.vue'
   export default {
     data () {
       return {
-        favicon: ''
       }
     },
-    components: {EventViewList, ImageTaggedView},
+    components: {
+      AppMainLeftView,
+      AppMainRightView
+    },
     ready () {}
   }
 </script>
@@ -31,10 +28,13 @@
   #AppMain {
     box-sizing: border-box;
     min-height: 100%;
+    overflow: auto;
     .containter {
-      position: relative;
+      position: absolute;
       box-sizing: border-box;
       padding: 5px 10px;
+      width: 100%;
+      height: 100%;
     }
   }
 </style>

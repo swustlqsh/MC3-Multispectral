@@ -10,7 +10,9 @@
     data () {
       return {
         eventList: [],
-        eventNum: 0
+        eventNum: 0,
+        burnt: '#ef8a62',
+        flood: '#2b8cbe'
       }
     },
     watch: {
@@ -23,20 +25,31 @@
         let width = $('#eventList').width()
         let height = $('#eventList').height()
         let d3 = window.d3
-        let ratio = 0.8
-        let padding = {top: 2, left: 2, right: 2, bottom: 2}
+        let ratio = 1
+        let padding = { top: 20, left: 20, right: 2, bottom: 2 }
         let svgL = d3.select('#eventList').append('svg').attr('width', width * ratio).attr('height', height)
           .attr('id', 'eSvg')
-        let svgP = d3.select('#eventList').append('svg').attr('width', width * (1 - ratio)).attr('height', height)
-          .attr('id', 'pSvg')
-//          .attr('transform', 'translate(' + (width * ratio) + ',0)') // parameter
         this.width = width
         this.height = height
         this.svgL = svgL
-        this.svgP = svgP
-        this.rectValue = (width * ratio - padding.left - padding.right) / 12
+        let rectValue = this.rectValue = (width * ratio - padding.left - padding.right) / 12
+        this.fontSize = this.rectValue / 2
         this.svgLWidth = width * ratio
         this.padding = padding
+        let years = [2014, 2015, 2016]
+        this.svgL.selectAll('text')
+          .data(years)
+          .enter()
+          .append('text')
+          .text(function (d) {
+            return d
+          })
+          .attr('x', function (d, i) {
+            return padding.left + rectValue * 2 + i * 4 * rectValue
+          })
+          .attr('y', padding.top / 2)
+          .attr('font-size', this.fontSize)
+          .attr('text-anchor', 'middle')
         this.svgL.append('line')
           .attr('x1', padding.left)
           .attr('y1', padding.top)
@@ -60,6 +73,13 @@
           .attr('class', 'listLine')
           .style('stroke', 'grey')
           .attr('stroke-width', '1px')
+        svg.append('text')
+          .text(this.eventNum + 1)
+          .attr('x', padding.left / 2)
+          .attr('y', padding.top + eventNum * rectValue + rectValue / 2 + rectValue / 4)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', this.fontSize)
+//          .attr('alignment-baseline', 'middle')
         for (let i = 0; i < 13; i++) {
           svg.append('line')
             .attr('x1', i * rectValue + padding.left)
@@ -69,11 +89,23 @@
             .style('stroke', 'grey')
             .attr('stroke-width', '1px')
         }
+        let startT = 3
+        let endT = 5
+        for (let i = startT; i <= endT; i++) {
+          svg.append('rect')
+            .attr('x', i * rectValue + padding.left)
+            .attr('y', eventNum * rectValue + padding.top)
+            .attr('width', rectValue)
+            .attr('height', rectValue)
+            .style('fill', this.burnt)
+        }
         this.eventNum += 1
       }
     },
     ready () {
       this.init()
+      this.addEvent()
+      this.addEvent()
       this.addEvent()
       this.addEvent()
     }
@@ -84,9 +116,9 @@
     border: 1px solid gray;
     padding: 2px 1px;
     height: 500px;
-}
+  }
   .listLine {
     stroke: gray;
     stroke-width: 1px;
-}
+  }
 </style>
