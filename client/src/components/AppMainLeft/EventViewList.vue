@@ -1,15 +1,5 @@
 <template>
-    <div class="uk-grid event-view-main">
-      <div class="uk-width-1-1">
-        <ul class="uk-list uk-list-line">
-          <li>event-view-main</li>
-          <li>event-view-main</li>
-          <li>event-view-main</li>
-          <li>event-view-main</li>
-          <li>event-view-main</li>
-          <li>event-view-main</li>
-        </ul>
-      </div>
+    <div class="event-view-main">
     </div>
 </template>
 <script>

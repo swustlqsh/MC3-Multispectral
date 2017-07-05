@@ -1,5 +1,6 @@
 <template>
-  <div class="uk-width-1-1 headerWraper">
+  <!-- header main -->
+  <div class="header-wraper">
     <header class="header">
       <div class="container">
         <h1>{{messages}}</h1>
@@ -18,7 +19,7 @@
   }
 </script>
 <style lang="less" scoped>
-  .headerWraper {
+  .header-wraper {
     height: 30px;
     .header {
       position: relative;
