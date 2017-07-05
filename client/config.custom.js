@@ -121,7 +121,9 @@ var config = {
   alias: {
     'FRAME': 'frame',
     'COMPONENTS': 'src/components',
-    'PLUGINS': 'plugins'
+    'ENGINES': 'src/engines',
+    'PLUGINS': 'plugins',
+    'RESOURCE': 'resource'
   },
   // pro编译输出文件相关路径配置, 请填写绝对路径
   buildDist: {

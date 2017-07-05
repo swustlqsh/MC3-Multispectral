@@ -55,7 +55,6 @@
       top: 33.3%;
       width: 25%;
       height: 66.7%;
-      background-color: #8a6343;
     }
   }
 
