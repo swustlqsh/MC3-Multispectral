@@ -1,5 +1,6 @@
 <template>
   <div class="image-row">
+    <div>{{channelInfoObj.channelName}}</div>
     <image-features></image-features>
   </div>
 </template>
@@ -10,7 +11,7 @@
     components: {
       ImageFeatures
     },
-    props: [ 'channelInfoObj' ],
+    props: [ 'channelName' ],
     data () {
       return {
 //        locationX: null,
@@ -20,11 +21,7 @@
 //        EventsArray: []
       }
     },
-    watch: {
-      channelInfoObj () {
-        console.log(this.channelInfoObj)
-      }
-    },
+    watch: {},
     ready () {
       this.getImageOriginalData()
     },
@@ -48,7 +45,7 @@
 //          '2015_02_15', '2015_06_24', '2015_09_12', '2015_11_15',
 //          '2016_03_06', '2016_06_26', '2016_09_06', '2016_12_19' ]
 //        let channelObjArray2 = []
-        console.log(this.channelInfoObj)
+//        console.log('47', this.channelName)
 //        for (let i = 0; i < channelArray.length; i++) {
 //          channelObjArray2[i] = {}
 //          channelObjArray2[i].channelName = channelArray[i]
@@ -67,6 +64,8 @@
 //          }
 //          channelImageNameArray2.push(channelImageNameArray)
 //        }
+      },
+      render () {
       }
     }
   }
