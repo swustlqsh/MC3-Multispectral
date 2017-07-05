@@ -20,7 +20,7 @@
                 <textarea id = 'commentsText' rows="7" cols="30">
                 </textarea>
             </div>
-            <div style="text-align: center; margin-top: 20px">
+            <div style="text-align: center; margin-top: 20">
                 <button type="button" id="sbutton"> Submit </button>
             </div>
         </div>
@@ -31,7 +31,20 @@
   export default {
     data () {
       return {
-        divName: 'image-comparison'
+        divName: 'image-comparison',
+        channelTagNum: {
+          'B3B2B1': 3,
+          'B5B4B2': 2,
+          'B4B3B2': 0,
+          'B1B5B6': 0,
+          'NDVI': 0,
+          'B1': 0,
+          'B2': 0,
+          'B3': 0,
+          'B4': 0,
+          'B5': 0,
+          'B6': 0
+        }
       }
     },
     watch: {},
@@ -41,6 +54,7 @@
           console.log($('#commentsText').val(), $('#eventSelect').val())
         })
         this.drawTimelineView()
+        this.drawTagPannel()
       },
       drawTimelineView () {
         let d3 = window.d3
@@ -80,6 +94,52 @@
             .attr('font-size', '1em')
         })
       },
+      drawTagPannel () {
+        let d3 = window.d3
+        let channelTagNum = this.channelTagNum
+        let channels = Object.keys(channelTagNum)
+        let width = $('#tagChannel').width()
+        let height = $('#tagChannel').height()
+        let padding = { left: 2, right: 20, top: 2, bottom: 15 }
+        let svg = d3.select('#tagChannel').append('svg').attr('width', width).attr('height', height)
+        this.channelSvg = svg
+        let divH = (height - padding.top - padding.bottom) / channels.length
+        let marginH = divH * 0.1
+        let cellWidth = width / 10
+        let g = svg.selectAll('g')
+          .data(channels)
+          .enter()
+          .append('g')
+          .attr('transform', function (d, i) {
+            return 'translate(' + padding.left + ',' + (padding.top + i * divH) + ')'
+          })
+        let textWidth = 60
+        g.append('rect')
+          .attr('x', textWidth)
+          .attr('y', 0)
+          .attr('height', divH - marginH)
+          .attr('width', function (d, i) {
+            return channelTagNum[ d ] * cellWidth
+          })
+          .style('fill', 'grey')
+        g.append('text')
+          .attr('x', textWidth - 2)
+          .attr('y', (divH - marginH) / 2 + 5)
+          .text(function (d) {
+            return d
+          })
+          .attr('text-anchor', 'end')
+        g.append('text')
+          .attr('x', function (d, i) {
+            return channelTagNum[ d ] * cellWidth + textWidth + 2
+          })
+          .attr('y', (divH - marginH) / 2 + 5)
+          .text(function (d) {
+            return channelTagNum[ d ]
+          })
+      },
+      updatePanel () {
+      },
       submmitComments () {
       }
     },
@@ -96,25 +156,26 @@
   #imageCompare {
     width: 66.7%;
     height: 90%;
-    background-color: #2d7091;
   }
   #statistics {
     position: absolute;
     top: 10%;
     left: 66.7%;
-    width: 33.3%;
+    width: 33.3% - 12.5%;
     height: 90%;
-    background-color: #8a6343;
+    border: 1px solid grey;
   }
   #tagChannel {
-    width: 50%;
+    width: 100%;
     height: 50%;
   }
   #submmit {
     position: absolute;
-    width: 50%;
+    width: 100%;
     height: 50%;
     top: 50%;
-    background-color: #659f13;
+  }
+  textarea {
+    width: 95%;
   }
 </style>
