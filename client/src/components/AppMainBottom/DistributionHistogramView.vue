@@ -81,7 +81,7 @@
                        .tickFormat(function (d, i) {
                          return ''
                        })
-                       .ticks(3)
+                       .ticks(2)
         self.svg = d3.select(panelSelector)
             .append('svg')
             .attr('width', self.width + self.margin.left + self.margin.right)
@@ -103,7 +103,7 @@
         d3.selectAll('.curveAxis')
           .style('fill', 'none')
           .style('stroke', 'black')
-          .style('stroke-width', '1px')
+          .style('stroke-width', '0.5px')
         self.barWidth = self.width / data.length
         self.svg.selectAll('.arrbar')
           .data(data)
