@@ -43,6 +43,7 @@
         padding.top += r
         let vRatio = 0.15
         let leftR = 0.2
+        let fontSize = '0.8em'
         svg.append('circle')
           .attr('cx', width * leftR)
           .attr('cy', padding.top)
@@ -50,7 +51,7 @@
           .style('fill', this.burnt)
         svg.append('text')
           .text('Burnt')
-          .attr('font-size', '1em')
+          .attr('font-size', fontSize)
           .attr('x', width * leftR)
           .attr('y', 20 + padding.top)
           .attr('text-anchor', 'middle')
@@ -61,7 +62,7 @@
           .style('fill', this.flood)
         svg.append('text')
           .text('Flood')
-          .attr('font-size', '1em')
+          .attr('font-size', fontSize)
           .attr('x', width * leftR)
           .attr('y', height * vRatio + 20 + padding.top)
           .attr('text-anchor', 'middle')
@@ -91,7 +92,7 @@
           .attr('y', function (d, i) {
             return height * vRatio * i + 20 + padding.top
           })
-          .attr('font-size', '1em')
+          .attr('font-size', fontSize)
           .text(function (d, i) {
             return d[0]
           })

@@ -4,7 +4,7 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize} from 'VUEX/getters'
+  import {pageSize} from '../../vuex/getters'
   export default {
     vuex: {
       getters: {pageSize}
@@ -51,7 +51,7 @@
         this.height = height
         this.svg = svg
         this.padding = padding
-        let vRatio = 0.05
+        let vRatio = 0.08
         let leftR = 0.2
         svg.append('circle')
           .attr('cx', width * leftR)

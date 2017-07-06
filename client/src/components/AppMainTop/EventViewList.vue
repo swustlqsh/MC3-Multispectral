@@ -5,19 +5,18 @@
 <script>
   //  import d3 from 'd3'
   import $ from 'jquery'
-  import {pageSize} from 'VUEX/getters'
+  import {pageSize, event} from '../../vuex/getters'
 
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize, event}
     },
     props: [ 'detectedEvent' ],
     data () {
       return {
         eventList: [],
         eventNum: 0,
-        burnt: '#ef8a62',
-        flood: '#2b8cbe'
+        colors: { 'Burnt': '#ef8a62', 'Flood': '#2b8cbe' }
       }
     },
     watch: {
@@ -27,10 +26,12 @@
       pageSize: {
         handler (curVal, oldVal) {
           this.init()
-          this.addEvent()
-          this.addEvent()
-          this.addEvent()
-          this.addEvent()
+        },
+        deep: true
+      },
+      event: {
+        handler (curVal, oldVal) { // object
+          this.addEvent(this.event)
         },
         deep: true
       }
@@ -39,10 +40,10 @@
       init () {
         let width = $('#event-list').width()
         let height = $('#event-list').height()
-        console.log(width, height, 'event-view')
         let d3 = window.d3
         let ratio = 1
-        let padding = { top: 20, left: 20, right: 2, bottom: 2 }
+        let padding = { top: 20, left: 20, right: 5, bottom: 2 }
+        this.eventNum = 0
         d3.select('#eventList').html('')
         let svgL = d3.select('#eventList').append('svg').attr('width', width * ratio).attr('height', height)
           .attr('id', 'eSvg')
@@ -76,8 +77,9 @@
           .attr('class', 'listLine')
           .attr('stroke-width', '1px')
       },
-      addEvent () {
+      addEvent (event) {
 //        let detectedEvent = this.detectedEvent
+//        console.log(event.comments, event.type)
         let eventNum = this.eventNum
         let rectValue = this.rectValue
         let padding = this.padding
@@ -108,14 +110,15 @@
         }
         let startT = 3
         let endT = 5
-        for (let i = startT; i <= endT; i++) {
-          svg.append('rect')
-            .attr('x', i * rectValue + padding.left)
-            .attr('y', eventNum * rectValue + padding.top)
-            .attr('width', rectValue)
-            .attr('height', rectValue)
-            .style('fill', this.burnt)
-        }
+        let colors = this.colors
+        svg.append('rect')
+          .attr('x', startT * rectValue + padding.left)
+          .attr('y', eventNum * rectValue + padding.top)
+          .attr('width', rectValue * (endT - startT))
+          .attr('height', rectValue)
+          .style('fill', colors[ event.type ])
+          .append('title')
+          .text(event.comments)
         this.eventNum += 1
       }
     },

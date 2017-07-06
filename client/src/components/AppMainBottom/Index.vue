@@ -15,7 +15,7 @@
   import ImageTaggedView from './ImageTaggedView.vue'
   import ImageComparisonView from './ImageComparisonView.vue'
   import DistributionHistogramView from './DistributionHistogramView.vue'
-  import {pageSize} from 'VUEX/getters'
+  import {pageSize} from '../../vuex/getters'
   export default {
     vuex: {
       getters: {pageSize}

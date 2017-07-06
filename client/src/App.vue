@@ -8,8 +8,8 @@
 import {getPageSize} from './commons/utils'
 import AppHeader from './components/AppHeader.vue'
 import AppMain from './components/AppMain.vue'
-import {updatePageSize} from 'VUEX/actions'
-import {pageWidth} from 'VUEX/getters'
+import {updatePageSize} from './vuex/actions'
+import {pageWidth} from './vuex/getters'
 export default {
   vuex: {
     actions: {updatePageSize},
