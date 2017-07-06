@@ -1,5 +1,4 @@
 <template>
-    <div id = 'timeLine'></div>
     <div id = 'imageCompare'></div>
     <div id = 'statistics'>
         <div id = 'tagChannel'></div>
@@ -16,10 +15,10 @@
             <div style="margin-top: 20px">
                 Description
             </div>
-            <div>
-                <textarea id = 'commentsText' name = 'textarea' rows="7" cols="30"></textarea>
+            <div style="height: 50%">
+                <textarea id = 'commentsText' name = 'textarea'></textarea>
             </div>
-            <div style="text-align: center; margin-top: 20">
+            <div style="text-align: center; margin-top: 20px">
                 <button type="button" id="sbutton"> Submit </button>
             </div>
         </div>
@@ -76,47 +75,8 @@
           self.eventSubmit(event)
           self.updatePanel('B5')
         })
-        this.drawTimelineView()
         this.drawTagPannel()
-      },
-      drawTimelineView () {
-        let d3 = window.d3
-        let width = $('#timeLine').width()
-        let height = $('#timeLine').height()
-        console.log(width, height)
-        let svg = d3.select('#timeLine').append('svg').attr('width', width).attr('height', height)
-        let padding = {left: 2, right: 20, top: 2, bottom: 2}
-        let defs = svg.append('defs')
-        let arrowMarker = defs.append('marker')
-          .attr('id', 'arrow')
-          .attr('markerUnits', 'strokeWidth')
-          .attr('markerWidth', '12')
-          .attr('markerHeight', '12')
-          .attr('viewBox', '0 0 12 12')
-          .attr('refX', '6')
-          .attr('refY', '6')
-          .attr('orient', 'auto')
-        let arrowPath = 'M2,2 L10,6 L2,10 L6,6 L2,2'
-        arrowMarker.append('path')
-          .attr('d', arrowPath)
-          .attr('fill', '#000')
-        svg.append('line')
-          .attr('x1', padding.left)
-          .attr('y1', padding.top + height / 2)
-          .attr('x2', width - padding.right)
-          .attr('y2', padding.top + height / 2)
-          .style('stroke', 'grey')
-          .style('stroke-width', '2px')
-          .attr('marker-end', 'url(#arrow)')
-        let years = [2014, 2015, 2016]
-        let sw = (width - padding.left - padding.right) / 3
-        years.forEach(function (d, i) {
-          svg.append('text')
-            .attr('y', padding.top + height / 2 + 20)
-            .attr('x', sw * i + sw / 2 + padding.left)
-            .text(d)
-            .attr('font-size', '1em')
-        })
+        this.loadComparisonImages()
       },
       drawTagPannel () {
         let d3 = window.d3
@@ -185,7 +145,18 @@
           .attr('x', channelTagNum[ channel ] * cellWidth + textWidth + 2)
           .text(channelTagNum[ channel ])
       },
-      submmitComments () {
+      loadComparisonImages () {
+//        let imgObj1 = imgs[0]
+//        let imgObj2 = imgs[1]
+        let d3 = window.d3
+        let width = $('#imageCompare').width()
+        let height = $('#imageCompare').height()
+        let svg = d3.select('#imageCompare').append('svg').attr('width', width).attr('height', height)
+        let g1 = svg.append('g')
+        g1.append('image')
+          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
+          .attr('width', width / 2)
+          .attr('height', height)
       }
     },
     ready () {
@@ -194,20 +165,16 @@
   }
 </script>
 <style lang="less" scoped>
-  #timeLine {
-    width: 100%;
-    height: 10%;
-  }
   #imageCompare {
-    width: 66.7%;
-    height: 90%;
+    position: absolute;
+    width: 80%;
+    height: 100%;
   }
   #statistics {
     position: absolute;
-    top: 10%;
-    left: 66.7%;
-    width: 33.3% - 12.5%;
-    height: 90%;
+    left: 81%;
+    width: 19%;
+    height: 100%;
     border: 1px solid grey;
   }
   #tagChannel {
@@ -222,6 +189,7 @@
   }
   textarea {
     width: 95%;
+    height: 100%;
   }
   textarea input[type=text] {
     -webkit-transition: all 0.3s ease-in-out;
