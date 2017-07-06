@@ -3,7 +3,7 @@
  */
 
 export default {
-    pageWidth: (state) => {console.log(state); return state.pageWidth},
+    pageWidth: (state) => {console.log(state.pageWidth); return state.pageWidth},
     pageHeight: (state) => state.pageHeight,
     pageSize: (state) => state.pageSize
 }

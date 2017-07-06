@@ -15,7 +15,7 @@
   import EventViewList from './EventViewList.vue'
   import IconListView from './IconListView.vue'
   import ImageMatrixView from './ImageMatrixView.vue'
-  import {pageSize} from 'VUEX/getters'
+  import {pageSize} from '../../vuex/getters'
   export default {
     vuex: {
       getters: {pageSize}

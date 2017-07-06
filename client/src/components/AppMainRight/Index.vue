@@ -45,6 +45,7 @@
       top: 33.3%;
       width: 75%;
       height: 66.7%;
+      border: 1px solid grey;
     }
     #distribution-histogram {
       position: absolute;

@@ -6,7 +6,7 @@ import frame from 'FRAME'
 
 // module mutations
 import pageLayoutMutations from './pageLayout/mutations'
-
+import eventSubmitMutations from './eventSubmit/mutations'
 Vue.use(Vuex)
 // 在Vue实例中通过this.vxMutations进行使用
 frame.vueInstall({ module: 'vx', name: 'mutations' }, types)
@@ -14,6 +14,7 @@ frame.vueInstall({ module: 'vx', name: 'mutations' }, types)
 const state = {
   pageWidth: 0,
   pageHeight: 0,
+  event: {},
   pageSize: {
     pageWidth: 0,
     pageHeight: 0
@@ -22,7 +23,7 @@ const state = {
 
 const mutations = Object.assign(
   {},
-  pageLayoutMutations)
+  pageLayoutMutations, eventSubmitMutations)
 
 export default new Vuex.Store({
   strict: true,
