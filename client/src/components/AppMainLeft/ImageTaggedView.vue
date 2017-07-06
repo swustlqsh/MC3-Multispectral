@@ -12,7 +12,7 @@
       <span>{{ selectedChannels }} {{ selectedTime }} </span>
     </div>
     <div class="uk-thumbnail uk-thumbnail-expand" v-el:graph>
-      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+      <img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">
     </div>
   </div>
 </template>
