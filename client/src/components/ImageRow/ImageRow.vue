@@ -1,6 +1,5 @@
 <template>
   <div class="image-row">
-    <div>{{channelInfoObj.channelName}}</div>
     <image-features></image-features>
   </div>
 </template>
@@ -11,7 +10,6 @@
     components: {
       ImageFeatures
     },
-    props: [ 'channelName' ],
     data () {
       return {
 //        locationX: null,
