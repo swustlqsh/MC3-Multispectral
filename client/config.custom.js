@@ -123,7 +123,8 @@ var config = {
     'COMPONENTS': 'src/components',
     'ENGINES': 'src/engines',
     'PLUGINS': 'plugins',
-    'RESOURCE': 'resource'
+    'RESOURCE': 'resource',
+    'VUEX': 'src/vuex',
   },
   // pro编译输出文件相关路径配置, 请填写绝对路径
   buildDist: {

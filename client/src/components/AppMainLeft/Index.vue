@@ -34,25 +34,21 @@
     width: 100%;
     height: 100%;
     #event-list {
-      position: absolute;
+      position: relative;
       left: 0;
       top: 0;
       width: 16.6%;
       height: 33.3%;
-
-      /*background-color: #0b97c4;*/
     }
     #icon-list {
-      position: absolute;
+      position: relative;
       left: 16.6%;
       top: 0;
       width: 4.2%;
       height: 33.3%;
-
-      /*background-color: rebeccapurple;*/
     }
     #image-tagged {
-      position: absolute;
+      position: relative;
       left: 0;
       top: 33.3%;
       width: 25%;

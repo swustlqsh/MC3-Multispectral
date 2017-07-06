@@ -4,22 +4,22 @@
     <div class="containter">
       <!--<div class="uk-grid">-->
       <!--</div>-->
-      <app-main-left-view></app-main-left-view>
-      <app-main-right-view></app-main-right-view>
+      <app-main-top-view></app-main-top-view>
+      <app-main-bottom-view></app-main-bottom-view>
     </div>
   </div>
 </template>
 <script>
-  import AppMainLeftView from './AppMainLeft/Index.vue'
-  import AppMainRightView from './AppMainRight/Index.vue'
+  import AppMainTopView from './AppMainTop/Index.vue'
+  import AppMainBottomView from './AppMainBottom/Index.vue'
   export default {
     data () {
       return {
       }
     },
     components: {
-      AppMainLeftView,
-      AppMainRightView
+      AppMainTopView,
+      AppMainBottomView
     },
     ready () {}
   }
@@ -32,7 +32,8 @@
     .containter {
       position: absolute;
       box-sizing: border-box;
-      padding: 5px 10px;
+      padding: 0;
+      margin: 0;
       width: 100%;
       height: 100%;
     }

@@ -1,0 +1,83 @@
+<template>
+  <div class="uk-grid image-matrix-view" id="image-matrix-view">
+    <div class = "image-row-container">
+      <image-row :channel-name="channelInfoObj"></image-row>
+    </div>
+    <!--<div v-for="channel in channelInfoObj" class="image-row-container" }>-->
+      <!--<image-row :channel-name="channelInfoObj"></image-row>-->
+    <!--</div>-->
+  </div>
+</template>
+<script>
+  import ImageRow from '../ImageRow/ImageRow.vue'
+  import $ from 'jquery'
+
+  export default {
+    components: {
+      ImageRow
+    },
+    data () {
+      return {
+        processedImageObjArray: [],
+        channelInfoObj: {},
+        imageHeight: 0,
+        styles: {
+          position: 'relative',
+          height: '0px',
+          width: '100%'
+        }
+      }
+    },
+    ready () {
+      this.getImageOriginalData()//  v-for="(channelName, imageHeight) in channelInfoObj"
+//      this.appendOriginalDiv()
+    },
+    methods: {
+      /**
+       *  获取图片数据的对象数组
+       *  每一个对象中包括原始的图片的名称(ImageData), 名称是由通道channel和日期组成
+       *    - channel_date.png
+       *  图片位置(locationX, locationY)
+       *  检测得到的特征数组(FeaturesArray)
+       *  在这个图片中检测得到的事件数组(EventsArray)
+       */
+      getImageOriginalData () {
+        let imageMatrixWidth = $('#image-matrix').width()
+        let padding = 0.25 / 100 * imageMatrixWidth
+        let originalImageWidth = 3.5 / 100 * imageMatrixWidth
+        let imageHeight = originalImageWidth + padding
+        this.styles.height = imageHeight
+        //        console.log('style', this.styles)
+        let channelArray = [ 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NVDI' ]
+        let imageMatrixViewHeight = imageHeight * channelArray.length
+        $('#image-matrix-view').height(imageMatrixViewHeight)
+        let channelInfoObj = this.channelInfoObj
+        for (let i = 0; i < channelArray.length; i++) {
+          let channelName = channelArray[ i ]
+          channelInfoObj[ channelName ] = {}
+          channelInfoObj[ channelName ].channelName = channelArray[ i ]
+          channelInfoObj[ channelName ].imageHeight = imageHeight
+        }
+      }
+//      appendOriginalDiv () {
+//        let channelArray = [ 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NVDI' ]
+//        for (var cI = 0; cI < channelArray.length; cI++) {
+//          var id = channelArray[cI]
+//          $('#image-matrix-view').append('<div class = "image-row"  style="height: 45px; width: 100%; background-color: gray"></div>')
+//        }
+//      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+  .image-matrix-view {
+    border: 1px solid gray;
+  }
+  .image-row {
+    width: 100%;
+  }
+  .image-row-container {
+    background-color: gray;
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,87 @@
+<template>
+  <div class="main-bottom" :style="mainBottomStyle">
+    <div id='image-tagged' :style="imageTaggedStyle">
+      <image-tagged-view></image-tagged-view>
+    </div>
+    <div id='image-comparison' :style="imageComparisonStyle">
+      <image-comparison-view></image-comparison-view>
+    </div>
+    <div id='distribution-histogram' :style="DistributionHistogramViewStyle">
+      <distribution-histogram-view></distribution-histogram-view>
+    </div>
+  </div>
+</template>
+<script>
+  import ImageTaggedView from './ImageTaggedView.vue'
+  import ImageComparisonView from './ImageComparisonView.vue'
+  import DistributionHistogramView from './DistributionHistogramView.vue'
+  import {pageSize} from 'VUEX/getters'
+  export default {
+    vuex: {
+      getters: {pageSize}
+    },
+    data () {
+      return {
+      }
+    },
+    components: {
+      ImageTaggedView,
+      ImageComparisonView,
+      DistributionHistogramView
+    },
+    computed: {
+      mainBottomStyle () {
+        let style = {}
+        let height = 2 * this.pageSize.pageHeight / 3 - 15 + 'px'
+        style.height = height
+        return style
+      },
+      imageTaggedStyle () {
+        let style = {}
+        style.height = 2 * this.pageSize.pageHeight / 3 - 15 + 'px'
+        style.width = this.pageSize.pageWidth * 0.25 + 'px'
+        return style
+      },
+      imageComparisonStyle () {
+        let style = {}
+        style.height = 2 * this.pageSize.pageHeight / 3 - 15 + 'px'
+        style.width = this.pageSize.pageWidth * 0.625 + 'px'
+        return style
+      },
+      DistributionHistogramViewStyle () {
+        let style = {}
+        style.height = 2 * this.pageSize.pageHeight / 3 - 15 + 'px'
+        style.width = this.pageSize.pageWidth * 0.125 + 'px'
+        return style
+      }
+    },
+    ready () {}
+  }
+</script>
+<style lang="less" scoped>
+  .main-bottom {
+    position: relative;
+    width: 100%;
+    #image-tagged {
+      position: absolute;
+      left: 0;
+      width: 25%;
+      height: 66.7%;
+      border: 1px solid rebeccapurple;
+    }
+    #image-comparison {
+      position: absolute;
+      left: 25%;
+      width: 62.5%;
+      height: 66.7%;
+      border: 1px solid rebeccapurple;
+    }
+    #distribution-histogram {
+      position: absolute;
+      left: 87.5%;
+      width: 12.5%;
+      height: 66.6%;
+      border: 1px solid rebeccapurple;
+    }
+  }
+</style>
