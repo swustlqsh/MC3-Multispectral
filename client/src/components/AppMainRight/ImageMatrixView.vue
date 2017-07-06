@@ -1,10 +1,10 @@
 <template>
   <div class="uk-grid image-matrix-view" id="image-matrix-view">
-    <div class = "image-row-container">
+    <div class="image-row-container">
       <image-row :channel-name="channelInfoObj"></image-row>
     </div>
     <!--<div v-for="channel in channelInfoObj" class="image-row-container" }>-->
-      <!--<image-row :channel-name="channelInfoObj"></image-row>-->
+    <!--<image-row :channel-name="channelInfoObj"></image-row>-->
     <!--</div>-->
   </div>
 </template>
@@ -51,13 +51,14 @@
         let channelArray = [ 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NVDI' ]
         let imageMatrixViewHeight = imageHeight * channelArray.length
         $('#image-matrix-view').height(imageMatrixViewHeight)
-        let channelInfoObj = this.channelInfoObj
+        let channelInfoObj = {}
         for (let i = 0; i < channelArray.length; i++) {
           let channelName = channelArray[ i ]
           channelInfoObj[ channelName ] = {}
           channelInfoObj[ channelName ].channelName = channelArray[ i ]
           channelInfoObj[ channelName ].imageHeight = imageHeight
         }
+        this.channelInfoObj = channelInfoObj
       }
 //      appendOriginalDiv () {
 //        let channelArray = [ 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NVDI' ]

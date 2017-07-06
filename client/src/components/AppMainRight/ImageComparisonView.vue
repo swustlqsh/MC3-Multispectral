@@ -20,7 +20,7 @@
                 <textarea id = 'commentsText' rows="7" cols="30">
                 </textarea>
             </div>
-            <div style="text-align: center; margin-top: 20px">
+            <div style="text-align: center; margin-top: 20">
                 <button type="button" id="sbutton"> Submit </button>
             </div>
         </div>
@@ -31,7 +31,20 @@
   export default {
     data () {
       return {
-        divName: 'image-comparison'
+        divName: 'image-comparison',
+        channelTagNum: {
+          'B3B2B1': 3,
+          'B5B4B2': 2,
+          'B4B3B2': 0,
+          'B1B5B6': 0,
+          'NDVI': 0,
+          'B1': 0,
+          'B2': 0,
+          'B3': 0,
+          'B4': 0,
+          'B5': 0,
+          'B6': 0
+        }
       }
     },
     watch: {},
@@ -40,11 +53,96 @@
         $('#sbutton').click(function () {
           console.log($('#commentsText').val(), $('#eventSelect').val())
         })
+        this.drawTimelineView()
+        this.drawTagPannel()
+      },
+      drawTimelineView () {
+        let d3 = window.d3
+        let width = $('#timeLine').width()
+        let height = $('#timeLine').height()
+        let svg = d3.select('#timeLine').append('svg').attr('width', width).attr('height', height)
+        let padding = {left: 2, right: 20, top: 2, bottom: 2}
+        let defs = svg.append('defs')
+        let arrowMarker = defs.append('marker')
+          .attr('id', 'arrow')
+          .attr('markerUnits', 'strokeWidth')
+          .attr('markerWidth', '12')
+          .attr('markerHeight', '12')
+          .attr('viewBox', '0 0 12 12')
+          .attr('refX', '6')
+          .attr('refY', '6')
+          .attr('orient', 'auto')
+        let arrowPath = 'M2,2 L10,6 L2,10 L6,6 L2,2'
+        arrowMarker.append('path')
+          .attr('d', arrowPath)
+          .attr('fill', '#000')
+        svg.append('line')
+          .attr('x1', padding.left)
+          .attr('y1', padding.top + height / 2)
+          .attr('x2', width - padding.right)
+          .attr('y2', padding.top + height / 2)
+          .style('stroke', 'grey')
+          .style('stroke-width', '2px')
+          .attr('marker-end', 'url(#arrow)')
+        let years = [2014, 2015, 2016]
+        let sw = (width - padding.left - padding.right) / 3
+        years.forEach(function (d, i) {
+          svg.append('text')
+            .attr('y', padding.top + height / 2 + 20)
+            .attr('x', sw * i + sw / 2 + padding.left)
+            .text(d)
+            .attr('font-size', '1em')
+        })
+      },
+      drawTagPannel () {
+        let d3 = window.d3
+        let channelTagNum = this.channelTagNum
+        let channels = Object.keys(channelTagNum)
+        let width = $('#tagChannel').width()
+        let height = $('#tagChannel').height()
+        let padding = { left: 2, right: 20, top: 2, bottom: 15 }
+        let svg = d3.select('#tagChannel').append('svg').attr('width', width).attr('height', height)
+        this.channelSvg = svg
+        let divH = (height - padding.top - padding.bottom) / channels.length
+        let marginH = divH * 0.1
+        let cellWidth = width / 10
+        let g = svg.selectAll('g')
+          .data(channels)
+          .enter()
+          .append('g')
+          .attr('transform', function (d, i) {
+            return 'translate(' + padding.left + ',' + (padding.top + i * divH) + ')'
+          })
+        let textWidth = 60
+        g.append('rect')
+          .attr('x', textWidth)
+          .attr('y', 0)
+          .attr('height', divH - marginH)
+          .attr('width', function (d, i) {
+            return channelTagNum[ d ] * cellWidth
+          })
+          .style('fill', 'grey')
+        g.append('text')
+          .attr('x', textWidth - 2)
+          .attr('y', (divH - marginH) / 2 + 5)
+          .text(function (d) {
+            return d
+          })
+          .attr('text-anchor', 'end')
+        g.append('text')
+          .attr('x', function (d, i) {
+            return channelTagNum[ d ] * cellWidth + textWidth + 2
+          })
+          .attr('y', (divH - marginH) / 2 + 5)
+          .text(function (d) {
+            return channelTagNum[ d ]
+          })
+      },
+      updatePanel () {
       },
       submmitComments () {
       }
     },
-
     ready () {
       this.init()
     }
@@ -54,30 +152,30 @@
   #timeLine {
     width: 100%;
     height: 10%;
-    background-color: #00d6b2;
   }
   #imageCompare {
     width: 66.7%;
     height: 90%;
-    background-color: #2d7091;
   }
   #statistics {
     position: absolute;
     top: 10%;
     left: 66.7%;
-    width: 33.3%;
+    width: 33.3% - 12.5%;
     height: 90%;
-    background-color: #8a6343;
+    border: 1px solid grey;
   }
   #tagChannel {
-    width: 50%;
+    width: 100%;
     height: 50%;
   }
   #submmit {
     position: absolute;
-    width: 50%;
+    width: 100%;
     height: 50%;
     top: 50%;
-    background-color: #659f13;
+  }
+  textarea {
+    width: 95%;
   }
 </style>

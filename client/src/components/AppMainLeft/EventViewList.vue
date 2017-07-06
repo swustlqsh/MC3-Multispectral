@@ -22,11 +22,11 @@
     },
     methods: {
       init () {
-        let width = $('#eventList').width()
-        let height = $('#eventList').height()
+        let width = $('#event-list').width()
+        let height = $('#event-list').height()
         let d3 = window.d3
         let ratio = 1
-        let padding = { top: 20, left: 20, right: 2, bottom: 2 }
+        let padding = { top: 20, left: 20, right: 15, bottom: 2 }
         let svgL = d3.select('#eventList').append('svg').attr('width', width * ratio).attr('height', height)
           .attr('id', 'eSvg')
         this.width = width
@@ -113,9 +113,10 @@
 </script>
 <style lang="less" scoped>
   .event-view-main {
-    border: 1px solid gray;
-    padding: 2px 1px;
-    height: 500px;
+    /*border: 1px solid gray;*/
+    padding: 2px 5px;
+    height: 100%;
+    width: 100%;
   }
   .listLine {
     stroke: gray;

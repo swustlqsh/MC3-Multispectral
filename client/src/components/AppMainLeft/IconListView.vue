@@ -32,37 +32,38 @@
         let width = $('#iconList').width()
         let height = $('#iconList').height()
         let d3 = window.d3
-        let padding = { top: 2, left: 20, right: 2, bottom: 2 }
+        let padding = { top: 20, left: 20, right: 2, bottom: 2 }
         let svg = d3.select('#iconList').append('svg').attr('width', width).attr('height', height)
           .attr('id', 'iconSvg')
-        let r = width * 0.12
+        let r = width * 0.1
         this.width = width
         this.height = height
         this.svg = svg
         this.padding = padding
-        let vRatio = 0.05
+        padding.top += r
+        let vRatio = 0.15
         let leftR = 0.2
         svg.append('circle')
           .attr('cx', width * leftR)
-          .attr('cy', height * vRatio)
+          .attr('cy', padding.top)
           .attr('r', r)
           .style('fill', this.burnt)
         svg.append('text')
           .text('Burnt')
           .attr('font-size', '1em')
           .attr('x', width * leftR)
-          .attr('y', height * vRatio + 20)
+          .attr('y', 20 + padding.top)
           .attr('text-anchor', 'middle')
         svg.append('circle')
           .attr('cx', width * leftR)
-          .attr('cy', height * vRatio * 3)
+          .attr('cy', height * vRatio + padding.top)
           .attr('r', r)
           .style('fill', this.flood)
         svg.append('text')
           .text('Flood')
           .attr('font-size', '1em')
           .attr('x', width * leftR)
-          .attr('y', height * vRatio * 3 + 20)
+          .attr('y', height * vRatio + 20 + padding.top)
           .attr('text-anchor', 'middle')
         let g = svg.append('g')
         let features = this.defaultFeatures
@@ -73,7 +74,7 @@
           .append('circle')
           .attr('cx', width * leftR2)
           .attr('cy', function (d, i) {
-            return height * vRatio * (i * 2 + 1)
+            return height * vRatio * i + padding.top
           })
           .attr('r', r)
           .style('fill', function (d, i) {
@@ -88,7 +89,7 @@
           .append('text')
           .attr('x', width * leftR2)
           .attr('y', function (d, i) {
-            return height * vRatio * (i * 2 + 1) + 20
+            return height * vRatio * i + 20 + padding.top
           })
           .attr('font-size', '1em')
           .text(function (d, i) {
@@ -108,6 +109,7 @@
 <style lang="less" scoped>
   .list-view-main {
     color: gray;
-    height: 500px;
+    height: 100%;
+    width: 100%;
   }
 </style>
