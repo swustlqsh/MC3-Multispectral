@@ -29,6 +29,7 @@ export default {
   ready () {
     const that = this
     let pageSize = getPageSize()
+    pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
     that.updatePageSize(pageSize.width, pageSize.height)
     window.onresize = () => {
       return (() => {
@@ -36,6 +37,7 @@ export default {
           that.timer = true
           setTimeout(() => {
             let pageSize = getPageSize()
+            pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
             that.updatePageSize(pageSize.width, pageSize.height)
             console.log(that.pageWidth, 'that')
             that.timer = false

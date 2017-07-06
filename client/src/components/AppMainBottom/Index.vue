@@ -26,7 +26,7 @@
     },
     data () {
       return {
-        tH: 0.08
+        tH2: 25
       }
     },
     components: {
@@ -38,34 +38,36 @@
     computed: {
       mainBottomStyle () {
         let style = {}
-        let height = this.pageSize.pageWidth / 2 - 15 + 'px'
+        let height = this.pageSize.pageWidth / 2 + 'px'
         style.height = height
         return style
       },
       imageTaggedStyle () {
         let style = {}
-        style.height = 2 * this.pageSize.pageHeight / 3 - 15 + 'px'
+        style.height = 2 * this.pageSize.pageHeight / 3 + 'px'
         style.width = this.pageSize.pageWidth * 0.25 + 'px'
         return style
       },
       imageComparisonStyle () {
         let style = {}
-        let tH = this.tH
-        style.top = tH * this.pageSize.pageHeight - 15 + 'px'
-        style.height = (2 / 3 - this.tH) * this.pageSize.pageHeight + 'px'
+//        style.top = tH * this.pageSize.pageHeight - 15 + 'px'
+        style.top = this.tH2 + 'px'
+        style.height = 2 * this.pageSize.pageHeight / 3 - this.tH2 + 'px'
         style.width = this.pageSize.pageWidth * 0.625 + 'px'
         return style
       },
       DistributionHistogramViewStyle () {
         let style = {}
-        style.top = this.tH * this.pageSize.pageHeight - 15 + 'px'
-        style.height = (2 / 3 - this.tH) * this.pageSize.pageHeight + 'px'
+//        style.top = this.tH * this.pageSize.pageHeight - 15 + 'px'
+        style.top = this.tH2 + 'px'
+        style.height = 2 / 3 * this.pageSize.pageHeight - this.tH2 + 'px'
         style.width = this.pageSize.pageWidth * 0.125 + 'px'
         return style
       },
       TimelineViewStyle () {
         let style = {}
-        style.height = this.tH * this.pageSize.pageHeight - 15 + 'px'
+//        style.height = this.tH * this.pageSize.pageHeight - 15 + 'px'
+        style.height = this.tH2 + 'px'
         style.width = this.pageSize.pageWidth * 0.75 + 'px'
         return style
       }
