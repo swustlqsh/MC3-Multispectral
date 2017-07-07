@@ -27,12 +27,12 @@
     methods: {
       init () {
         this.drawTimelineView()
+        this.updateTimeCurve('201403', '201606')
       },
       drawTimelineView () {
         let d3 = window.d3
         let width = $('#timeLine').width()
         let height = $('#timeLine').height()
-        console.log(width, height)
         let svg = d3.select('#timeLine').append('svg').attr('width', width).attr('height', height)
         let padding = {left: 2, right: 20, top: 2, bottom: 2}
         let defs = svg.append('defs')
@@ -66,6 +66,51 @@
             .text(d)
             .attr('font-size', '1em')
         })
+        this.width = width
+        this.padding = padding
+        this.height = height
+        this.svg = svg
+      },
+      updateTimeCurve (start, end) {
+//        201506
+        let time = '201403, 201408, 201411, 201412, 201502, 201506, 201509, 201511, 201603, 201606, 201609, 201612'
+        time = time.split(',')
+        time = time.map(function (d, i) {
+          return d.trim()
+        })
+        let sindex = time.indexOf(start)
+        let eindex = time.indexOf(end)
+        this.drawCurve(sindex, 0)
+        this.drawCurve(eindex, 1)
+      },
+      drawCurve (index, type) {
+        let width = this.width
+        let svg = this.svg
+        let height = this.height
+        let padding = this.padding
+        let d3 = window.d3
+        let source = [ 0, padding.top + height / 3 ]
+        source[ 0 ] = index / 12 * width
+        let target = [ width / 6 + width / 3 * type, height ]
+        let midP1x = (target[ 0 ] - source[ 0 ]) / 4 + source[ 0 ]
+        let midP1y = (source[ 1 ] + target[ 1 ]) / 2
+        let midP1 = []
+        midP1.push(midP1x)
+        midP1.push(midP1y)
+        let midP2 = [ (target[ 0 ] - source[ 0 ]) * 3 / 4 + source[ 0 ], (source[ 1 ] + target[ 1 ]) / 2 ]
+        let points = [ source, midP1, midP2, target ]
+        console.log(points)
+        let line = d3.line()
+          .x(function (d) { return d[ 0 ] + width / 12 / 3 })
+          .y(function (d) { return d[ 1 ] })
+          .curve(d3.curveBundle.beta(0.5))
+        svg.append('path')
+          .datum(points)
+          .attr('fill', 'none')
+          .attr('stroke', 'grey')
+          .attr('stroke-opacity', '0.5')
+          .attr('stroke-width', 2)
+          .attr('d', line)
       }
     },
     ready () {

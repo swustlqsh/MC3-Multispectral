@@ -29,7 +29,7 @@
             <div style="height: 50%">
                 <textarea id = 'commentsText' name = 'textarea'></textarea>
             </div>
-            <div style="text-align: center; margin-top: 20px">
+            <div style="text-align: center;" id="submitButton">
                 <button type="button" id="sbutton"> Submit </button>
             </div>
         </div>
@@ -37,7 +37,7 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, comparedMessage} from '../../vuex/getters'
   import {eventSubmit} from '../../vuex/actions'
   import EG from 'ENGINES'
   export default {
@@ -45,7 +45,7 @@
       actions: {
         eventSubmit
       },
-      getters: {pageSize}
+      getters: { pageSize, comparedMessage }
     },
     data () {
       return {
@@ -75,6 +75,12 @@
           this.load = true
         },
         deep: true
+      },
+      comparedMessage: {
+        handler (curVal, oldVal) {
+          this.loadComparisonImages()
+        },
+        deep: true
       }
     },
     methods: {
@@ -88,7 +94,7 @@
           self.updatePanel('B5')
         })
         this.drawTagPannel()
-        this.loadComparisonImages()
+//        this.loadComparisonImages()
       },
       drawTagPannel () {
         let d3 = window.d3
@@ -169,20 +175,28 @@
 //          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
 //          .attr('width', width / 2)
 //          .attr('height', height)
-        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph1 })
-        this.renderIns.init({
-          image_canvas_id: 'image_canvas1',
-          region_canvas_id: 'region_canvas1'
-        })
-        this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-        this.renderIns.showImage(0)
-        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph2 })
-        this.renderIns.init({
-          image_canvas_id: 'image_canvas2',
-          region_canvas_id: 'region_canvas2'
-        })
-        this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-        this.renderIns.showImage(0)
+        if (this.comparedMessage.type === 'originalImgs') {
+          let img1 = this.comparedMessage.img1name
+          let img2 = this.comparedMessage.img2name
+//          no png
+          this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph1 })
+          this.renderIns.init({
+            image_canvas_id: 'image_canvas1',
+            region_canvas_id: 'region_canvas1'
+          })
+          let prefix = img1.split('_')[ 0 ]
+//          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+          this.renderIns.loadStoreLocalImg('../../../resource/' + prefix + '/' + img1 + '.png', img1)
+          this.renderIns.showImage(0)
+          this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph2 })
+          this.renderIns.init({
+            image_canvas_id: 'image_canvas2',
+            region_canvas_id: 'region_canvas2'
+          })
+          prefix = img2.split('_')[ 0 ]
+          this.renderIns.loadStoreLocalImg('../../../resource/' + prefix + '/' + img2 + '.png', img2)
+          this.renderIns.showImage(0)
+        }
       }
     },
     ready () {
@@ -235,6 +249,9 @@
     width: 100%;
     height: 50%;
     top: 50%;
+  }
+  #submitButton {
+    margin-top: 8%;
   }
   textarea {
     width: 95%;

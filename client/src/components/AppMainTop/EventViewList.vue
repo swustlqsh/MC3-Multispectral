@@ -80,10 +80,16 @@
       addEvent (event) {
 //        let detectedEvent = this.detectedEvent
 //        console.log(event.comments, event.type)
+        let d3 = window.d3
         let eventNum = this.eventNum
         let rectValue = this.rectValue
         let padding = this.padding
         let svg = this.svgL
+        let height = this.height
+        if (eventNum * rectValue > height - padding.top * 2) {
+          let height = $('#eSvg').height()
+          d3.select('#eSvg').attr('height', height + rectValue)
+        }
         svg.append('line')
           .attr('x1', padding.left)
           .attr('y1', (eventNum + 1) * rectValue + padding.top)
