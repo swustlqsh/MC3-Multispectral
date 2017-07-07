@@ -193,9 +193,13 @@
             image_canvas_id: 'image_canvas2',
             region_canvas_id: 'region_canvas2'
           })
-          prefix = img2.split('_')[ 0 ]
-          this.renderIns.loadStoreLocalImg('../../../data/' + prefix + '/' + img2 + '.png', img2)
-          this.renderIns.showImage(0)
+          if (img2 !== null) {
+            prefix = img2.split('_')[ 0 ]
+            this.renderIns.loadStoreLocalImg('../../../data/' + prefix + '/' + img2 + '.png', img2)
+            this.renderIns.showImage(0)
+          } else {
+            this.renderIns.clearRegCanvas()
+          }
         }
       }
     },

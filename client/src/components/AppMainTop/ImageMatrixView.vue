@@ -755,7 +755,7 @@
   .channel-name {
     font-size: 0.7rem;
   }
-  
+
   @keyframes highlight-animation {
     0% {
     }
