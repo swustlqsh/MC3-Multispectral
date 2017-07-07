@@ -4,13 +4,14 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, comparedMessage} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize, comparedMessage}
     },
     data () {
       return {
+        timeLineDone: false
       }
     },
     watch: {
@@ -22,14 +23,20 @@
           this.load = true
         },
         deep: true
+      },
+      comparedMessage: {
+        handler (curVal, oldVal) {
+          this.updateTimeCurve()
+        },
+        deep: true
       }
     },
     methods: {
       init () {
         this.drawTimelineView()
-        this.updateTimeCurve('2014_03_17', '2016_06_26')
       },
       drawTimelineView () {
+        if (this.timeLineDone) return
         let d3 = window.d3
         let width = $('#timeLine').width()
         let height = $('#timeLine').height()
@@ -70,17 +77,30 @@
         this.padding = padding
         this.height = height
         this.svg = svg
+        this.timeLineDone = true
       },
-      updateTimeCurve (start, end) {
-//        201506
+      updateTimeCurve () {
+        if (!this.timeLineDone) {
+          this.drawTimelineView()
+        }
+        let localComparedMessage = $.extend(true, {}, this.comparedMessage)
         let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
           '2016_06_26, 2016_09_06, 2016_12_19'
         time = time.split(',')
         time = time.map(function (d, i) {
           return d.trim()
         })
-        let sindex = time.indexOf(start)
-        let eindex = time.indexOf(end)
+        let arr1 = localComparedMessage.img1.imgName.split('_')
+        let startT = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
+        let arr2 = localComparedMessage.img2.imgName.split('_')
+        let endT = arr2[ 1 ] + '_' + arr2[ 2 ] + '_' + arr2[ 3 ]
+        let sindex = time.indexOf(startT)
+        let eindex = time.indexOf(endT)
+        if (sindex > eindex) {
+          let a = sindex
+          sindex = eindex
+          eindex = a
+        }
         this.drawCurve(sindex, 0)
         this.drawCurve(eindex, 1)
       },
