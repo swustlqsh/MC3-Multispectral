@@ -709,6 +709,16 @@
           j: dateArray.indexOf(date)
         }
         return indexObj
+      },
+      /**
+       * 更新下方比较的feature
+       */
+      update_comparison_features (featuresArray) {
+        if (featuresArray.length === 1) {
+          this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': null })
+        } else if (featuresArray.length === 2) {
+          this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': featuresArray[ 1 ] })
+        }
       }
     }
   }
@@ -755,7 +765,7 @@
   .channel-name {
     font-size: 0.7rem;
   }
-
+  
   @keyframes highlight-animation {
     0% {
     }
