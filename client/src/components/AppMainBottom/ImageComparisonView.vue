@@ -186,7 +186,7 @@
           })
           let prefix = img1.split('_')[ 0 ]
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-          this.renderIns.loadStoreLocalImg('../../../resource/' + prefix + '/' + img1 + '.png', img1)
+          this.renderIns.loadStoreLocalImg('../../../data/' + prefix + '/' + img1 + '.png', img1)
           this.renderIns.showImage(0)
           this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph2 })
           this.renderIns.init({
@@ -194,7 +194,7 @@
             region_canvas_id: 'region_canvas2'
           })
           prefix = img2.split('_')[ 0 ]
-          this.renderIns.loadStoreLocalImg('../../../resource/' + prefix + '/' + img2 + '.png', img2)
+          this.renderIns.loadStoreLocalImg('../../../data/' + prefix + '/' + img2 + '.png', img2)
           this.renderIns.showImage(0)
         }
       }

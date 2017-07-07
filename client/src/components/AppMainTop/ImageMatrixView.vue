@@ -6,8 +6,13 @@
   import ImageRow from '../ImageRow/ImageRow.vue'
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
-
+  import {imgCompare} from '../../vuex/actions'
   export default {
+    vuex: {
+      actions: {
+        imgCompare
+      }
+    },
     components: {
       ImageRow
     },
@@ -114,6 +119,7 @@
        * 渲染视图
        */
       render () {
+        this.imgCompare({ 'type': 'originalImgs', 'img1name': 'B1_2014_03_17', 'img2name': 'B1_2014_08_24' })
         var imageObjArray2 = this.imageObjArray2
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         var imageRowObj = imageMatrixSvg.selectAll('.image-row')
