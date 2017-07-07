@@ -496,10 +496,8 @@
             let eventName = classNameArray[ 1 ]
             if (d.eventObj.eventType === 'start') {
               d3.selectAll('.' + eventName).classed('event-highlight', true)
-              console.log(d3.selectAll('.' + eventName).selectAll('.end'))
             } else {
               d3.selectAll('.' + eventName).classed('event-highlight', true)
-              console.log(d3.selectAll('.' + eventName).selectAll('.start'))
             }
           })
           .on('mouseout', function (d, i) {
