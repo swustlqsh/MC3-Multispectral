@@ -156,21 +156,10 @@ class GraphTag extends Render {
     this._via_div_real_width = this.options.image_real_width
     this._via_div_real_height = this.options.image_real_height
     // image canvas
-<<<<<<< HEAD
     this._via_img_canvas = document.getElementById(this.options.image_canvas_id)
     this._via_img_ctx = this._via_img_canvas.getContext('2d')
     this._via_reg_canvas = document.getElementById(this.options.region_canvas_id)
     this._via_reg_ctx = this._via_reg_canvas.getContext('2d')
-=======
-    if (this.currentCanvasWidth !== this.currentCanvasHeight) {
-      this.currentCanvasHeight = this.currentCanvasWidth
-    }
-    this.imgCanvas = document.getElementById(this.options.image_canvas_id)
-    this.imgCtx = this.imgCanvas.getContext('2d')
-    this.regCanvas = document.getElementById(this.options.region_canvas_id)
-    this.regCtx = this.regCanvas.getContext('2d')
-    // this.imageMenu = document.getElementById('image_menu')
->>>>>>> 567570041aed8365b7034055c885fae345b7c72e
     return this
   }
 
@@ -184,8 +173,6 @@ class GraphTag extends Render {
     }
   }
 
-<<<<<<< HEAD
-=======
   setAllCanvasSize (w, h) {
     this.imgCanvas.height = h
     if (h != w) {
@@ -215,7 +202,6 @@ class GraphTag extends Render {
   showAllCanvas () {
     this.el.node().style.display = 'inline-block'
   }
->>>>>>> 567570041aed8365b7034055c885fae345b7c72e
   loadCanvasRegions () {
     let regions = this._via_img_metadata[ this.imageId ].regions
     this.canvasRegions = []
@@ -319,52 +305,10 @@ class GraphTag extends Render {
       this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 2
       this._via_reg_ctx.stroke()
 
-<<<<<<< HEAD
       this._via_reg_ctx.fillStyle = VIA_THEME_SEL_REGION_FILL_COLOR
       this._via_reg_ctx.globalAlpha = VIA_THEME_SEL_REGION_OPACITY
       this._via_reg_ctx.fill()
       this._via_reg_ctx.globalAlpha = 1.0
-=======
-    this.currentImage.onload =  function () {
-        // application
-      this.imageId = imgId
-      this.imageIndex = imageIndex
-      this.currenImageFilename = fileName
-      this.currentImageLoaded = true
-      this.isLoadingCurrentImage = false
-      // region
-      this.clickX0 = 0
-      this.clickX1 = 0
-      this.clickY0 = 0
-      this.clickY1 = 0
-      this.isUserDrawingRegion = false
-      this.isWindowResized = false
-      this.isUserResizingRegion = false
-      this.isUserMovingRegion = false
-      this.isUserDrawingPolygon = false
-      this.isRegionSelected = false
-      this.userSelRegionId = -1
-      this.currentImageWidth = this.currentImage.naturalWidth
-      this.currentImageHeight = this.currentImage.naturalHeight
-      // update canvas
-      this.currentCanvasWidth = Math.round(this.currentImageWidth)
-      this.currentCanvasHeight = Math.round(this.currentImageHeight)
-      this.canvasScale = this.currentImage.naturalWidth / this.currentCanvasWidth
-      this.canvasScaleWithoutZoom = this.canvasScale
-      this.setAllCanvasSize(this.currentCanvasWidth, this.currentCanvasHeight)
-      if (this.currentCanvasWidth != this.currentCanvasHeight) {
-        this.currentCanvasHeight = this.currentCanvasWidth
-      }
-      // image canvas
-      this.imgCtx.clearRect(0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
-      this.imgCtx.drawImage(this.currentImage, 0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
-      // region canvas
-      this.loadCanvasRegions()
-      this.redrawRegCanvas()
-      this.regCanvas.focus()
-      this.isLoadingCurrentImage = false
-    }.bind(this)
->>>>>>> 567570041aed8365b7034055c885fae345b7c72e
 
       for (let i = 1; i < all_points_x.length; ++i) {
         this._viaDrawControlPoint(all_points_x[ i ], all_points_y[ i ])
