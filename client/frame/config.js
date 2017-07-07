@@ -1,5 +1,5 @@
 export default {
-  debug: process.SkyEye.ENV === 'dev',
+  debug: process.SkyEye.ENV === 'pro',
   regs: {
     md5: /^[a-z0-9]{32}$/,
     id: /(^\d{15}$)|(^\d{17}([0-9]|X)$)/, // 身份证

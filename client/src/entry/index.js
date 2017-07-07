@@ -8,7 +8,7 @@ import App from '../App.vue'
 import Store from '../vuex/index'
 import config from '../commons/config'
 import frame from 'FRAME'
-console.log('App', App)
+// console.log('App', App)
 Vue.use(frame)
 frame.vueInstall({ module: 'v', name: 'config' }, config) // 在Vue实例中通过this.vConfig进行使用
 

@@ -86,11 +86,11 @@ class GraphTag extends Render {
 
   imageMetaData (fileRef, fileName, size) {
     let metaInfo = {
-      fileName: fileName,
+      file_name: fileName,
       size: size,
-      fileRef: fileRef,
+      file_ref: fileRef,
       regions: [],
-      fileAttributes: {},
+      file_attributes: {},
       base64_img_data: ''
     }
     return metaInfo
@@ -129,12 +129,14 @@ class GraphTag extends Render {
       }
     }
   }
+  // Loading Images and Loading Images
   loadStoreLocalImg (fileRef, fileName, size) {
     let imgId = this.getImageId(fileName, size)
     this.imgMetadata[ imgId ] = this.imageMetaData(fileRef, fileName, size)
     this.imageIdList.push(imgId)
     this.imgCount = this.imgCount + 1
   }
+
   showImage (imageIndex) {
     if (this.isLoadingCurrentImage) {
       return
@@ -143,60 +145,60 @@ class GraphTag extends Render {
     if (!this.imgMetadata.hasOwnProperty(imgId)) {
       return
     }
-    let fileName = this.imgMetadata[ imgId ].fileName
+    let fileName = this.imgMetadata[ imgId ].file_name
     let imgReader = new FileReader()
     this.isLoadingCurrentImage = true
-    imgReader.addEventListener('load', function () {
-      this.currentImage = new Image()
-      this.currentImage.addEventListener('error', function () {
-        this.isLoadingCurrentImage = false
-      }.bind(this), false)
-      this.currentImage.addEventListener('abort', function () {
-        this.isLoadingCurrentImage = false
-      }.bind(this), false)
-      this.currentImage.addEventListener('load', function () {
-        // application
-        this.imageId = imgId
-        this.imageIndex = imageIndex
-        this.currenImageFilename = fileName
-        this.currentImageLoaded = true
-        this.isLoadingCurrentImage = false
-        // region
-        this.clickX0 = 0
-        this.clickX1 = 0
-        this.clickY0 = 0
-        this.clickY1 = 0
-        this.isUserDrawingRegion = false
-        this.isWindowResized = false
-        this.isUserResizingRegion = false
-        this.isUserMovingRegion = false
-        this.isUserDrawingPolygon = false
-        this.isRegionSelected = false
-        this.userSelRegionId = -1
-        this.currentImageWidth = this.currentImage.naturalWidth
-        this.currentImageHeight = this.currentImage.naturalHeight
-        // update canvas
-        this.currentCanvasWidth = Math.round(this.currentImageWidth)
-        this.currentCanvasHeight = Math.round(this.currentImageHeight)
-        this.canvasScale = this.currentImage.naturalWidth / this.currentCanvasWidth
-        this.canvasScaleWithoutZoom = this.canvasScale
-        this.setAllCanvasSize(this.currentCanvasWidth, this.currentCanvasHeight)
-        // image canvas
-        this.imgCanvas.clearRect(0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
-        this.imgCtx.drawImage(this.currentImage, 0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
-        // region canvas
-        this.loadCanvasRegions()
-        this.redrawRegCanvas()
-        this.regCanvas.focus()
-        this.isLoadingCurrentImage = false
-        this.currentImage.src = imgReader.result
-      }.bind(this), false)
+    imgReader.onload = function () {}.bind(this)
+    imgReader.addEventListener('load', function () {}.bind(this), false)
+
+    this.currentImage = new Image()
+
+    this.currentImage.addEventListener('error', function () {
+      this.isLoadingCurrentImage = false
     }.bind(this), false)
-    if (this.imgMetadata[ imgId ].base64_img_data === '') {
-      imgReader.readAsDataURL(this.imgMetadata[ imgId ].fileRef)
-    } else {
-      imgReader.readAsText(new Blob([ this.imgMetadata[ imgId ].base64_img_data ]))
-    }
+
+    this.currentImage.addEventListener('abort', function () {
+      this.isLoadingCurrentImage = false
+    }.bind(this), false)
+
+    this.currentImage.onload =  function () {
+        // application
+      this.imageId = imgId
+      this.imageIndex = imageIndex
+      this.currenImageFilename = fileName
+      this.currentImageLoaded = true
+      this.isLoadingCurrentImage = false
+      // region
+      this.clickX0 = 0
+      this.clickX1 = 0
+      this.clickY0 = 0
+      this.clickY1 = 0
+      this.isUserDrawingRegion = false
+      this.isWindowResized = false
+      this.isUserResizingRegion = false
+      this.isUserMovingRegion = false
+      this.isUserDrawingPolygon = false
+      this.isRegionSelected = false
+      this.userSelRegionId = -1
+      this.currentImageWidth = this.currentImage.naturalWidth
+      this.currentImageHeight = this.currentImage.naturalHeight
+      // update canvas
+      this.currentCanvasWidth = Math.round(this.currentImageWidth)
+      this.currentCanvasHeight = Math.round(this.currentImageHeight)
+      this.canvasScale = this.currentImage.naturalWidth / this.currentCanvasWidth
+      this.canvasScaleWithoutZoom = this.canvasScale
+      this.setAllCanvasSize(this.currentCanvasWidth, this.currentCanvasHeight)
+      // image canvas
+      this.imgCtx.clearRect(0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
+      this.imgCtx.drawImage(this.currentImage, 0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
+      // region canvas
+      this.loadCanvasRegions()
+      this.redrawRegCanvas()
+      this.regCanvas.focus()
+      this.isLoadingCurrentImage = false
+    }.bind(this)
+
+    this.currentImage.src = this.imgMetadata[ imgId ].file_ref
   }
   createCanvas (id, width, height) {
     let canvas = document.createElement('canvas')
@@ -298,6 +300,7 @@ class GraphTag extends Render {
       }
     }
   }
+
   drawAllRegions () {
     let REGION_SHAPE = config.REGION_SHAPE
     this.canvasRegions.forEach(function (item) {
@@ -311,6 +314,49 @@ class GraphTag extends Render {
     })
   }
   drawAllRegionId () {
+    this.regCtx.shadowColor = 'transparent'
+    this.imgMetadata[this.imageId].regions.forEach(function (region, i) {
+      let canvasReg = this.canvasRegions[i]
+      let box = this.getRegionBoundingBox(canvasReg)
+      let x = box[0]
+      let y = box[1]
+      let w = Math.abs(box[2] - box[0])
+      let h = Math.abs(box[3] - box[1])
+    })
   }
+  getRegionBoundingBox (region) {
+    let d = region.shape_attributes
+    let box = new Array(4)
+    switch (d.get('name')) {
+      case 'polygon':
+        let allPointsX = d.get('all_points_x')
+        let allPointsY = d.get('all_points_y')
+        let minX = Number.MAX_SAFE_INTEGER
+        let minY = Number.MAX_SAFE_INTEGER
+        let maxX = 0
+        let maxY = 0
+        allPointsX.forEach(function(item, i) {
+          if (item < minX ) {
+            minX = item
+          }
+          if (item > maxX) {
+            maxX = item
+          }
+          if ( allPointsY[i] < minY) {
+            minY = allPointsY[i]
+          }
+          if ( allPointsY[i] > maxY ) {
+            maxY = allPointsY[i]
+          }
+        })
+        box[0] = minX
+        box[1] = minY
+        box[2] = maxX
+        box[3] = maxY
+        break
+    }
+    return box
+  }
+
 }
 export default GraphTag

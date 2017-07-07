@@ -9,3 +9,5 @@ out
 gen
 client/node_modules
 client/resource
+npm-debug.log
+client/npm-debug.log
