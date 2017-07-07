@@ -80,6 +80,8 @@
             imageObj.locationX = locationX
             imageObj.locationY = locationY
             imageObj.padding = padding
+            imageObj.iIndex = i
+            imageObj.jIndex = j
             imageObj.featuresArray = [ {
               featureName: 'a'//  ,
 //              eventObj: {
@@ -359,6 +361,9 @@
           }
         }
       },
+      /**
+       *  点击向左的按键
+       **/
       featureLeftClickHandler (iI, jI) {
         var imageObjArray2 = this.imageObjArray2
         let displayRange = imageObjArray2[ iI ][ jI ].displayRange
@@ -369,6 +374,9 @@
         this.render_each_features_image(iI, jI)
         this.render_each_events(iI, jI)
       },
+      /**
+       *  点击向右的按键
+       **/
       featureRightClickHandler (iI, jI) {
         var imageObjArray2 = this.imageObjArray2
         let displayRange = imageObjArray2[ iI ][ jI ].displayRange
@@ -392,7 +400,7 @@
         }
       },
       /**
-       *
+       *  渲染在图片上的事件
        **/
       renderEvents () {
         var imageObjArray2 = this.imageObjArray2
@@ -403,10 +411,10 @@
         }
       },
       /**
-       * 在每一个components中增加事件
+       * 更新在每一个components中增加事件
        **/
       render_each_events (iI, jI) {
-//        var self = this
+        var self = this
         var imageObjArray2 = this.imageObjArray2
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         let imageName = imageObjArray2[ iI ][ jI ].imageName
@@ -439,7 +447,13 @@
         eventsObj.enter()
           .append('text')
           .attr('cursor', 'pointer')
-          .attr('class', 'feature-event')
+          .attr('class', function (d, i) {
+            if (typeof (d.eventObj) !== 'undefined') {
+              return 'feature-event ' + d.eventObj.eventType
+            } else {
+              return 'feature-event non-exist'
+            }
+          })
           .attr('id', function (d, i) {
             if (typeof (d.eventObj) !== 'undefined') {
               return imageName + '-' + d.eventObj.eventName
@@ -461,24 +475,25 @@
                 return '\uf0d9'
               } else if (d.eventObj.eventType === 'end') {
                 return '\uf0da'
-              } else if (typeof (d.eventObj) === 'undefined') {
-                return ''
               }
             } else {
               return ''
             }
           })
           .on('mouseover', function (d, i) {
-//            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
-//            self.mouseover_handler(imageNameId)
+            //  高亮显示
+            d3.select(this).classed('event-highlight', true)
+            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
+            self.mouseover_handler(imageNameId)
           })
           .on('mouseout', function (d, i) {
-//            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
-//            self.mouseout_handler(imageNameId)
+            //  取消高亮显示event的结束
+            d3.select(this).classed('event-highlight', false)
+            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
+            self.mouseout_handler(imageNameId)
           })
           .on('click', function (d, i) {
-//            let featureId = d3.select(this).attr('id')
-//            self.feature_click_handler(featureId)
+            //  传递到imageComparisonView
           })
         eventsObj.attr('id', function (d, i) {
           if (typeof (d.eventObj) !== 'undefined') {
@@ -496,7 +511,7 @@
         eventsObj.exit().remove()
       },
       /**
-       *  绘制单个component的feature图像的方法
+       *  更新单个component的feature图像的方法
        **/
       render_each_features_image (iI, jI) {
         var self = this
@@ -536,10 +551,12 @@
           .attr('width', featureImageWidth)
           .attr('height', featureImageWidth)
           .on('mouseover', function (d, i) {
+            d3.select(this).classed('feature-highlight', true)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseover_handler(imageNameId)
           })
           .on('mouseout', function (d, i) {
+            d3.select(this).classed('feature-highlight', false)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseout_handler(imageNameId)
           })
@@ -715,7 +732,31 @@
   .image-components[class~=mouseover-unhighlight] {
     opacity: 0.3;
   }
+  .feature-event {
+    font-size: 1.2rem;
+  }
+  .feature-event[class~=event-highlight] {
+    font-size: 1.6rem;
+  }
+  .feature-image[class~=feature-highlight] {
+    stroke: #fc8d59;
+    stroke-width: 2px;
+    animation-name: highlight-animation;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
   .channel-name {
     font-size: 0.7rem;
+  }
+  
+  @keyframes highlight-animation {
+    0% {
+    }
+    50% {
+      stroke-width: 3px;
+    }
+    100% {
+    }
   }
 </style>
