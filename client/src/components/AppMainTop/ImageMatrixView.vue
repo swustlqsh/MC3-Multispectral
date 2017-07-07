@@ -455,7 +455,7 @@
           .attr('cursor', 'pointer')
           .attr('class', function (d, i) {
             if (typeof (d.eventObj) !== 'undefined') {
-              return 'feature-event ' + d.eventObj.eventType
+              return 'feature-event ' + d.eventObj.eventName + ' ' + d.eventObj.eventType
             } else {
               return 'feature-event non-exist'
             }
@@ -491,6 +491,14 @@
             d3.select(this).classed('event-highlight', true)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseover_handler(imageNameId)
+            let className = d3.select(this).attr('class')
+            let classNameArray = className.split(' ')
+            let eventName = classNameArray[ 1 ]
+            if (d.eventObj.eventType === 'start') {
+              d3.selectAll('.' + eventName).classed('event-highlight', true)
+            } else {
+              d3.selectAll('.' + eventName).classed('event-highlight', true)
+            }
           })
           .on('mouseout', function (d, i) {
             //  取消高亮显示event的结束
@@ -599,14 +607,17 @@
           .classed('click-selection', false)
         d3.selectAll('.click-feature-highlight')
           .classed('click-feature-highlight', false)
+        let comparisonFeaturesArray = []
         for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
           d3.select('#' + selectionFeaturesArray[ sI ])
             .classed('click-selection', true)
           let featureId = selectionFeaturesArray[ sI ]
           let imageNameId = featureId.split('-')[ 0 ]
+          comparisonFeaturesArray.push(imageNameId)
           d3.select('.image-components#' + imageNameId)
             .classed('click-feature-highlight', true)
         }
+        this.update_comparison_features(comparisonFeaturesArray)
         //  对于features Image的高亮操作
         if (d3.select('.click-feature-highlight').empty()) {
           d3.selectAll('.image-components')
@@ -765,7 +776,6 @@
   .channel-name {
     font-size: 0.7rem;
   }
-  
   @keyframes highlight-animation {
     0% {
     }

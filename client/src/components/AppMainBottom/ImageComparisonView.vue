@@ -179,26 +179,28 @@
           let img1 = this.comparedMessage.img1name
           let img2 = this.comparedMessage.img2name
 //          no png
-          this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph1 })
-          this.renderIns.init({
-            image_canvas_id: 'image_canvas1',
-            region_canvas_id: 'region_canvas1'
-          })
-          let prefix = img1.split('_')[ 0 ]
+          if (img1 !== null) {
+            this.renderIns1 = new EG.renders.GraphTag({ selector: this.$els.graph1 })
+            this.renderIns1.init({
+              image_canvas_id: 'image_canvas1',
+              region_canvas_id: 'region_canvas1'
+            })
+            let prefix = img1.split('_')[ 0 ]
+            this.renderIns1.loadStoreLocalImg('../../../data/' + prefix + '/' + img1 + '.png', img1)
+            this.renderIns1.showImage(0)
+          }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-          this.renderIns.loadStoreLocalImg('../../../data/' + prefix + '/' + img1 + '.png', img1)
-          this.renderIns.showImage(0)
-          this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph2 })
-          this.renderIns.init({
-            image_canvas_id: 'image_canvas2',
-            region_canvas_id: 'region_canvas2'
-          })
           if (img2 !== null) {
-            prefix = img2.split('_')[ 0 ]
-            this.renderIns.loadStoreLocalImg('../../../data/' + prefix + '/' + img2 + '.png', img2)
-            this.renderIns.showImage(0)
+            this.renderIns2 = new EG.renders.GraphTag({ selector: this.$els.graph2 })
+            this.renderIns2.init({
+              image_canvas_id: 'image_canvas2',
+              region_canvas_id: 'region_canvas2'
+            })
+            let prefix = img2.split('_')[ 0 ]
+            this.renderIns2.loadStoreLocalImg('../../../data/' + prefix + '/' + img2 + '.png', img2)
+            this.renderIns2.showImage(0)
           } else {
-            this.renderIns.clearRegCanvas()
+            this.renderIns2.clearRegCanvas()
           }
         }
       }
