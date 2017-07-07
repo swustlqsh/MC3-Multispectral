@@ -59,7 +59,10 @@
       })
       this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
       this.renderIns.showImage(0)
-      this.renderIns.addEventListenerClick()
+//      this.renderIns.addEventListenerClick()
+      this.renderIns.addEventListenerMouseup()
+      this.renderIns.addEventListenerMousedown()
+      this.renderIns.addEventListenerMousemove()
     }
   }
 </script>

@@ -44,12 +44,14 @@ class GraphTag extends Render {
     this.isWindowResized = false
     this.isUserResizingRegion = false
     this.isUserMovingRegion = false
+    this.currentPolygonRegionId = -1
     this.isUserDrawingPolygon = false
     this.isRegionSelected = false
     this.userSelRegionId = -1
     // application
     this.isRegionBoundaryVisible = true
     this.isRegionIdVisible = true
+    this.currentShape = config.REGION_SHAPE.POLYGON
 
     return this
   }
@@ -161,8 +163,8 @@ class GraphTag extends Render {
       this.isLoadingCurrentImage = false
     }.bind(this), false)
 
-    this.currentImage.onload =  function () {
-        // application
+    this.currentImage.onload = function () {
+      // application
       this.imageId = imgId
       this.imageIndex = imageIndex
       this.currenImageFilename = fileName
@@ -311,7 +313,7 @@ class GraphTag extends Render {
           this.drawPolygonRegion(attr.get('all_points_x'), attr.get('all_points_y'), isSelected)
           break
       }
-    })
+    }.bind(this))
   }
   drawAllRegionId () {
     this.regCtx.shadowColor = 'transparent'
@@ -336,6 +338,10 @@ class GraphTag extends Render {
       this.regCtx.fillStyle = 'black'
       this.regCtx.globalAlpha = 0.8
     })
+  }
+  // 辅助函数
+  isLeft (x0, y0, x1, y1, x2, y2) {
+    return (((x1 - x0) * (y2 - y0)) - ((x2 - x0) * (y1 - y0)))
   }
   getRegionBoundingBox (region) {
     let d = region.shape_attributes
@@ -370,6 +376,81 @@ class GraphTag extends Render {
     }
     return box
   }
+  selectOnlyRegion (id) {
+    this.isRegionSelected = true
+    this.userSelRegionId = id
+  }
+  isInsidePoint (cx, cy, px, py) {
+    let dx = px - cx
+    let dy = py - cy
+    let r2 = config.POLYGON_VERTEX_MATCH_TOL * config.POLYGON_VERTEX_MATCH_TOL
+    if ((dx * dx + dy * dy) < r2) {
+      return true
+    } else {
+      return false
+    }
+  }
+  isInsidePolygon (allPointsX, allPointsY, px, py) {
+    let wn = 0
+    // loop through all edges of the polygon
+    for (let i = 0; i < allPointsX.length - 1; ++i) {
+      let isLeftValue = this.isLeft(allPointsX[i], allPointsY[i], allPointsX[i + 1], allPointsY[i + 1], px, py)
+      if (allPointsY[i] <= py) {
+        if (allPointsY[i + 1] > py && isLeftValue > 0) {
+          ++wn
+        }
+      } else {
+        if (allPointsY[i + 1] <= py && isLeftValue < 0) {
+          --wn
+        }
+      }
+    }
+    if (wn === 0) {
+      return 0
+    } else {
+      return 1
+    }
+  }
+  isInsideThisRegion (px, py, id) {
+    let attr = this.canvasRegions[id].shape_attributes
+    let result = false
+    switch (attr.get('name')) {
+      case config.REGION_SHAPE.POLYGON:
+        result = this.isInsidePolygon(attr.get('all_points_x'), attr.get('all_points_y'), px, py)
+        break
+      case config.REGION_SHAPE.POINT:
+        result = this.isInsidePoint(attr.get('cx'), attr.get('cy'), px, py)
+        break
+    }
+    return result
+  }
+  isInsideRegion (px, py, order) {
+    let n = this.canvasRegions.length
+    if (n === 0) {
+      return -1
+    }
+    let start
+    let end
+    let del
+    if (order) {
+      start = n - 1
+      end = -1
+      del = -1
+    } else {
+      start = 0
+      end = n
+      del = 1
+    }
+    let i = start
+    while (i !== end) {
+      let yes = this.isInsideThisRegion(px, py, i)
+      if (yes) {
+        return i
+      }
+      i = i + del
+    }
+    return -1
+  }
   addEventListenerClick () {
     this.regCanvas.addEventListener('click', function (e) {
       console.log('click')
@@ -385,25 +466,200 @@ class GraphTag extends Render {
   addEventListenerMousedown () {
     this.regCanvas.addEventListener('mousedown', function (e) {
       console.log('mousedown')
-    }, false)
+      this.clickX0 = e.offsetX
+      this.clickY0 = e.offsetY
+      let regionId = this.isInsideRegion(this.clickX0, this.clickY0)
+      if (this.isRegionSelected) {
+
+      } else {
+        if (regionId === -1) {
+          console.log('dd -1  mousedown')
+          // mousedown outside a region
+          if (this.currentShape !== config.REGION_SHAPE.POLYGON &&
+            this.currentShape !== config.REGION_SHAPE.POINT) {
+            console.log('dd -1-1  mousedown')
+            // this is a bounding box drawing event
+            this.isUserDrawingRegion = true
+          }
+        } else {
+          console.log('dd -2  mousedown')
+          // mousedown inside a region
+          // this could lead to (1) region selection or (2) region drawing
+          this.isUserDrawingRegion = true
+        }
+      }
+      e.preventDefault()
+    }.bind(this), false)
     return this
   }
   addEventListenerMouseup () {
     this.regCanvas.addEventListener('mouseup', function (e) {
-      console.log('mouseup')
-    }, false)
+      console.log('----------------------mouseup')
+      this.clickX1 = e.offsetX
+      this.clickY1 = e.offsetY
+      let clickDX = Math.abs(this.clickX0 - this.clickX1)
+      let clickDY = Math.abs(this.clickY0 - this.clickY1)
+      if (clickDX < config.MOUSE_CLICK_TOL || clickDY < config.MOUSE_CLICK_TOL) {
+        console.log('ddddddd')
+        // 如果用户正在绘制多边形 每次click事件添加节点
+        console.log(this.isUserDrawingPolygon === false ? 'false' : 'true')
+        if (this.isUserDrawingPolygon) {
+          console.log('isUserDrawingPolygon')
+          let canvasX0 = Math.round(this.clickX0)
+          let canvasY0 = Math.round(this.clickY0)
+          // check if the clicked point is close to the first point
+          let fx0 = this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_x')[0]
+          let fy0 = this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_y')[0]
+          let dx = fx0 - canvasX0
+          let dy = fy0 - canvasY0
+          if (Math.sqrt(dx * dx + dy * dy) <= config.POLYGON_VERTEX_MATCH_TOL) {
+            // user clicked on the first polygon point to close the path
+            this.isUserDrawingPolygon = false
+            // add all polygon points stored in _via_canvas_regions[]
+            let allPointsX = this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_x').slice(0)
+            let allPointsY = this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_y').slice(0)
+            let canvasAllPointsX = this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_x')
+            let canvasAllPointsY = this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_y')
+            allPointsX.push(allPointsX[0])
+            allPointsY.push(allPointsY[0])
+            canvasAllPointsX.push(canvasAllPointsX[0])
+            canvasAllPointsY.push(canvasAllPointsY[0])
+            let pointsStr = ''
+            for (let i = 0; i < allPointsX.length; ++i) {
+              allPointsX[i] = Math.round(allPointsX[i] * this.canvasScale)
+              allPointsY[i] = Math.round(allPointsY[i] * this.canvasScale)
+              pointsStr += allPointsX[i] + ' ' + allPointsY[i] + ','
+            }
+            pointsStr = pointsStr.substring(0, pointsStr.length - 1) // remove last comma
+            let polygonRegion = new ImageRegion()
+            polygonRegion.shape_attributes.set('name', 'polygon')
+            polygonRegion.shape_attributes.set('all_points_x', allPointsX)
+            polygonRegion.shape_attributes.set('all_points_y', allPointsY)
+            this.currentPolygonRegionId = this.imgMetadata[this.imageId].regions.length
+            this.imgMetadata[this.imageId].regions.push(polygonRegion)
+            // newly drawn region is automatically selected
+            this.selectOnlyRegion(this.currentPolygonRegionId)
+            this.currentPolygonRegionId = -1
+          } else {
+            // user clicked on a new polygon point
+            this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_x').push(canvasX0)
+            this.canvasRegions[this.currentPolygonRegionId].shape_attributes.get('all_points_y').push(canvasY0)
+          }
+        } else {
+          let regionId = this.isInsideRegion(this.clickX0, this.clickY0)
+          if (regionId >= 1) {
+            // 在区域内
+            this.userSelRegionId = regionId
+            this.isRegionSelected = true
+            this.isUserDrawingRegion = false
+            this.userSelRegionId = -1
+          } else {
+            // 在区域外
+            console.log('_via_current_shape', this.currentShape)
+            switch (this.currentShape) {
+              case config.REGION_SHAPE.POLYGON:
+                // user has clicked on the first point in a new polygon
+                this.isUserDrawingPolygon = true
+                let canvasPolygonRegion = new ImageRegion()
+                canvasPolygonRegion.shape_attributes.set('name', config.REGION_SHAPE.POLYGON)
+                canvasPolygonRegion.shape_attributes.set('all_points_x', [Math.round(this.clickX0)])
+                canvasPolygonRegion.shape_attributes.set('all_points_y', [Math.round(this.clickY0)])
+                this.canvasRegions.push(canvasPolygonRegion)
+                this.currentPolygonRegionId = this.canvasRegions.length - 1
+                break
+              case config.REGION_SHAPE.POINT:
+                // user has marked a landmark point
+                let pointRegion = new ImageRegion()
+                pointRegion.shape_attributes.set('name', config.REGION_SHAPE.POINT)
+                pointRegion.shape_attributes.set('cx', [Math.round(this.clickX0 * this.canvasScale)])
+                pointRegion.shape_attributes.set('cy', [Math.round(this.clickY0 * this.canvasScale)])
+                this.imgMetadata[this.imageId].regions.push(pointRegion)
+                let canvasPointRegion = new ImageRegion()
+                canvasPointRegion.shape_attributes.set('name', config.REGION_SHAPE.POINT)
+                canvasPointRegion.shape_attributes.set('cx', [Math.round(this.clickX0)])
+                canvasPointRegion.shape_attributes.set('cy', [Math.round(this.clickY0)])
+                this.canvasRegions.push(canvasPointRegion)
+                break
+            }
+          }
+        }
+        this.redrawRegCanvas()
+        this.regCanvas.focus()
+        return
+      }
+      // 默认没有选中任何图片
+      this.isUserDrawingRegion = false
+      this.isUserDrawingPolygon = true
+      this.isRegionSelected = false
+      // 处理多边形信息
+    }.bind(this), false)
     return this
   }
   addEventListenerMouseover () {
     this.regCanvas.addEventListener('mouseover', function (e) {
       console.log('mouseover')
-    }, false)
+    }.bind(this), false)
     return this
   }
   addEventListenerMousemove () {
     this.regCanvas.addEventListener('mousemove', function (e) {
       console.log('mousemove')
-    }, false)
+      if (!this.currentImageLoaded) {
+        return
+      }
+      console.log(this.currentImageLoaded, 'this.currentImageLoaded')
+      let currentX = e.offsetX
+      let currentY = e.offsetY
+      console.log(currentX, currentY)
+      if (this.isRegionSelected) {
+        console.log('isRegionSelected')
+      }
+      if (this.isUserDrawingRegion) {
+        console.log('isUserDrawingRegion')
+        console.log(this.canvasRegions)
+        if (this.canvasRegions.length) {
+          this.redrawRegCanvas()
+        } else {
+          this.regCtx.clearRect(0, 0, this.regCanvas.width, this.regCanvas.height)
+        }
+        let regionXOne
+        let regionY0ne
+        if (this.clickX0 < currentX) {
+          if (this.clickY0 < currentY) {
+            regionXOne = this.clickX0
+            regionY0ne = this.clickY0
+          } else {
+            regionXOne = this.clickX0
+            regionY0ne = currentY
+          }
+        } else {
+          if (this.clickY0 < currentY) {
+            regionXOne = currentX
+            regionY0ne = this.clickY0
+          } else {
+            regionXOne = currentX
+            regionY0ne = currentY
+          }
+        }
+        let dx = Math.round(Math.abs(currentX - this.clickX0))
+        let dy = Math.round(Math.abs(currentY - this.clickY0))
+        switch (this.currentShape) {
+          case config.REGION_SHAPE.POLYGON:
+            break
+        }
+        this.regCanvas.focus()
+      }
+      if (this.isUserDrawingPolygon) {
+        this.redrawRegCanvas()
+        let attr = this.canvasRegions[this.currentPolygonRegionId].shape_attributes
+        let allPointsX = attr.get('all_points_x')
+        let allPointsY = attr.get('all_points_y')
+        let npts = allPointsX.length
+        let lineX = [allPointsX.slice(npts - 1), currentX]
+        let lineY = [allPointsY.slice(npts - 1), currentY]
+        this.drawPolygonRegion(lineX, lineY, false)
+      }
+    }.bind(this), false)
     return this
   }
 }
