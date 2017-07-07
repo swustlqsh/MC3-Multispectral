@@ -609,14 +609,17 @@
           .classed('click-selection', false)
         d3.selectAll('.click-feature-highlight')
           .classed('click-feature-highlight', false)
+        let comparisonFeaturesArray = []
         for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
           d3.select('#' + selectionFeaturesArray[ sI ])
             .classed('click-selection', true)
           let featureId = selectionFeaturesArray[ sI ]
           let imageNameId = featureId.split('-')[ 0 ]
+          comparisonFeaturesArray.push(imageNameId)
           d3.select('.image-components#' + imageNameId)
             .classed('click-feature-highlight', true)
         }
+        this.update_comparison_features(comparisonFeaturesArray)
         //  对于features Image的高亮操作
         if (d3.select('.click-feature-highlight').empty()) {
           d3.selectAll('.image-components')
@@ -719,6 +722,16 @@
           j: dateArray.indexOf(date)
         }
         return indexObj
+      },
+      /**
+       * 更新下方比较的feature
+       */
+      update_comparison_features (featuresArray) {
+        if (featuresArray.length === 1) {
+          this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': null })
+        } else if (featuresArray.length === 2) {
+          this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': featuresArray[ 1 ] })
+        }
       }
     }
   }
@@ -765,7 +778,6 @@
   .channel-name {
     font-size: 0.7rem;
   }
-
   @keyframes highlight-animation {
     0% {
     }
