@@ -455,7 +455,7 @@
           .attr('cursor', 'pointer')
           .attr('class', function (d, i) {
             if (typeof (d.eventObj) !== 'undefined') {
-              return 'feature-event ' + d.eventObj.eventType
+              return 'feature-event ' + d.eventObj.eventName + ' ' + d.eventObj.eventType
             } else {
               return 'feature-event non-exist'
             }
@@ -491,6 +491,16 @@
             d3.select(this).classed('event-highlight', true)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseover_handler(imageNameId)
+            let className = d3.select(this).attr('class')
+            let classNameArray = className.split(' ')
+            let eventName = classNameArray[ 1 ]
+            if (d.eventObj.eventType === 'start') {
+              d3.selectAll('.' + eventName).classed('event-highlight', true)
+              console.log(d3.selectAll('.' + eventName).selectAll('.end'))
+            } else {
+              d3.selectAll('.' + eventName).classed('event-highlight', true)
+              console.log(d3.selectAll('.' + eventName).selectAll('.start'))
+            }
           })
           .on('mouseout', function (d, i) {
             //  取消高亮显示event的结束
@@ -755,7 +765,7 @@
   .channel-name {
     font-size: 0.7rem;
   }
-  
+
   @keyframes highlight-animation {
     0% {
     }
