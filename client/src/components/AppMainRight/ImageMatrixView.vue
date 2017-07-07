@@ -1,5 +1,5 @@
 <template>
-  <div class="image-matrix-view" id="image-matrix">
+  <div class="image-matrix-view">
   </div>
 </template>
 <script>
@@ -11,7 +11,6 @@
       return {}
     },
     ready () {
-      console.log('ready')
       this.getImageOriginalData()
     },
     methods: {

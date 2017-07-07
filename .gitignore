@@ -12,5 +12,5 @@ client/resource
 npm-debug.log
 client/npm-debug.log
 /client/resource.zip
-.DS_Store
+/client/.DS_Store
 

@@ -379,6 +379,41 @@ class GraphTag extends Render {
     }
     return box
   }
-
+  addEventListenerClick () {
+    this.regCanvas.addEventListener('click', function (e) {
+      console.log('click')
+    }, false)
+    return this
+  }
+  addEventListenerDBClick () {
+    this.regCanvas.addEventListener('dblclick', function (e) {
+      console.log('dblclick')
+    }, false)
+    return this
+  }
+  addEventListenerMousedown () {
+    this.regCanvas.addEventListener('mousedown', function (e) {
+      console.log('mousedown')
+    }, false)
+    return this
+  }
+  addEventListenerMouseup () {
+    this.regCanvas.addEventListener('mouseup', function (e) {
+      console.log('mouseup')
+    }, false)
+    return this
+  }
+  addEventListenerMouseover () {
+    this.regCanvas.addEventListener('mouseover', function (e) {
+      console.log('mouseover')
+    }, false)
+    return this
+  }
+  addEventListenerMousemove () {
+    this.regCanvas.addEventListener('mousemove', function (e) {
+      console.log('mousemove')
+    }, false)
+    return this
+  }
 }
 export default GraphTag
