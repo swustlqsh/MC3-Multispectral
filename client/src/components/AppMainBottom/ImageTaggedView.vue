@@ -11,7 +11,7 @@
         </li>
       </ul>
     </div>
-    <div class="uk-thumbnail uk-thumbnail-expand" v-el:graph>
+    <div v-el:graph>
       <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
       <canvas id="image_canvas"></canvas>
       <canvas id="region_canvas"></canvas>

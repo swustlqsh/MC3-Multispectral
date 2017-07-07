@@ -61,6 +61,9 @@ class GraphTag extends Render {
     this.currentImageHeight = this.el.node().clientHeight
     // this.el.node().style.display = 'none'
     // image canvas
+    if (this.currentCanvasWidth !== this.currentCanvasHeight) {
+      this.currentCanvasHeight = this.currentCanvasWidth
+    }
     this.imgCanvas = document.getElementById(this.options.image_canvas_id)
     this.imgCtx = this.imgCanvas.getContext('2d')
     this.regCanvas = document.getElementById(this.options.region_canvas_id)
@@ -79,6 +82,9 @@ class GraphTag extends Render {
 
   setAllCanvasSize (w, h) {
     this.imgCanvas.height = h
+    if (h != w) {
+      h = w
+    }
     this.imgCanvas.width = w
     this.regCanvas.height = h
     this.regCanvas.width = w
@@ -188,6 +194,9 @@ class GraphTag extends Render {
       this.canvasScale = this.currentImage.naturalWidth / this.currentCanvasWidth
       this.canvasScaleWithoutZoom = this.canvasScale
       this.setAllCanvasSize(this.currentCanvasWidth, this.currentCanvasHeight)
+      if (this.currentCanvasWidth != this.currentCanvasHeight) {
+        this.currentCanvasHeight = this.currentCanvasWidth
+      }
       // image canvas
       this.imgCtx.clearRect(0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
       this.imgCtx.drawImage(this.currentImage, 0, 0, this.currentCanvasWidth, this.currentCanvasWidth)

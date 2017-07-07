@@ -1,5 +1,16 @@
 <template>
-    <div id = 'imageCompare'></div>
+    <div id = 'imageCompare' class="uk-thumbnail uk-thumbnail-expand" style = 'padding-left: 0; padding-right: 0'>
+        <div v-el:graph1 id="graph1">
+            <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+            <canvas id="image_canvas1" class="image_canvas"></canvas>
+            <canvas id="region_canvas1" class="region_canvas"></canvas>
+        </div>
+        <div class="uk-thumbnail uk-thumbnail-expand" v-el:graph2 id="graph2">
+            <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+            <canvas id="image_canvas2" class="image_canvas"></canvas>
+            <canvas id="region_canvas2" class="region_canvas"></canvas>
+        </div>
+    </div>
     <div id = 'statistics'>
         <div id = 'tagChannel'></div>
         <div id = 'submmit'>
@@ -28,6 +39,7 @@
   import $ from 'jquery'
   import {pageSize} from '../../vuex/getters'
   import {eventSubmit} from '../../vuex/actions'
+  import EG from 'ENGINES'
   export default {
     vuex: {
       actions: {
@@ -148,15 +160,22 @@
       loadComparisonImages () {
 //        let imgObj1 = imgs[0]
 //        let imgObj2 = imgs[1]
-        let d3 = window.d3
-        let width = $('#imageCompare').width()
-        let height = $('#imageCompare').height()
-        let svg = d3.select('#imageCompare').append('svg').attr('width', width).attr('height', height)
-        let g1 = svg.append('g')
-        g1.append('image')
-          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
-          .attr('width', width / 2)
-          .attr('height', height)
+//        let d3 = window.d3
+//        let width = $('#imageCompare').width()
+//        let height = $('#imageCompare').height()
+//        let svg = d3.select('#imageCompare').append('svg').attr('width', width).attr('height', height)
+//        let g1 = svg.append('g')
+//        g1.append('image')
+//          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
+//          .attr('width', width / 2)
+//          .attr('height', height)
+        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph1 })
+        this.renderIns.init({
+          image_canvas_id: 'image_canvas1',
+          region_canvas_id: 'region_canvas1'
+        })
+        this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+        this.renderIns.showImage(0)
       }
     },
     ready () {
@@ -176,6 +195,29 @@
     width: 19%;
     height: 100%;
     border: 1px solid grey;
+  }
+  .image_canvas {
+    position: absolute;
+    left: 0;
+    padding: 0;
+    height: 100%;
+    z-index: 1;
+  }
+  .region_canvas {
+    position: absolute;
+    left: 0;
+    z-index: 2;
+  }
+  #graph1 {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+  }
+  #graph2 {
+    position: absolute;
+    left: 50%;
+    width: 50%;
+    height: 100%;
   }
   #tagChannel {
     width: 100%;
