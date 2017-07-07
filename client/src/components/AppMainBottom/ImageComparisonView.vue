@@ -1,11 +1,11 @@
 <template>
-    <div id = 'imageCompare' class="uk-thumbnail uk-thumbnail-expand" style = 'padding-left: 0; padding-right: 0'>
+    <div id = 'imageCompare' style = 'padding-left: 0; padding-right: 0'>
         <div v-el:graph1 id="graph1">
             <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
             <canvas id="image_canvas1" class="image_canvas"></canvas>
             <canvas id="region_canvas1" class="region_canvas"></canvas>
         </div>
-        <div class="uk-thumbnail uk-thumbnail-expand" v-el:graph2 id="graph2">
+        <div v-el:graph2 id="graph2">
             <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
             <canvas id="image_canvas2" class="image_canvas"></canvas>
             <canvas id="region_canvas2" class="region_canvas"></canvas>
@@ -176,6 +176,13 @@
         })
         this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
         this.renderIns.showImage(0)
+        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph2 })
+        this.renderIns.init({
+          image_canvas_id: 'image_canvas2',
+          region_canvas_id: 'region_canvas2'
+        })
+        this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+        this.renderIns.showImage(0)
       }
     },
     ready () {
@@ -199,13 +206,13 @@
   .image_canvas {
     position: absolute;
     left: 0;
-    padding: 0;
-    height: 100%;
+    padding: 5px;
     z-index: 1;
   }
   .region_canvas {
     position: absolute;
     left: 0;
+    padding: 5px;
     z-index: 2;
   }
   #graph1 {

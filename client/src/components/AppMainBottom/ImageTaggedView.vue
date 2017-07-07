@@ -95,12 +95,14 @@
     }
     #image_canvas {
       position: absolute;
+      padding: 5px;
       top: 30px;
       left: 0;
       z-index: 1;
     }
     #region_canvas {
       position: absolute;
+      padding: 5px;
       top: 30px;
       left: 0;
       z-index: 2;

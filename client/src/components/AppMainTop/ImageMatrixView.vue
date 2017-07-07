@@ -448,7 +448,7 @@
        *  点击feature的handler
        **/
       feature_click_handler (imageNameId, featureId) {
-        let selectionFeaturesArray = this.selectionFeaturesArray
+//        let selectionFeaturesArray = this.selectionFeaturesArray
         //  对于original Image的高亮操作
         if (d3.select('.image-components#' + imageNameId).classed('click-feature-highlight')) {
           d3.select('.image-components#' + imageNameId)
