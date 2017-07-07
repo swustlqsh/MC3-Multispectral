@@ -608,13 +608,12 @@
        **/
       feature_click_handler (featureId) {
         let selectionFeaturesArray = this.selectionFeaturesArray
-        let featureSelectionIndex = this.featureSelectionIndex
-        featureSelectionIndex = featureSelectionIndex + 1
+        this.featureSelectionIndex = this.featureSelectionIndex + 1
         if (d3.select('#' + featureId).classed('click-selection')) {
           selectionFeaturesArray.splice(selectionFeaturesArray.indexOf(featureId), 1)
         } else {
           if (selectionFeaturesArray.length === 2) {
-            selectionFeaturesArray.splice(selectionFeaturesArray % 2, 1, featureId)
+            selectionFeaturesArray.splice(this.featureSelectionIndex % 2, 1, featureId)
           } else if (selectionFeaturesArray.length < 2) {
             selectionFeaturesArray.push(featureId)
           }
