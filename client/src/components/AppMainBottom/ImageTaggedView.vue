@@ -1,16 +1,16 @@
 <template>
   <div class="uk-grid image-tagged-view-main">
-    <div class="uk-width-1-1 image-tagged-menu" id="image_menu">
-      <ul class="uk-list">
-        <li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"
-            v-on:click.stop.prevent="getMenuMsg(menu.index)">
-          <a href="#" v-if="index==0"><i class="uk-icon-justify {{menu.icon}}"></i></a>
-          <a href="#" v-else>
-            <img :src="menu.image" height="15" width="15"/>
-          </a>
-        </li>
-      </ul>
-    </div>
+    <!--<div class="uk-width-1-1 image-tagged-menu" id="image_menu">-->
+      <!--<ul class="uk-list">-->
+        <!--<li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"-->
+            <!--v-on:click.stop.prevent="getMenuMsg(menu.index)">-->
+          <!--<a href="#" v-if="index==0"><i class="uk-icon-justify {{menu.icon}}"></i></a>-->
+          <!--<a href="#" v-else>-->
+            <!--<img :src="menu.image" height="15" width="15"/>-->
+          <!--</a>-->
+        <!--</li>-->
+      <!--</ul>-->
+    <!--</div>-->
     <div class="uk-thumbnail uk-thumbnail-expand" v-el:graph>
       <canvas id="image_canvas"></canvas>
       <canvas id="region_canvas"></canvas>
@@ -18,8 +18,13 @@
   </div>
 </template>
 <script>
+  import $ from 'jquery'
   import EG from 'ENGINES'
+  import {pageSize} from '../../vuex/getters'
   export default {
+    vuex: {
+      getters: {pageSize}
+    },
     data () {
       return {
         isShowSelect: true,
@@ -38,6 +43,14 @@
         ]
       }
     },
+    watch: {
+      pageSize: {
+        handler (curVal, oldVal) {
+          this.init()
+        },
+        deep: true
+      }
+    },
     methods: {
       getMenuMsg (index) {
         if (index === 0) {
@@ -47,21 +60,24 @@
       },
       // loadStart 读取相关的事件
       loadStart () {
-
+      },
+      init () {
+        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
+        this.renderIns.init({
+          image_canvas_id: 'image_canvas',
+          region_canvas_id: 'region_canvas',
+          image_real_width: Math.round($('#image-tagged').width()),
+          image_real_height: Math.round($('#image-tagged').height())
+        })
+        this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+        this.renderIns.showImage(0)
+        // this.renderIns.addEventListenerClick()
+        this.renderIns.addEventListenerMouseup()
+        this.renderIns.addEventListenerMousedown()
+        this.renderIns.addEventListenerMousemove()
       }
     },
     ready () {
-      this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
-      this.renderIns.init({
-        image_canvas_id: 'image_canvas',
-        region_canvas_id: 'region_canvas'
-      })
-      this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-      this.renderIns.showImage(0)
-//      this.renderIns.addEventListenerClick()
-      this.renderIns.addEventListenerMouseup()
-      this.renderIns.addEventListenerMousedown()
-      this.renderIns.addEventListenerMousemove()
     }
   }
 </script>
@@ -97,13 +113,11 @@
     }
     #image_canvas {
       position: absolute;
-      top: 30px;
       left: 0;
       z-index: 1;
     }
     #region_canvas {
       position: absolute;
-      top: 30px;
       left: 0;
       z-index: 2;
     }
