@@ -61,11 +61,11 @@ class GraphTag extends Render {
     this.currentImageHeight = this.el.node().clientHeight
     // this.el.node().style.display = 'none'
     // image canvas
-    this.imgCanvas = document.getElementById('image_canvas')
+    this.imgCanvas = document.getElementById(this.options.image_canvas_id)
     this.imgCtx = this.imgCanvas.getContext('2d')
-    this.regCanvas = document.getElementById('region_canvas')
+    this.regCanvas = document.getElementById(this.options.region_canvas_id)
     this.regCtx = this.regCanvas.getContext('2d')
-    this.imageMenu = document.getElementById('image_menu')
+    // this.imageMenu = document.getElementById('image_menu')
     return this
   }
 
@@ -322,6 +322,19 @@ class GraphTag extends Render {
       let y = box[1]
       let w = Math.abs(box[2] - box[0])
       let h = Math.abs(box[3] - box[1])
+      this.regCtx.font = config.THEME_ATTRIBUTE_VALUE_FONT
+      let annotationStr = i + 1
+      let bgndRectWidth = this.regCtx.measureText(annotationStr).width * 2
+      if (canvasReg.shape_attributes.get('name') === config.REGION_SHAPE.POLYGON) {
+        // put label near the first vertex
+        x = canvasReg.shape_attributes.get('all_points_x')[0]
+        y = canvasReg.shape_attributes.get('all_points_y')[0]
+      } else {
+        // center the label
+        x = x - (bgndRectWidth / 2 - w / 2)
+      }
+      this.regCtx.fillStyle = 'black'
+      this.regCtx.globalAlpha = 0.8
     })
   }
   getRegionBoundingBox (region) {
@@ -335,17 +348,17 @@ class GraphTag extends Render {
         let minY = Number.MAX_SAFE_INTEGER
         let maxX = 0
         let maxY = 0
-        allPointsX.forEach(function(item, i) {
-          if (item < minX ) {
+        allPointsX.forEach(function (item, i) {
+          if (item < minX) {
             minX = item
           }
           if (item > maxX) {
             maxX = item
           }
-          if ( allPointsY[i] < minY) {
+          if (allPointsY[i] < minY) {
             minY = allPointsY[i]
           }
-          if ( allPointsY[i] > maxY ) {
+          if (allPointsY[i] > maxY) {
             maxY = allPointsY[i]
           }
         })

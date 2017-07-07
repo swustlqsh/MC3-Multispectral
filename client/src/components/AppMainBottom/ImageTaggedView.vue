@@ -53,7 +53,10 @@
     },
     ready () {
       this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
-      this.renderIns.init()
+      this.renderIns.init({
+        image_canvas_id: 'image_canvas',
+        region_canvas_id: 'region_canvas'
+      })
       this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
       this.renderIns.showImage(0)
     }
