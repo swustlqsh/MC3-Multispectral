@@ -17,6 +17,7 @@
         channelInfoObj: {},
         imageObjArray2: [],
         selectionArray: [],
+        selectionFeaturesArray: [],
         selectionImage: null,
         imageMatrixViewHeight: 0,
         imageHeight: 0,
@@ -154,6 +155,7 @@
           .data(imageObjArray2)
         imageName.enter()
           .append('text')
+          .attr('class', 'channel-name')
           .text(function (d, i) {
             return d[ 0 ].channelName
           })
@@ -372,7 +374,6 @@
       render_each_features_image (iI, jI) {
         var self = this
         var imageObjArray2 = this.imageObjArray2
-        let selectionArray = this.selectionArray
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         let imageName = imageObjArray2[ iI ][ jI ].imageName
         let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
@@ -415,17 +416,19 @@
           })
           .on('click', function (d, i) {
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
-            if (d3.select(this).classed('click-selection')) {
-              d3.select(this).classed('click-selection', false)
-              if (selectionArray.indexOf(imageNameId) !== -1) {
-                self.click_handler(imageNameId)
-              }
-            } else {
-              d3.select(this).classed('click-selection', true)
-              if (selectionArray.indexOf(imageNameId) === -1) {
-                self.click_handler(imageNameId)
-              }
-            }
+            let featureId = d3.select(this).attr('id')
+            self.feature_click_handler(imageNameId, featureId)
+//            if (d3.select(this).classed('click-selection')) {
+//              d3.select(this).classed('click-selection', false)
+//              if (selectionArray.indexOf(imageNameId) !== -1) {
+//
+//              }
+//            } else {
+//              d3.select(this).classed('click-selection', true)
+//              if (selectionArray.indexOf(imageNameId) === -1) {
+//                self.click_handler(imageNameId)
+//              }
+//            }
           })
         featuresObj.attr('class', 'feature-image')
           .attr('id', function (d, i) {
@@ -442,13 +445,40 @@
         featuresObj.exit().remove()
       },
       /**
+       *  点击feature的handler
+       **/
+      feature_click_handler (imageNameId, featureId) {
+        let selectionFeaturesArray = this.selectionFeaturesArray
+        //  对于original Image的高亮操作
+        if (d3.select('.image-components#' + imageNameId).classed('click-feature-highlight')) {
+          d3.select('.image-components#' + imageNameId)
+            .classed('click-feature-highlight', false)
+        } else {
+          d3.select('.image-components#' + imageNameId)
+            .classed('click-feature-highlight', true)
+        }
+        //  对于features Image的高亮操作
+        if (d3.select('.click-feature-highlight').empty()) {
+          d3.selectAll('.image-components')
+            .classed('mouseover-unhighlight', false)
+        } else {
+          d3.selectAll('.image-components')
+            .classed('mouseover-unhighlight', true)
+        }
+        if (d3.select('#' + featureId).classed('click-selection')) {
+          d3.select('#' + featureId)
+            .classed('click-selection', false)
+        } else {
+          d3.select('#' + featureId)
+            .classed('click-selection', true)
+        }
+      },
+      /**
        * 鼠标悬浮在component的事件
        */
       mouseover_handler (imageNameId) {
         d3.selectAll('.image-components')
           .classed('mouseover-unhighlight', true)
-        d3.selectAll('.click-highlight')
-          .classed('mouseover-unhighlight', false)
         d3.select('.image-components#' + imageNameId)
           .classed('mouseover-unhighlight', false)
 //        if (selectionArray.indexOf(imageNameId) === -1) {
@@ -504,7 +534,7 @@
 //        let selectionArray = this.selectionArray
         d3.select('.image-components#' + imageNameId)
           .classed('mouseover-unhighlight', true)
-        if (d3.select('.image-components.click-highlight').empty()) {
+        if ((d3.select('.image-components.click-highlight').empty()) && (d3.select('.image-components.click-feature-highlight').empty())) {
           d3.selectAll('.image-components')
             .classed('mouseover-unhighlight', false)
         }
@@ -533,10 +563,10 @@
 //        let selectionImage = this.selectionImage
 //        d3.selectAll('.image-components')
 //          .classed('click-highlight', true)
-        d3.select('.image-components#' + imageNameId)
-          .classed('mouseover-unhighlight', false)
-        d3.selectAll('.image-components.click-highlight')
-          .classed('mouseover-unhighlight', true)
+//        d3.select('.image-components#' + imageNameId)
+//          .classed('mouseover-unhighlight', false)
+//        d3.selectAll('.image-components.click-highlight')
+//          .classed('mouseover-unhighlight', true)
         if (d3.select('.image-components#' + imageNameId).classed('click-highlight')) {
           d3.select('.image-components#' + imageNameId)
             .classed('click-highlight', false)
@@ -609,9 +639,15 @@
     stroke-width: 2px;
   }
   .image-components[class~=click-highlight] {
-    opacity: 1;
+    opacity: 1 !important;
+  }
+  .image-components[class~=click-feature-highlight] {
+    opacity: 1 !important;
   }
   .image-components[class~=mouseover-unhighlight] {
-    opacity: 0.3 !important;
+    opacity: 0.3;
+  }
+  .channel-name {
+    font-size: 0.7rem;
   }
 </style>
