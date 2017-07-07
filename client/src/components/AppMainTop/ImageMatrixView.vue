@@ -27,7 +27,8 @@
         imageMatrixViewHeight: 0,
         imageHeight: 0,
         channelArray: [],
-        dateArray: []
+        dateArray: [],
+        featureSelectionIndex: 0
       }
     },
     ready () {
@@ -495,9 +496,9 @@
             let classNameArray = className.split(' ')
             let eventName = classNameArray[ 1 ]
             if (d.eventObj.eventType === 'start') {
-              d3.selectAll('.' + eventName).classed('event-highlight', true)
+              d3.selectAll('.end.' + eventName).classed('event-highlight', true)
             } else {
-              d3.selectAll('.' + eventName).classed('event-highlight', true)
+              d3.selectAll('.start.' + eventName).classed('event-highlight', true)
             }
           })
           .on('mouseout', function (d, i) {
@@ -593,12 +594,13 @@
        **/
       feature_click_handler (featureId) {
         let selectionFeaturesArray = this.selectionFeaturesArray
+        let featureSelectionIndex = this.featureSelectionIndex
+        featureSelectionIndex = featureSelectionIndex + 1
         if (d3.select('#' + featureId).classed('click-selection')) {
           selectionFeaturesArray.splice(selectionFeaturesArray.indexOf(featureId), 1)
         } else {
           if (selectionFeaturesArray.length === 2) {
-            selectionFeaturesArray.splice(0, 1)
-            selectionFeaturesArray.push(featureId)
+            selectionFeaturesArray.splice(selectionFeaturesArray % 2, 1, featureId)
           } else if (selectionFeaturesArray.length < 2) {
             selectionFeaturesArray.push(featureId)
           }
