@@ -7,8 +7,10 @@
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
   import {imgCompare} from '../../vuex/actions'
+  import {event} from '../../vuex/getters'
   export default {
     vuex: {
+      getters: {event},
       actions: {
         imgCompare
       }
@@ -29,6 +31,14 @@
         channelArray: [],
         dateArray: [],
         featureSelectionIndex: 0
+      }
+    },
+    watch: {
+      event: {
+        handler (curVal, oldVal) { // object
+          this.dealWithEvent()
+        },
+        deep: true
       }
     },
     ready () {
@@ -143,7 +153,11 @@
        * 渲染视图
        */
       render () {
-        this.imgCompare({ 'type': 'originalImgs', 'img1name': 'B1_2014_03_17', 'img2name': 'B1_2014_08_24' })
+        this.imgCompare({
+          'type': 'originalImgs', 'img1': {
+            'feature': { 'name': 'll', 'path': [] }, 'imgName': 'B1_2014_08_24'
+          }, 'img2': { 'feature': { 'name': 'zz', 'path': [] }, 'imgName': 'B1_2014_03_17' }
+        })
         var imageObjArray2 = this.imageObjArray2
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         var imageRowObj = imageMatrixSvg.selectAll('.image-row')
@@ -732,6 +746,14 @@
         } else if (featuresArray.length === 2) {
           this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': featuresArray[ 1 ] })
         }
+      },
+      dealWithEvent () {
+        console.log(this.event)
+//        event format
+//        event.comments = $('#commentsText').val()
+//        event.type = $('#eventSelect').val()
+//        event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
+//        event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
       }
     }
   }

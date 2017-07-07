@@ -63,7 +63,6 @@
       top: 0;
       width: 16.6%;
       height: 33.3%;
-      border: 1px solid #faa732;
       overflow-y: auto;
     }
     #icon-list {
@@ -72,7 +71,6 @@
       top: 0;
       width: 4.2%;
       height: 33.3%;
-      border: 1px solid #faa732;
       overflow-y: auto;
     }
     #image-matrix {

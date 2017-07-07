@@ -27,7 +27,7 @@
     methods: {
       init () {
         this.drawTimelineView()
-        this.updateTimeCurve('201403', '201606')
+        this.updateTimeCurve('2014_03_17', '2016_06_26')
       },
       drawTimelineView () {
         let d3 = window.d3
@@ -73,7 +73,8 @@
       },
       updateTimeCurve (start, end) {
 //        201506
-        let time = '201403, 201408, 201411, 201412, 201502, 201506, 201509, 201511, 201603, 201606, 201609, 201612'
+        let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
+          '2016_06_26, 2016_09_06, 2016_12_19'
         time = time.split(',')
         time = time.map(function (d, i) {
           return d.trim()

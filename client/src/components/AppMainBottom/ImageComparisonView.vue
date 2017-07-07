@@ -87,13 +87,8 @@
       init () {
         let self = this
         $('#sbutton').click(function () {
-          let event = {}
-          event.comments = $('#commentsText').val()
-          event.type = $('#eventSelect').val()
-          self.eventSubmit(event)
-          self.updatePanel('B5')
+          self.localEventSubmit()
         })
-        this.drawTagPannel()
 //        this.loadComparisonImages()
       },
       drawTagPannel () {
@@ -175,34 +170,75 @@
 //          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
 //          .attr('width', width / 2)
 //          .attr('height', height)
+        this.drawTagPannel()
+        let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
+          '2016_06_26, 2016_09_06, 2016_12_19'
+        time = time.split(',')
+        time = time.map(function (d, i) {
+          return d.trim()
+        })
+        this.time = time
         if (this.comparedMessage.type === 'originalImgs') {
-          let img1 = this.comparedMessage.img1name
-          let img2 = this.comparedMessage.img2name
+          let arr1 = this.comparedMessage.img1.imgName.split('_')
+          let date1 = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
+          let arr2 = this.comparedMessage.img2.imgName.split('_')
+          let date2 = arr2[ 1 ] + '_' + arr2[ 2 ] + '_' + arr2[ 3 ]
+          let index1 = this.time.indexOf(date1)
+          let index2 = this.time.indexOf(date2)
+          console.log(index1, index2)
+          let comparedMessage = $.extend(true, {}, this.comparedMessage)
+          if (index1 > index2) {
+            let mid = $.extend(true, {}, comparedMessage.img1)
+            comparedMessage.img1 = $.extend(true, {}, comparedMessage.img2)
+            comparedMessage.img2 = mid
+          }
+          this.localComparedMessage = comparedMessage
 //          no png
-          if (img1 !== null) {
+          let img1Name = comparedMessage.img1.imgName
+          let img2Name = comparedMessage.img2.imgName
+          if (img1Name !== null) {
             this.renderIns1 = new EG.renders.GraphTag({ selector: this.$els.graph1 })
             this.renderIns1.init({
               image_canvas_id: 'image_canvas1',
               region_canvas_id: 'region_canvas1'
             })
-            let prefix = img1.split('_')[ 0 ]
-            this.renderIns1.loadStoreLocalImg('../../../data/' + prefix + '/' + img1 + '.png', img1)
+            let prefix = img1Name.split('_')[ 0 ]
+            this.renderIns1.loadStoreLocalImg('../../../data/' + prefix + '/' + img1Name + '.png', img1Name)
             this.renderIns1.showImage(0)
           }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-          if (img2 !== null) {
+          if (img2Name !== null) {
             this.renderIns2 = new EG.renders.GraphTag({ selector: this.$els.graph2 })
             this.renderIns2.init({
               image_canvas_id: 'image_canvas2',
               region_canvas_id: 'region_canvas2'
             })
-            let prefix = img2.split('_')[ 0 ]
-            this.renderIns2.loadStoreLocalImg('../../../data/' + prefix + '/' + img2 + '.png', img2)
+            let prefix = img2Name.split('_')[ 0 ]
+            this.renderIns2.loadStoreLocalImg('../../../data/' + prefix + '/' + img2Name + '.png', img2Name)
             this.renderIns2.showImage(0)
           } else {
             this.renderIns2.clearRegCanvas()
           }
         }
+      },
+      localEventSubmit () {
+        let comparedMessage = this.localComparedMessage
+        let arr1 = comparedMessage.img1.imgName.split('_')
+        let startChannel = arr1[ 0 ]
+        let startFeature = comparedMessage.img1.feature.name
+        let startT = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
+        let arr2 = comparedMessage.img2.imgName.split('_')
+        let endT = arr2[ 1 ] + '_' + arr2[ 2 ] + '_' + arr2[ 3 ]
+        let endChannel = arr2[ 0 ]
+        let endFeature = comparedMessage.img2.feature.name
+        let event = {}
+        event.comments = $('#commentsText').val()
+        event.type = $('#eventSelect').val()
+        event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
+        event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
+        console.log(event)
+        this.eventSubmit(event)
+        this.updatePanel('B5')
       }
     },
     ready () {
