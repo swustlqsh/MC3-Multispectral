@@ -38,6 +38,7 @@
       this.renderOriginalImage()
       this.renderFeaturesControl()
       this.renderFeaturesImage()
+      this.renderEvents()
     },
     methods: {
       /**
@@ -84,16 +85,38 @@
             imageObj.locationX = locationX
             imageObj.locationY = locationY
             imageObj.padding = padding
+            imageObj.iIndex = i
+            imageObj.jIndex = j
             imageObj.featuresArray = [ {
-              featureName: 'a'
+              featureName: 'a'//  ,
+//              eventObj: {
+//                eventName: 'event-a1',
+//                eventType: 'start'
+//              }
             }, {
-              featureName: 'b'
+              featureName: 'b'//  ,
+//              eventObj: {
+//                eventName: 'event-b2',
+//                eventType: 'start'
+//              }
             }, {
-              featureName: 'c'
+              featureName: 'c'//  ,
+//              eventObj: {
+//                eventName: 'event-c3',
+//                eventType: 'start'
+//              }
             }, {
-              featureName: 'e'
+              featureName: 'e',
+              eventObj: {
+                eventName: 'event-e4',
+                eventType: 'start'
+              }
             }, {
-              featureName: 'f'
+              featureName: 'f',
+              eventObj: {
+                eventName: 'event-f5',
+                eventType: 'end'
+              }
             } ]
             imageObj.displayRange = [ 2, 4 ]
             imageObj.eventsArray = []
@@ -344,6 +367,9 @@
           }
         }
       },
+      /**
+       *  点击向左的按键
+       **/
       featureLeftClickHandler (iI, jI) {
         var imageObjArray2 = this.imageObjArray2
         let displayRange = imageObjArray2[ iI ][ jI ].displayRange
@@ -352,7 +378,11 @@
           displayRange[ 1 ] = displayRange[ 1 ] - 1
         }
         this.render_each_features_image(iI, jI)
+        this.render_each_events(iI, jI)
       },
+      /**
+       *  点击向右的按键
+       **/
       featureRightClickHandler (iI, jI) {
         var imageObjArray2 = this.imageObjArray2
         let displayRange = imageObjArray2[ iI ][ jI ].displayRange
@@ -362,6 +392,7 @@
           displayRange[ 1 ] = displayRange[ 1 ] + 1
         }
         this.render_each_features_image(iI, jI)
+        this.render_each_events(iI, jI)
       },
       /**
        *  向每一个components中增加features图片
@@ -375,7 +406,118 @@
         }
       },
       /**
-       *  绘制单个component的feature图像的方法
+       *  渲染在图片上的事件
+       **/
+      renderEvents () {
+        var imageObjArray2 = this.imageObjArray2
+        for (let iI = 0; iI < imageObjArray2.length; iI++) {
+          for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
+            this.render_each_events(iI, jI)
+          }
+        }
+      },
+      /**
+       * 更新在每一个components中增加事件
+       **/
+      render_each_events (iI, jI) {
+        var self = this
+        var imageObjArray2 = this.imageObjArray2
+        var imageMatrixSvg = d3.select('#image-matrix-svg')
+        let imageName = imageObjArray2[ iI ][ jI ].imageName
+        let featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
+        var displayRange = imageObjArray2[ iI ][ jI ].displayRange
+        let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
+        let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
+        var padding = imageObjArray2[ iI ][ jI ].padding
+        if (imageMatrixSvg
+            .select('#' + imageName)
+            .select('#feature-events-' + imageName)
+            .empty()) {
+          imageMatrixSvg.select('#' + imageName)
+            .append('g')
+            .attr('class', 'feature-events')
+            .attr('id', 'feature-events-' + imageName)
+            .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - featureImageWidth * 3) + ')')
+        }
+        let eventsObj = imageMatrixSvg.select('#feature-events-' + imageName)
+          .selectAll('.feature-event')
+          .data(featuresArray.filter(function (d, i) {
+            return ((i >= displayRange[ 0 ]) && (i <= displayRange[ 1 ]))
+          }), function (d, i) {
+            if (typeof (d.eventObj) !== 'undefined') {
+              return d.eventObj.eventName
+            } else {
+              return 'non-exist'
+            }
+          })
+        eventsObj.enter()
+          .append('text')
+          .attr('cursor', 'pointer')
+          .attr('class', function (d, i) {
+            if (typeof (d.eventObj) !== 'undefined') {
+              return 'feature-event ' + d.eventObj.eventType
+            } else {
+              return 'feature-event non-exist'
+            }
+          })
+          .attr('id', function (d, i) {
+            if (typeof (d.eventObj) !== 'undefined') {
+              return imageName + '-' + d.eventObj.eventName
+            } else {
+              return imageName + '-' + 'nonexist'
+            }
+          })
+          .attr('x', function (d, i) {
+            return padding + (featureImageWidth + padding) * i + featureImageWidth / 2
+          })
+          .attr('y', 0)
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('cursor', 'pointer')
+          .attr('font-family', 'FontAwesome')
+          .text(function (d, i) {
+            if (typeof (d.eventObj) !== 'undefined') {
+              if (d.eventObj.eventType === 'start') {
+                return '\uf0d9'
+              } else if (d.eventObj.eventType === 'end') {
+                return '\uf0da'
+              }
+            } else {
+              return ''
+            }
+          })
+          .on('mouseover', function (d, i) {
+            //  高亮显示
+            d3.select(this).classed('event-highlight', true)
+            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
+            self.mouseover_handler(imageNameId)
+          })
+          .on('mouseout', function (d, i) {
+            //  取消高亮显示event的结束
+            d3.select(this).classed('event-highlight', false)
+            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
+            self.mouseout_handler(imageNameId)
+          })
+          .on('click', function (d, i) {
+            //  传递到imageComparisonView
+          })
+        eventsObj.attr('id', function (d, i) {
+          if (typeof (d.eventObj) !== 'undefined') {
+            return imageName + '-' + d.eventObj.eventName
+          } else {
+            return imageName + '-' + 'nonexist'
+          }
+        })
+          .transition()
+          .duration(1000)
+          .attr('x', function (d, i) {
+            return padding + (featureImageWidth + padding) * i + featureImageWidth / 2
+          })
+          .attr('y', 0)
+        eventsObj.exit().remove()
+      },
+      /**
+       *  更新单个component的feature图像的方法
        **/
       render_each_features_image (iI, jI) {
         var self = this
@@ -387,11 +529,13 @@
         var featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
         var displayRange = imageObjArray2[ iI ][ jI ].displayRange
         var padding = imageObjArray2[ iI ][ jI ].padding
-        imageMatrixSvg.select('#' + imageName)
-          .append('g')
-          .attr('class', 'feature-images')
-          .attr('id', 'feature-image-' + imageName)
-          .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - featureImageWidth) + ')')
+        if (imageMatrixSvg.select('#' + imageName).select('#feature-image-' + imageName).empty()) {
+          imageMatrixSvg.select('#' + imageName)
+            .append('g')
+            .attr('class', 'feature-images')
+            .attr('id', 'feature-image-' + imageName)
+            .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - featureImageWidth) + ')')
+        }
         let featuresObj = imageMatrixSvg.select('#feature-image-' + imageName)
           .selectAll('.feature-image')
           .data(featuresArray.filter(function (d, i) {
@@ -413,34 +557,20 @@
           .attr('width', featureImageWidth)
           .attr('height', featureImageWidth)
           .on('mouseover', function (d, i) {
+            d3.select(this).classed('feature-highlight', true)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseover_handler(imageNameId)
           })
           .on('mouseout', function (d, i) {
+            d3.select(this).classed('feature-highlight', false)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseout_handler(imageNameId)
           })
           .on('click', function (d, i) {
-            let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             let featureId = d3.select(this).attr('id')
-            self.feature_click_handler(imageNameId, featureId)
-//            if (d3.select(this).classed('click-selection')) {
-//              d3.select(this).classed('click-selection', false)
-//              if (selectionArray.indexOf(imageNameId) !== -1) {
-//
-//              }
-//            } else {
-//              d3.select(this).classed('click-selection', true)
-//              if (selectionArray.indexOf(imageNameId) === -1) {
-//                self.click_handler(imageNameId)
-//              }
-//            }
+            self.feature_click_handler(featureId)
           })
-        featuresObj.attr('class', 'feature-image')
-          .attr('id', function (d, i) {
-            return imageName + '-' + d.featureName
-          })
-          .transition()
+        featuresObj.transition()
           .duration(1000)
           .attr('x', function (d, i) {
             return padding + (featureImageWidth + padding) * i
@@ -453,13 +583,27 @@
       /**
        *  点击feature的handler
        **/
-      feature_click_handler (imageNameId, featureId) {
-//        let selectionFeaturesArray = this.selectionFeaturesArray
-        //  对于original Image的高亮操作
-        if (d3.select('.image-components#' + imageNameId).classed('click-feature-highlight')) {
-          d3.select('.image-components#' + imageNameId)
-            .classed('click-feature-highlight', false)
+      feature_click_handler (featureId) {
+        let selectionFeaturesArray = this.selectionFeaturesArray
+        if (d3.select('#' + featureId).classed('click-selection')) {
+          selectionFeaturesArray.splice(selectionFeaturesArray.indexOf(featureId), 1)
         } else {
+          if (selectionFeaturesArray.length === 2) {
+            selectionFeaturesArray.splice(0, 1)
+            selectionFeaturesArray.push(featureId)
+          } else if (selectionFeaturesArray.length < 2) {
+            selectionFeaturesArray.push(featureId)
+          }
+        }
+        d3.selectAll('.click-selection')
+          .classed('click-selection', false)
+        d3.selectAll('.click-feature-highlight')
+          .classed('click-feature-highlight', false)
+        for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
+          d3.select('#' + selectionFeaturesArray[ sI ])
+            .classed('click-selection', true)
+          let featureId = selectionFeaturesArray[ sI ]
+          let imageNameId = featureId.split('-')[ 0 ]
           d3.select('.image-components#' + imageNameId)
             .classed('click-feature-highlight', true)
         }
@@ -471,13 +615,6 @@
           d3.selectAll('.image-components')
             .classed('mouseover-unhighlight', true)
         }
-        if (d3.select('#' + featureId).classed('click-selection')) {
-          d3.select('#' + featureId)
-            .classed('click-selection', false)
-        } else {
-          d3.select('#' + featureId)
-            .classed('click-selection', true)
-        }
       },
       /**
        * 鼠标悬浮在component的事件
@@ -487,16 +624,6 @@
           .classed('mouseover-unhighlight', true)
         d3.select('.image-components#' + imageNameId)
           .classed('mouseover-unhighlight', false)
-//        if (selectionArray.indexOf(imageNameId) === -1) {
-//          d3.selectAll('.image-components')
-//            .style('opacity', 0.3)
-//          d3.select('.image-components#' + imageNameId)
-//            .style('opacity', 1)
-//          for (let sI = 0; sI < selectionArray.length; sI++) {
-//            d3.select('.image-components#' + selectionArray[ sI ])
-//              .style('opacity', 1)
-//          }
-//        }
         let indexObj = this.getIndex(imageNameId)
         let imageObjArray2 = this.imageObjArray2
         let imageObj = imageObjArray2[ indexObj.i ][ indexObj.j ]
@@ -537,24 +664,12 @@
        * 鼠标移开component上的事件
        */
       mouseout_handler (imageNameId) {
-//        let selectionArray = this.selectionArray
         d3.select('.image-components#' + imageNameId)
           .classed('mouseover-unhighlight', true)
         if ((d3.select('.image-components.click-highlight').empty()) && (d3.select('.image-components.click-feature-highlight').empty())) {
           d3.selectAll('.image-components')
             .classed('mouseover-unhighlight', false)
         }
-//        if (selectionArray.length !== 0) {
-//          d3.selectAll('.image-components')
-//            .style('opacity', 0.3)
-//          for (let sI = 0; sI < selectionArray.length; sI++) {
-//            d3.select('.image-components#' + selectionArray[ sI ])
-//              .style('opacity', 1)
-//          }
-//        } else {
-//          d3.selectAll('.image-components')
-//            .style('opacity', 1)
-//        }
         d3.selectAll('.feature-control')
           .select('.right-control')
           .style('visibility', 'hidden')
@@ -566,13 +681,6 @@
        * 鼠标点击component的事件
        */
       click_handler (imageNameId) {
-//        let selectionImage = this.selectionImage
-//        d3.selectAll('.image-components')
-//          .classed('click-highlight', true)
-//        d3.select('.image-components#' + imageNameId)
-//          .classed('mouseover-unhighlight', false)
-//        d3.selectAll('.image-components.click-highlight')
-//          .classed('mouseover-unhighlight', true)
         if (d3.select('.image-components#' + imageNameId).classed('click-highlight')) {
           d3.select('.image-components#' + imageNameId)
             .classed('click-highlight', false)
@@ -586,29 +694,6 @@
           d3.selectAll('.image-components')
             .classed('mouseover-unhighlight', false)
         }
-//              .style('opacity', 1)
-//        let selectionArray = this.selectionArray
-//        if (selectionArray.indexOf(imageNameId) !== -1) {
-//          let thisImageIndex = selectionArray.indexOf(imageNameId)
-//          selectionArray.splice(thisImageIndex, 1)
-//          d3.select('#' + imageNameId)
-//            .select('#feature-image-' + imageNameId)
-//            .selectAll('.click-selection')
-//            .classed('click-selection', false)
-//        } else {
-//          selectionArray.push(imageNameId)
-//        }
-//        if (selectionArray.length !== 0) {
-//          d3.selectAll('.image-components')
-//            .style('opacity', 0.3)
-//          for (let sI = 0; sI < selectionArray.length; sI++) {
-//            d3.select('.image-components#' + selectionArray[ sI ])
-//              .style('opacity', 1)
-//          }
-//        } else {
-//          d3.selectAll('.image-components')
-//            .style('opacity', 1)
-//        }
       },
       /**
        *  根据nameId得到横向与纵向的坐标值
@@ -653,7 +738,31 @@
   .image-components[class~=mouseover-unhighlight] {
     opacity: 0.3;
   }
+  .feature-event {
+    font-size: 1.3rem;
+  }
+  .feature-event[class~=event-highlight] {
+    font-size: 1.6rem;
+  }
+  .feature-image[class~=feature-highlight] {
+    stroke: #fc8d59;
+    stroke-width: 2px;
+    animation-name: highlight-animation;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
   .channel-name {
     font-size: 0.7rem;
+  }
+  
+  @keyframes highlight-animation {
+    0% {
+    }
+    50% {
+      stroke-width: 3px;
+    }
+    100% {
+    }
   }
 </style>
