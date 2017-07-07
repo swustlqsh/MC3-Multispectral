@@ -11,3 +11,6 @@ client/node_modules
 client/resource
 npm-debug.log
 client/npm-debug.log
+/client/resource.zip
+/client/.DS_Store
+/client/data
