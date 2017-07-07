@@ -733,7 +733,7 @@
     opacity: 0.3;
   }
   .feature-event {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   .feature-event[class~=event-highlight] {
     font-size: 1.6rem;
