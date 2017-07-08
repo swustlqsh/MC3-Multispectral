@@ -17,6 +17,7 @@ const state = {
   pageHeight: 0,
   event: {},
   comparedMessage: {},
+  selections: {},
   pageSize: {
     pageWidth: 0,
     pageHeight: 0

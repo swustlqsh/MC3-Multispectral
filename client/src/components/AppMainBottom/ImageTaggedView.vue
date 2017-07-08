@@ -107,6 +107,8 @@
         this.selectedId = index
         if (this.selectedId === 5) {
           this.willShow = true
+          this.tableHeader = [{name: '#'}]
+          this.tableBody = []
           this.regions = JSON.parse(this.renderIns.getMetaData())
           if (!this.isShowTable) {
             let regionAttributes = this.regions.regions
@@ -114,7 +116,6 @@
             for (let i = 0; i < features.length; i++) {
               let tbody = []
               tbody.push({value: i})
-
               let attributes = features[i].region_attributes
               for (let attr in attributes) {
                 tbody.push({value: attributes[attr]})
@@ -126,12 +127,17 @@
                 }.bind(this))
               }
             }
-
-            console.log('this.tableBody', this.tableBody)
           }
           console.log(JSON.parse(this.renderIns.getMetaData()))
+          return
         }
-        console.log(this.selectedId)
+        if (this.selectedId === 1) {
+          this.renderIns && this.renderIns.zoom_in()
+          return
+        }
+        if (this.selectedId === 2) {
+          this.renderIns && this.renderIns.zoom_out()
+        }
       },
       // loadStart 读取相关的事件
       loadStart () {
