@@ -8,11 +8,17 @@ let config = {
   burnt: '#ef8a62',
   flood: '#2b8cbe',
   defaultFeatures: [
-    ['Moun', 'orange'],
-    ['Rode', '#D6E2D7'],
-    ['Lake', 'blue'],
-    ['City', 'gray']
-  ]
+    [ 'Moun', 'orange' ],
+    [ 'Rode', '#D6E2D7' ],
+    [ 'Lake', 'blue' ],
+    [ 'City', 'gray' ]
+  ],
+  defaultFeaturesObj: {
+    Moun: 'orange',
+    Rode: '#D6E2D7',
+    Lake: 'blue',
+    City: 'gray'
+  }
 }
 let winWidth = 0
 let winHeight = 0

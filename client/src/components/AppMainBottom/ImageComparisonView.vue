@@ -40,6 +40,7 @@
   import {pageSize, comparedMessage} from '../../vuex/getters'
   import {eventSubmit} from '../../vuex/actions'
   import EG from 'ENGINES'
+
   export default {
     vuex: {
       actions: {

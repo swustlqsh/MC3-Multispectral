@@ -8,6 +8,7 @@
   let d3 = require('../../../plugins/d3v3.min.js')
   import {imgCompare} from '../../vuex/actions'
   import {event} from '../../vuex/getters'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: { event },
@@ -30,7 +31,9 @@
         imageHeight: 0,
         channelArray: [],
         dateArray: [],
-        featureSelectionIndex: 0
+        featureSelectionIndex: 0,
+        eventArray: [],
+        categoryColor: config.defaultFeaturesObj
       }
     },
     watch: {
@@ -74,12 +77,12 @@
           '2016_03_06', '2016_06_26', '2016_09_06', '2016_12_19' ]
         this.channelArray = channelArray
         this.dateArray = dateArray
-        let imageMatrixViewHeight = imageHeight * channelArray.length
+        let imageMatrixViewHeight = (imageHeight + padding) * channelArray.length
         $('#image-matrix-div').height(imageMatrixViewHeight)
         let imageObjArray2 = []
         for (let i = 0; i < channelArray.length; i++) {
           let imageObjArray = []
-          let locationY = i * imageHeight
+          let locationY = i * (imageHeight + padding)
           let channelName = channelArray[ i ]
           for (let j = 0; j < dateArray.length; j++) {
             let imageObj = {}
@@ -101,33 +104,38 @@
             imageObj.featuresArray = [ {
               featureName: 'a'//  ,
 //              eventObj: {
+//                eventCategory: 'flood',
 //                eventName: 'event-a1',
 //                eventType: 'start'
 //              }
             }, {
               featureName: 'b'//  ,
 //              eventObj: {
+//                eventCategory: 'flood',
 //                eventName: 'event-b2',
 //                eventType: 'start'
 //              }
             }, {
               featureName: 'c'//  ,
 //              eventObj: {
+//                eventCategory: 'flood',
 //                eventName: 'event-c3',
 //                eventType: 'start'
 //              }
             }, {
-              featureName: 'e',
-              eventObj: {
-                eventName: 'event-e4',
-                eventType: 'start'
-              }
+              featureName: 'e'//  ,
+//              eventObj: {
+//                eventCategory: 'flood',
+//                eventName: 'event-e4',
+//                eventType: 'start'
+//              }
             }, {
-              featureName: 'f',
-              eventObj: {
-                eventName: 'event-f5',
-                eventType: 'end'
-              }
+              featureName: 'f'//  ,
+//              eventObj: {
+//                eventCategory: 'flood',
+//                eventName: 'event-f5',
+//                eventType: 'end'
+//              }
             } ]
             imageObj.displayRange = [ 2, 4 ]
             imageObj.eventsArray = []
@@ -479,6 +487,7 @@
         let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
         let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
         var padding = imageObjArray2[ iI ][ jI ].padding
+        let categoryColor = this.categoryColor
         if (imageMatrixSvg
             .select('#' + imageName)
             .select('#feature-events-' + imageName)
@@ -555,6 +564,21 @@
             d3.select(this).classed('event-highlight', false)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseout_handler(imageNameId)
+          })
+          .style('fill', function (d, i) {
+            if(typeof(d.eventObj)==='undefined'){
+              return 'black'
+            }else{
+              let eventCategory = d.eventObj.eventCategory
+              if(typeof(categoryColor) !== 'undefined'){
+                console.log('eventCategory', eventCategory)
+                console.log('categoryColor', categoryColor)
+                console.log('color', categoryColor[eventCategory])
+                return categoryColor[eventCategory]
+              }else{
+                return 'black'
+              }
+            }
           })
           .on('click', function (d, i) {
             //  传递到imageComparisonView
@@ -747,16 +771,23 @@
        * 鼠标点击component的事件
        */
       click_handler (imageNameId) {
-        d3.selectAll('.background-image.click-highlight')
-          .classed('click-highlight', false)
-        d3.select('.image-components#' + imageNameId)
-          .select('.background-image')
-          .classed('click-highlight', true)
-        d3.selectAll('.original-image-bg.click-highlight')
-          .classed('click-highlight', false)
-        d3.select('.image-components#' + imageNameId)
-          .select('.original-image-bg')
-          .classed('click-highlight', true)
+        if (!d3.select('.image-components#' + imageNameId).select('.background-image').classed('click-highlight')) {
+          d3.selectAll('.background-image.click-highlight')
+            .classed('click-highlight', false)
+          d3.select('.image-components#' + imageNameId)
+            .select('.background-image')
+            .classed('click-highlight', true)
+          d3.selectAll('.original-image-bg.click-highlight')
+            .classed('click-highlight', false)
+          d3.select('.image-components#' + imageNameId)
+            .select('.original-image-bg')
+            .classed('click-highlight', true)
+        } else {
+          d3.selectAll('.background-image.click-highlight')
+            .classed('click-highlight', false)
+          d3.selectAll('.original-image-bg.click-highlight')
+            .classed('click-highlight', false)
+        }
       },
       /**
        *  根据nameId得到横向与纵向的坐标值
@@ -804,12 +835,61 @@
         }
       },
       dealWithEvent () {
-        console.log(this.event)
-//        event format
-//        event.comments = $('#commentsText').val()
-//        event.type = $('#eventSelect').val()
-//        event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
-//        event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
+        //  event format
+        let eventArray = this.eventArray
+        let endObj = this.event.end
+        let startObj = this.event.start
+        let eventCategory = this.event.type
+        eventArray.push(this.event)
+        let eventIndex = eventArray.length - 1
+        this.addEventStart(startObj, eventCategory, eventIndex, 'start')
+        this.addEventEnd(endObj, eventCategory, eventIndex, 'end')
+      },
+      addEventStart (startObj, eventCategory, eventIndex, eventType) {
+        let channel = startObj.channel
+        let time = startObj.time
+        let feature = startObj.feature
+        let dateArray = this.dateArray
+        let channelArray = this.channelArray
+        let imageObjArray2 = this.imageObjArray2
+        let channelIndex = channelArray.indexOf(channel)
+        let timeIndex = dateArray.indexOf(time)
+        let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
+        let featuresArray = imageObj.featuresArray
+        let eventName = 'event' + eventIndex
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          if (featuresArray[ fI ].featureName === feature) {
+            featuresArray[ fI ].eventObj = {}
+            featuresArray[ fI ].eventObj.eventName = eventName
+            featuresArray[ fI ].eventObj.eventCategory = eventCategory
+            featuresArray[ fI ].eventObj.eventType = eventType
+          }
+        }
+        this.render_each_events(channelIndex, timeIndex)
+        console.log('start imageObj', imageObj)
+      },
+      addEventEnd (endObj, eventCategory, eventIndex, eventType) {
+        let channel = endObj.channel
+        let time = endObj.time
+        let feature = endObj.feature
+        let dateArray = this.dateArray
+        let channelArray = this.channelArray
+        let imageObjArray2 = this.imageObjArray2
+        let channelIndex = channelArray.indexOf(channel)
+        let timeIndex = dateArray.indexOf(time)
+        let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
+        let featuresArray = imageObj.featuresArray
+        let eventName = 'event' + eventIndex
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          if (featuresArray[ fI ].featureName === feature) {
+            featuresArray[ fI ].eventObj = {}
+            featuresArray[ fI ].eventObj.eventName = eventName
+            featuresArray[ fI ].eventObj.eventCategory = eventCategory
+            featuresArray[ fI ].eventObj.eventType = eventType
+          }
+        }
+        this.render_each_events(channelIndex, timeIndex)
+        console.log('end imageObj', imageObj)
       }
     }
   }
