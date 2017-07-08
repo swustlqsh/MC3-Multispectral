@@ -28,7 +28,9 @@ let config = {
   CSV_SEP: ',',
   CSV_QUOTE_CHAR: '"',
   CSV_KEYVAL_SEP: ':',
-  IMPORT_CSV_COMMENT_CHAR: '#'
+  IMPORT_CSV_COMMENT_CHAR: '#',
+  MOUSE_CLICK_TOL: 2,
+  POLYGON_VERTEX_MATCH_TOL: 5
 }
 
 export default config
