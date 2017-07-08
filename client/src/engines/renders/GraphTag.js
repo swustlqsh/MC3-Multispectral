@@ -21,7 +21,7 @@ let VIA_ELLIPSE_EDGE_TOL = 0.2
 let VIA_THETA_TOL = Math.PI / 18
 let VIA_POLYGON_RESIZE_VERTEX_OFFSET = 100
 let VIA_CANVAS_DEFAULT_ZOOM_LEVEL_INDEX = 3
-let VIA_CANVAS_ZOOM_LEVELS = [ 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4, 5 ]
+let VIA_CANVAS_ZOOM_LEVELS = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4, 5]
 let VIA_THEME_REGION_BOUNDARY_WIDTH = 4
 let VIA_THEME_BOUNDARY_LINE_COLOR = '#1a1a1a'
 let VIA_THEME_BOUNDARY_FILL_COLOR = '#aaeeff'
@@ -45,7 +45,7 @@ let BBOX_BOUNDARY_LINE_COLOR = '#1a1a1a'
 let BBOX_SELECTED_FILL_COLOR = '#ffffff'
 
 // Data structure for annotations
-function ImageMetadata (fileref, filename, size) {
+function ImageMetadata(fileref, filename, size) {
   this.filename = filename
   this.size = size
   this.fileref = fileref         // image url or local file ref.
@@ -54,14 +54,14 @@ function ImageMetadata (fileref, filename, size) {
   this.base64_img_data = ''        // image data stored as base 64
 }
 
-function ImageRegion () {
+function ImageRegion() {
   this.is_user_selected = false
   this.shape_attributes = new Map() // region shape attributes
   this.region_attributes = new Map() // region attributes
 }
 
 class GraphTag extends Render {
-  constructor (opts) {
+  constructor(opts) {
     super(opts)
     this.el = window.d3.select(this.selector)
     this._via_img_metadata = {}     // data structure to store loaded images metadata
@@ -126,7 +126,7 @@ class GraphTag extends Render {
     this._via_region_click_x = 0
     this._via_region_click_y = 0
     this._via_copied_image_regions = []
-    this._via_region_edge = [ -1, -1 ]
+    this._via_region_edge = [-1, -1]
 
     // message
     this._via_message_clear_timer = undefined
@@ -151,7 +151,7 @@ class GraphTag extends Render {
     return this
   }
 
-  init (opts) {
+  init(opts) {
     super.init(opts)
     this._via_div_real_width = this.options.image_real_width
     this._via_div_real_height = this.options.image_real_height
@@ -165,7 +165,7 @@ class GraphTag extends Render {
 
   // load image
 
-  getImageId (fileName, size) {
+  getImageId(fileName, size) {
     if (typeof (size) === 'undefined') {
       return fileName
     } else {
@@ -173,7 +173,7 @@ class GraphTag extends Render {
     }
   }
 
-  setAllCanvasSize (w, h) {
+  setAllCanvasSize(w, h) {
     this.imgCanvas.height = h
     if (h != w) {
       h = w
@@ -183,7 +183,7 @@ class GraphTag extends Render {
     this.regCanvas.width = w
   }
 
-  imageMetaData (fileRef, fileName, size) {
+  imageMetaData(fileRef, fileName, size) {
     let metaInfo = {
       file_name: fileName,
       size: size,
@@ -195,48 +195,49 @@ class GraphTag extends Render {
     return metaInfo
   }
 
-  clearImageDisplayArea () {
+  clearImageDisplayArea() {
     this.el.node().style.display = 'none'
   }
 
-  showAllCanvas () {
+  showAllCanvas() {
     this.el.node().style.display = 'inline-block'
   }
-  loadCanvasRegions () {
-    let regions = this._via_img_metadata[ this.imageId ].regions
+
+  loadCanvasRegions() {
+    let regions = this._via_img_metadata[this.imageId].regions
     this.canvasRegions = []
     let REGION_SHAPE = VIA_REGION_SHAPE
     let canvasScale = this.canvasScale
     for (let i = 0; i < regions.length; i++) {
       let regioni = new ImageRegion()
-      for (let key of regions[ i ].shape_attributes.keys()) {
-        let value = regions[ i ].shape_attributes.get(key)
+      for (let key of regions[i].shape_attributes.keys()) {
+        let value = regions[i].shape_attributes.get(key)
         regioni.shape_attributes.set(key, value)
       }
       this.canvasRegions.push(regioni)
-      switch (this.canvasRegions[ i ].shape_attributes.get('name')) {
+      switch (this.canvasRegions[i].shape_attributes.get('name')) {
         case REGION_SHAPE.POLYGON:
-          let allPointsX = regions[ i ].shape_attributes.get('all_points_x').slice(0)
-          let allPointsY = regions[ i ].shape_attributes.get('all_points_y').slice(0)
+          let allPointsX = regions[i].shape_attributes.get('all_points_x').slice(0)
+          let allPointsY = regions[i].shape_attributes.get('all_points_y').slice(0)
           for (let j = 0; j < allPointsX.length; ++j) {
-            allPointsX[ j ] = Math.round(allPointsX[ j ] / canvasScale)
-            allPointsY[ j ] = Math.round(allPointsY[ j ] / canvasScale)
+            allPointsX[j] = Math.round(allPointsX[j] / canvasScale)
+            allPointsY[j] = Math.round(allPointsY[j] / canvasScale)
           }
-          this.canvasRegions[ i ].shape_attributes.set('all_points_x', allPointsX)
-          this.canvasRegions[ i ].shape_attributes.set('all_points_y', allPointsY)
+          this.canvasRegions[i].shape_attributes.set('all_points_x', allPointsX)
+          this.canvasRegions[i].shape_attributes.set('all_points_y', allPointsY)
           break
       }
     }
   }
 
-  loadStoreLocalImg (fileRef, fileName, size) {
+  loadStoreLocalImg(fileRef, fileName, size) {
     let imgId = this.getImageId(fileName, size)
-    this._via_img_metadata[ imgId ] = new ImageMetadata(fileRef, fileName, size)
+    this._via_img_metadata[imgId] = new ImageMetadata(fileRef, fileName, size)
     this._via_image_id_list.push(imgId)
     this._via_img_count = this._via_img_count + 1
   }
 
-  setAllCanvasSize (w, h) {
+  setAllCanvasSize(w, h) {
     this._via_img_canvas.height = h
     this._via_img_canvas.width = w
     this._via_reg_canvas.height = h
@@ -244,44 +245,44 @@ class GraphTag extends Render {
   }
 
   // Canvas update routines
-  loadCanvasRegions () {
-    let regions = this._via_img_metadata[ this._via_image_id ].regions
+  loadCanvasRegions() {
+    let regions = this._via_img_metadata[this._via_image_id].regions
     this._via_canvas_regions = []
     let canvasScale = this._via_canvas_scale
     for (let i = 0; i < regions.length; i++) {
       let regioni = new ImageRegion()
-      for (let key of regions[ i ].shape_attributes.keys()) {
-        let value = regions[ i ].shape_attributes.get(key)
+      for (let key of regions[i].shape_attributes.keys()) {
+        let value = regions[i].shape_attributes.get(key)
         regioni.shape_attributes.set(key, value)
       }
       this._via_canvas_regions.push(regioni)
-      switch (this._via_canvas_regions[ i ].shape_attributes.get('name')) {
+      switch (this._via_canvas_regions[i].shape_attributes.get('name')) {
         case VIA_REGION_SHAPE.POLYGON:
-          let allPointsX = regions[ i ].shape_attributes.get('all_points_x').slice(0)
-          let allPointsY = regions[ i ].shape_attributes.get('all_points_y').slice(0)
+          let allPointsX = regions[i].shape_attributes.get('all_points_x').slice(0)
+          let allPointsY = regions[i].shape_attributes.get('all_points_y').slice(0)
           for (let j = 0; j < allPointsX.length; ++j) {
-            allPointsX[ j ] = Math.round(allPointsX[ j ] / canvasScale)
-            allPointsY[ j ] = Math.round(allPointsY[ j ] / canvasScale)
+            allPointsX[j] = Math.round(allPointsX[j] / canvasScale)
+            allPointsY[j] = Math.round(allPointsY[j] / canvasScale)
           }
-          this._via_canvas_regions[ i ].shape_attributes.set('all_points_x', allPointsX)
-          this._via_canvas_regions[ i ].shape_attributes.set('all_points_y', allPointsY)
+          this._via_canvas_regions[i].shape_attributes.set('all_points_x', allPointsX)
+          this._via_canvas_regions[i].shape_attributes.set('all_points_y', allPointsY)
           break
         case VIA_REGION_SHAPE.POINT:
-          let cx = regions[ i ].shape_attributes.get('cx') / canvasScale
-          let cy = regions[ i ].shape_attributes.get('cy') / canvasScale
+          let cx = regions[i].shape_attributes.get('cx') / canvasScale
+          let cy = regions[i].shape_attributes.get('cy') / canvasScale
 
-          this._via_canvas_regions[ i ].shape_attributes.set('cx', Math.round(cx))
-          this._via_canvas_regions[ i ].shape_attributes.set('cy', Math.round(cy))
+          this._via_canvas_regions[i].shape_attributes.set('cx', Math.round(cx))
+          this._via_canvas_regions[i].shape_attributes.set('cy', Math.round(cy))
           break
       }
     }
   }
 
-  _viaClearRegCanvas () {
+  _viaClearRegCanvas() {
     this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
   }
 
-  _viaDrawControlPoint (cx, cy) {
+  _viaDrawControlPoint(cx, cy) {
     this._via_reg_ctx.beginPath()
     this._via_reg_ctx.beginPath()
     this._via_reg_ctx.beginPath()
@@ -294,12 +295,12 @@ class GraphTag extends Render {
     this._via_reg_ctx.fill()
   }
 
-  _viaDrawPolygonRegion (all_points_x, all_points_y, is_selected) {
+  _viaDrawPolygonRegion(all_points_x, all_points_y, is_selected) {
     if (is_selected) {
       this._via_reg_ctx.beginPath()
-      this._via_reg_ctx.moveTo(all_points_x[ 0 ], all_points_y[ 0 ])
+      this._via_reg_ctx.moveTo(all_points_x[0], all_points_y[0])
       for (let i = 1; i < all_points_x.length; ++i) {
-        this._via_reg_ctx.lineTo(all_points_x[ i ], all_points_y[ i ])
+        this._via_reg_ctx.lineTo(all_points_x[i], all_points_y[i])
       }
       this._via_reg_ctx.strokeStyle = VIA_THEME_SEL_REGION_FILL_BOUNDARY_COLOR
       this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 2
@@ -311,7 +312,7 @@ class GraphTag extends Render {
       this._via_reg_ctx.globalAlpha = 1.0
 
       for (let i = 1; i < all_points_x.length; ++i) {
-        this._viaDrawControlPoint(all_points_x[ i ], all_points_y[ i ])
+        this._viaDrawControlPoint(all_points_x[i], all_points_y[i])
       }
     } else {
       for (let i = 1; i < all_points_x.length; ++i) {
@@ -319,64 +320,64 @@ class GraphTag extends Render {
         this._via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_FILL_COLOR
         this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 2
         this._via_reg_ctx.beginPath()
-        this._via_reg_ctx.moveTo(all_points_x[ i - 1 ], all_points_y[ i - 1 ])
-        this._via_reg_ctx.lineTo(all_points_x[ i ], all_points_y[ i ])
+        this._via_reg_ctx.moveTo(all_points_x[i - 1], all_points_y[i - 1])
+        this._via_reg_ctx.lineTo(all_points_x[i], all_points_y[i])
         this._via_reg_ctx.stroke()
 
-        var slope_i = (all_points_y[ i ] - all_points_y[ i - 1 ]) / (all_points_x[ i ] - all_points_x[ i - 1 ])
+        var slope_i = (all_points_y[i] - all_points_y[i - 1]) / (all_points_x[i] - all_points_x[i - 1])
         if (slope_i > 0) {
           // draw a boundary line on both sides
           this._via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_LINE_COLOR
           this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 4
           this._via_reg_ctx.beginPath()
-          this._via_reg_ctx.moveTo(parseInt(all_points_x[ i - 1 ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i - 1 ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
-          this._via_reg_ctx.lineTo(parseInt(all_points_x[ i ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.moveTo(parseInt(all_points_x[i - 1]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i - 1]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.lineTo(parseInt(all_points_x[i]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
           this._via_reg_ctx.stroke()
           this._via_reg_ctx.beginPath()
-          this._via_reg_ctx.moveTo(parseInt(all_points_x[ i - 1 ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i - 1 ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
-          this._via_reg_ctx.lineTo(parseInt(all_points_x[ i ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.moveTo(parseInt(all_points_x[i - 1]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i - 1]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.lineTo(parseInt(all_points_x[i]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
           this._via_reg_ctx.stroke()
         } else {
           // draw a boundary line on both sides
           this._via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_LINE_COLOR
           this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 4
           this._via_reg_ctx.beginPath()
-          this._via_reg_ctx.moveTo(parseInt(all_points_x[ i - 1 ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i - 1 ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
-          this._via_reg_ctx.lineTo(parseInt(all_points_x[ i ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i ]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.moveTo(parseInt(all_points_x[i - 1]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i - 1]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.lineTo(parseInt(all_points_x[i]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i]) + parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
           this._via_reg_ctx.stroke()
           this._via_reg_ctx.beginPath()
-          this._via_reg_ctx.moveTo(parseInt(all_points_x[ i - 1 ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i - 1 ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
-          this._via_reg_ctx.lineTo(parseInt(all_points_x[ i ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
-            parseInt(all_points_y[ i ]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.moveTo(parseInt(all_points_x[i - 1]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i - 1]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
+          this._via_reg_ctx.lineTo(parseInt(all_points_x[i]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4),
+            parseInt(all_points_y[i]) - parseInt(VIA_THEME_REGION_BOUNDARY_WIDTH / 4))
           this._via_reg_ctx.stroke()
         }
       }
     }
   }
 
-  _viaDrawPoint (cx, cy, r) {
+  _viaDrawPoint(cx, cy, r) {
     this._via_reg_ctx.beginPath()
     this._via_reg_ctx.arc(cx, cy, r, 0, 2 * Math.PI, false)
     this._via_reg_ctx.closePath()
   }
 
-  isInsidePolygon (all_points_x, all_points_y, px, py) {
+  isInsidePolygon(all_points_x, all_points_y, px, py) {
     let wn = 0
     for (let i = 0; i < all_points_x.length - 1; ++i) {
-      let isLeft_value = this.isLeft(all_points_x[ i ], all_points_y[ i ], all_points_x[ i + 1 ], all_points_y[ i + 1 ], px, py)
-      if (all_points_y[ i ] <= py) {
-        if (all_points_y[ i + 1 ] > py && isLeft_value > 0) {
+      let isLeft_value = this.isLeft(all_points_x[i], all_points_y[i], all_points_x[i + 1], all_points_y[i + 1], px, py)
+      if (all_points_y[i] <= py) {
+        if (all_points_y[i + 1] > py && isLeft_value > 0) {
           ++wn
         }
       } else {
-        if (all_points_y[ i + 1 ] <= py && isLeft_value < 0) {
+        if (all_points_y[i + 1] <= py && isLeft_value < 0) {
           --wn
         }
       }
@@ -388,7 +389,7 @@ class GraphTag extends Render {
     }
   }
 
-  isInsidePoint (cx, cy, px, py) {
+  isInsidePoint(cx, cy, px, py) {
     let dx = px - cx
     let dy = py - cy
     let r2 = VIA_POLYGON_VERTEX_MATCH_TOL * VIA_POLYGON_VERTEX_MATCH_TOL
@@ -399,8 +400,8 @@ class GraphTag extends Render {
     }
   }
 
-  is_inside_this_region (px, py, region_id) {
-    let attr = this._via_canvas_regions[ region_id ].shape_attributes
+  is_inside_this_region(px, py, region_id) {
+    let attr = this._via_canvas_regions[region_id].shape_attributes
     let result = false
     switch (attr.get('name')) {
       case VIA_REGION_SHAPE.POLYGON:
@@ -414,7 +415,7 @@ class GraphTag extends Render {
     return result
   }
 
-  _viaDrawPoint_region (cx, cy, is_selected) {
+  _viaDrawPoint_region(cx, cy, is_selected) {
     if (is_selected) {
       this._viaDrawPoint(cx, cy, VIA_REGION_POINT_RADIUS)
 
@@ -443,10 +444,10 @@ class GraphTag extends Render {
     }
   }
 
-  drawAllRegions () {
+  drawAllRegions() {
     for (let i = 0; i < this._via_canvas_regions.length; ++i) {
-      let attr = this._via_canvas_regions[ i ].shape_attributes
-      let is_selected = this._via_canvas_regions[ i ].is_user_selected
+      let attr = this._via_canvas_regions[i].shape_attributes
+      let is_selected = this._via_canvas_regions[i].is_user_selected
       switch (attr.get('name')) {
         case VIA_REGION_SHAPE.POLYGON:
           this._viaDrawPolygonRegion(attr.get('all_points_x'), attr.get('all_points_y'), is_selected)
@@ -458,7 +459,7 @@ class GraphTag extends Render {
     }
   }
 
-  getRegionBoundingBox (region) {
+  getRegionBoundingBox(region) {
     let d = region.shape_attributes
     let bbox = new Array(4)
 
@@ -472,49 +473,49 @@ class GraphTag extends Render {
         let maxx = 0
         let maxy = 0
         for (let i = 0; i < all_points_x.length; ++i) {
-          if (all_points_x[ i ] < minx) {
-            minx = all_points_x[ i ]
+          if (all_points_x[i] < minx) {
+            minx = all_points_x[i]
           }
-          if (all_points_x[ i ] > maxx) {
-            maxx = all_points_x[ i ]
+          if (all_points_x[i] > maxx) {
+            maxx = all_points_x[i]
           }
-          if (all_points_y[ i ] < miny) {
-            miny = all_points_y[ i ]
+          if (all_points_y[i] < miny) {
+            miny = all_points_y[i]
           }
-          if (all_points_y[ i ] > maxy) {
-            maxy = all_points_y[ i ]
+          if (all_points_y[i] > maxy) {
+            maxy = all_points_y[i]
           }
         }
-        bbox[ 0 ] = minx
-        bbox[ 1 ] = miny
-        bbox[ 2 ] = maxx
-        bbox[ 3 ] = maxy
+        bbox[0] = minx
+        bbox[1] = miny
+        bbox[2] = maxx
+        bbox[3] = maxy
         break
 
       case 'point':
-        bbox[ 0 ] = d.get('cx') - VIA_REGION_POINT_RADIUS
-        bbox[ 1 ] = d.get('cy') - VIA_REGION_POINT_RADIUS
-        bbox[ 2 ] = d.get('cx') + VIA_REGION_POINT_RADIUS
-        bbox[ 3 ] = d.get('cy') + VIA_REGION_POINT_RADIUS
+        bbox[0] = d.get('cx') - VIA_REGION_POINT_RADIUS
+        bbox[1] = d.get('cy') - VIA_REGION_POINT_RADIUS
+        bbox[2] = d.get('cx') + VIA_REGION_POINT_RADIUS
+        bbox[3] = d.get('cy') + VIA_REGION_POINT_RADIUS
         break
     }
     return bbox
   }
 
-  isLeft (x0, y0, x1, y1, x2, y2) {
+  isLeft(x0, y0, x1, y1, x2, y2) {
     return (((x1 - x0) * (y2 - y0)) - ((x2 - x0) * (y1 - y0)) )
   }
 
-  drawAllRegionId () {
+  drawAllRegionId() {
     this._via_reg_ctx.shadowColor = 'transparent'
-    for (let i = 0; i < this._via_img_metadata[ this._via_image_id ].regions.length; ++i) {
-      let canvas_reg = this._via_canvas_regions[ i ]
+    for (let i = 0; i < this._via_img_metadata[this._via_image_id].regions.length; ++i) {
+      let canvas_reg = this._via_canvas_regions[i]
 
       let bbox = this.getRegionBoundingBox(canvas_reg)
-      let x = bbox[ 0 ]
-      let y = bbox[ 1 ]
-      let w = Math.abs(bbox[ 2 ] - bbox[ 0 ])
-      let h = Math.abs(bbox[ 3 ] - bbox[ 1 ])
+      let x = bbox[0]
+      let y = bbox[1]
+      let w = Math.abs(bbox[2] - bbox[0])
+      let h = Math.abs(bbox[3] - bbox[1])
       this._via_reg_ctx.font = VIA_THEME_ATTRIBUTE_VALUE_FONT
 
       let annotation_str = (i + 1)
@@ -523,7 +524,7 @@ class GraphTag extends Render {
       let char_width = this._via_reg_ctx.measureText('M').width
       let char_height = 1.8 * char_width
 
-      let r = this._via_img_metadata[this._via_image_id].regions[ i ].region_attributes
+      let r = this._via_img_metadata[this._via_image_id].regions[i].region_attributes
       if (r.size === 1 && w > (2 * char_width)) {
         // show the attribute value
         for (let key of r.keys()) {
@@ -543,8 +544,8 @@ class GraphTag extends Render {
 
       if (canvas_reg.shape_attributes.get('name') === VIA_REGION_SHAPE.POLYGON) {
         // put label near the first vertex
-        x = canvas_reg.shape_attributes.get('all_points_x')[ 0 ]
-        y = canvas_reg.shape_attributes.get('all_points_y')[ 0 ]
+        x = canvas_reg.shape_attributes.get('all_points_x')[0]
+        y = canvas_reg.shape_attributes.get('all_points_y')[0]
       } else {
         // center the label
         x = x - (bgnd_rect_width / 2 - w / 2)
@@ -562,7 +563,7 @@ class GraphTag extends Render {
     }
   }
 
-  _viaRedrawRegCanvas () {
+  _viaRedrawRegCanvas() {
     if (this._via_current_image_loaded) {
       if (this._via_canvas_regions.length > 0) {
         this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
@@ -575,16 +576,19 @@ class GraphTag extends Render {
       }
     }
   }
-
-  showImage (imageIndex) {
+  updateDivContainer (opts) {
+    this._via_div_real_width = opts.image_real_width
+    this._via_div_real_height = opts.image_real_height
+  }
+  showImage(imageIndex) {
     if (this._via_is_loading_current_image) {
       return
     }
-    let imgId = this._via_image_id_list[ imageIndex || 0 ]
+    let imgId = this._via_image_id_list[imageIndex || 0]
     if (!this._via_img_metadata.hasOwnProperty(imgId)) {
       return
     }
-    let fileName = this._via_img_metadata[ imgId ].file_name
+    let fileName = this._via_img_metadata[imgId].file_name
     this._via_is_loading_current_image = true
     this._via_current_image = new Image()
     this._via_current_image.addEventListener('error', function () {
@@ -652,11 +656,11 @@ class GraphTag extends Render {
       this.isLoadingCurrentImage = false
       this._via_reload_img_table = true
     }.bind(this)
-    this._via_current_image.src = this._via_img_metadata[ imgId ].fileref
+    this._via_current_image.src = this._via_img_metadata[imgId].fileref
   }
 
   // Region collision routines
-  isInsideRegion (px, py, descending_order) {
+  isInsideRegion(px, py, descending_order) {
     let N = this._via_canvas_regions.length
     if (N === 0) {
       return -1
@@ -685,23 +689,23 @@ class GraphTag extends Render {
     return -1
   }
 
-  isOnPolygonVertex (all_points_x, all_points_y, px, py) {
+  isOnPolygonVertex(all_points_x, all_points_y, px, py) {
     let n = all_points_x.length
     for (let i = 0; i < n; ++i) {
-      if (Math.abs(all_points_x[ i ] - px) < VIA_POLYGON_VERTEX_MATCH_TOL &&
-        Math.abs(all_points_y[ i ] - py) < VIA_POLYGON_VERTEX_MATCH_TOL) {
+      if (Math.abs(all_points_x[i] - px) < VIA_POLYGON_VERTEX_MATCH_TOL &&
+        Math.abs(all_points_y[i] - py) < VIA_POLYGON_VERTEX_MATCH_TOL) {
         return (VIA_POLYGON_RESIZE_VERTEX_OFFSET + i)
       }
     }
     return 0
   }
 
-  isOnRegionCorner (px, py) {
-    let _via_region_edge = [ -1, -1 ] // region_id, corner_id [top-left=1,top-right=2,bottom-right=3,bottom-left=4]
+  isOnRegionCorner(px, py) {
+    let _via_region_edge = [-1, -1] // region_id, corner_id [top-left=1,top-right=2,bottom-right=3,bottom-left=4]
     for (let i = 0; i < this._via_canvas_regions.length; ++i) {
-      let attr = this._via_canvas_regions[ i ].shape_attributes
+      let attr = this._via_canvas_regions[i].shape_attributes
       let result = false
-      _via_region_edge[ 0 ] = i
+      _via_region_edge[0] = i
 
       switch (attr.get('name')) {
         case VIA_REGION_SHAPE.POLYGON:
@@ -712,15 +716,15 @@ class GraphTag extends Render {
       }
 
       if (result > 0) {
-        _via_region_edge[ 1 ] = result
+        _via_region_edge[1] = result
         return _via_region_edge
       }
     }
-    _via_region_edge[ 0 ] = -1
+    _via_region_edge[0] = -1
     return _via_region_edge
   }
 
-  isOnRectEdge (x, y, w, h, px, py) {
+  isOnRectEdge(x, y, w, h, px, py) {
     let dx0 = Math.abs(x - px)
     let dy0 = Math.abs(y - py)
     let dx1 = Math.abs(x + w - px)
@@ -741,32 +745,32 @@ class GraphTag extends Render {
     return 0
   }
 
-  toggleAllRegionsSelection (is_selected) {
+  toggleAllRegionsSelection(is_selected) {
     for (let i = 0; i < this._via_canvas_regions.length; ++i) {
-      this._via_canvas_regions[ i ].is_user_selected = is_selected
-      this._via_img_metadata[ this._via_image_id ].regions[ i ].is_user_selected = is_selected
+      this._via_canvas_regions[i].is_user_selected = is_selected
+      this._via_img_metadata[this._via_image_id].regions[i].is_user_selected = is_selected
     }
     this._via_is_all_region_selected = is_selected
   }
 
-  selectOnlyRegion (region_id) {
+  selectOnlyRegion(region_id) {
     this.toggleAllRegionsSelection(false)
     this.setRegionSelectState(region_id, true)
     this._via_is_region_selected = true
     this._via_user_sel_region_id = region_id
   }
 
-  setRegionSelectState (region_id, is_selected) {
-    this._via_canvas_regions[ region_id ].is_user_selected = is_selected
-    this._via_img_metadata[ this._via_image_id ].regions[ region_id ].is_user_selected = is_selected
+  setRegionSelectState(region_id, is_selected) {
+    this._via_canvas_regions[region_id].is_user_selected = is_selected
+    this._via_img_metadata[this._via_image_id].regions[region_id].is_user_selected = is_selected
   }
 
-  update_attributes_panel () {
+  update_attributes_panel() {
 
   }
 
 // Image click handlers
-  addEventListenerDBClick () {
+  addEventListenerDBClick() {
     this._via_reg_canvas.addEventListener('dblclick', function (e) {
       this._via_click_x0 = e.offsetX
       this._via_click_y0 = e.offsetY
@@ -778,7 +782,7 @@ class GraphTag extends Render {
     return this
   }
 
-  addEventListenerMousedown () {
+  addEventListenerMousedown() {
     this._via_reg_canvas.addEventListener('mousedown', function (e) {
       this._via_click_x0 = e.offsetX
       this._via_click_y0 = e.offsetY
@@ -787,11 +791,11 @@ class GraphTag extends Render {
 
       if (this._via_is_region_selected) {
         // check if user clicked on the region boundary
-        if (this._via_region_edge[ 1 ] > 0) {
+        if (this._via_region_edge[1] > 0) {
           if (!this._via_is_user_resizing_region) {
             // resize region
-            if (this._via_region_edge[ 0 ] !== this._via_user_sel_region_id) {
-              this._via_user_sel_region_id = this._via_region_edge[ 0 ]
+            if (this._via_region_edge[0] !== this._via_user_sel_region_id) {
+              this._via_user_sel_region_id = this._via_region_edge[0]
             }
             this._via_is_user_resizing_region = true
           }
@@ -831,7 +835,7 @@ class GraphTag extends Render {
     }.bind(this), false)
   }
 
-  addEventListenerMouseup () {
+  addEventListenerMouseup() {
     this._via_reg_canvas.addEventListener('mouseup', function (e) {
       this._via_click_x1 = e.offsetX
       this._via_click_y1 = e.offsetY
@@ -849,8 +853,8 @@ class GraphTag extends Render {
 
         if (Math.abs(move_x) > VIA_MOUSE_CLICK_TOL || Math.abs(move_y) > VIA_MOUSE_CLICK_TOL) {
 
-          let image_attr = this._via_img_metadata[ this._via_image_id ].regions[ this._via_user_sel_region_id ].shape_attributes
-          let canvas_attr = this._via_canvas_regions[ this._via_user_sel_region_id ].shape_attributes
+          let image_attr = this._via_img_metadata[this._via_image_id].regions[this._via_user_sel_region_id].shape_attributes
+          let canvas_attr = this._via_canvas_regions[this._via_user_sel_region_id].shape_attributes
 
           switch (canvas_attr.get('name')) {
             case VIA_REGION_SHAPE.POINT:
@@ -868,15 +872,15 @@ class GraphTag extends Render {
               let img_px = image_attr.get('all_points_x')
               let img_py = image_attr.get('all_points_y')
               for (let i = 0; i < img_px.length; ++i) {
-                img_px[ i ] = img_px[ i ] + Math.round(move_x * this._via_canvas_scale)
-                img_py[ i ] = img_py[ i ] + Math.round(move_y * this._via_canvas_scale)
+                img_px[i] = img_px[i] + Math.round(move_x * this._via_canvas_scale)
+                img_py[i] = img_py[i] + Math.round(move_y * this._via_canvas_scale)
               }
 
               let canvas_px = canvas_attr.get('all_points_x')
               let canvas_py = canvas_attr.get('all_points_y')
               for (let i = 0; i < canvas_px.length; ++i) {
-                canvas_px[ i ] = canvas_px[ i ] + move_x
-                canvas_py[ i ] = canvas_py[ i ] + move_y
+                canvas_px[i] = canvas_px[i] + move_x
+                canvas_py[i] = canvas_py[i] + move_y
               }
               break
           }
@@ -913,27 +917,27 @@ class GraphTag extends Render {
         this._via_reg_canvas.style.cursor = 'default'
 
         // update the region
-        let region_id = this._via_region_edge[ 0 ]
-        let image_attr = this._via_img_metadata[ this._via_image_id ].regions[ region_id ].shape_attributes
-        let canvas_attr = this._via_canvas_regions[ region_id ].shape_attributes
+        let region_id = this._via_region_edge[0]
+        let image_attr = this._via_img_metadata[this._via_image_id].regions[region_id].shape_attributes
+        let canvas_attr = this._via_canvas_regions[region_id].shape_attributes
 
         switch (canvas_attr.get('name')) {
           case VIA_REGION_SHAPE.POLYGON:
-            let moved_vertex_id = this._via_region_edge[ 1 ] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
+            let moved_vertex_id = this._via_region_edge[1] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
 
-            canvas_attr.get('all_points_x')[ moved_vertex_id ] = Math.round(this._via_current_x)
-            canvas_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y)
-            image_attr.get('all_points_x')[ moved_vertex_id ] = Math.round(this._via_current_x * this._via_canvas_scale)
-            image_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y * this._via_canvas_scale)
+            canvas_attr.get('all_points_x')[moved_vertex_id] = Math.round(this._via_current_x)
+            canvas_attr.get('all_points_y')[moved_vertex_id] = Math.round(this._via_current_y)
+            image_attr.get('all_points_x')[moved_vertex_id] = Math.round(this._via_current_x * this._via_canvas_scale)
+            image_attr.get('all_points_y')[moved_vertex_id] = Math.round(this._via_current_y * this._via_canvas_scale)
 
             if (moved_vertex_id === 0) {
               // move both first and last vertex because we
               // the initial point at the end to close path
               let n = canvas_attr.get('all_points_x').length
-              canvas_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x)
-              canvas_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y)
-              image_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x * this._via_canvas_scale)
-              image_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y * this._via_canvas_scale)
+              canvas_attr.get('all_points_x')[n - 1] = Math.round(this._via_current_x)
+              canvas_attr.get('all_points_y')[n - 1] = Math.round(this._via_current_y)
+              image_attr.get('all_points_x')[n - 1] = Math.round(this._via_current_x * this._via_canvas_scale)
+              image_attr.get('all_points_y')[n - 1] = Math.round(this._via_current_y * this._via_canvas_scale)
             }
             break
         }
@@ -951,8 +955,8 @@ class GraphTag extends Render {
           let canvas_y0 = Math.round(this._via_click_y0)
 
           // check if the clicked point is close to the first point
-          let fx0 = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x')[ 0 ]
-          let fy0 = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y')[ 0 ]
+          let fx0 = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_x')[0]
+          let fy0 = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_y')[0]
           let dx = (fx0 - canvas_x0)
           let dy = (fy0 - canvas_y0)
           if (Math.sqrt(dx * dx + dy * dy) <= VIA_POLYGON_VERTEX_MATCH_TOL) {
@@ -960,22 +964,22 @@ class GraphTag extends Render {
             this._via_is_user_drawing_polygon = false
 
             // add all polygon points stored in _via_canvas_regions[]
-            let all_points_x = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x').slice(0)
-            let all_points_y = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y').slice(0)
-            let canvas_all_points_x = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x')
-            let canvas_all_points_y = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y')
+            let all_points_x = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_x').slice(0)
+            let all_points_y = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_y').slice(0)
+            let canvas_all_points_x = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_x')
+            let canvas_all_points_y = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_y')
 
             // close path
-            all_points_x.push(all_points_x[ 0 ])
-            all_points_y.push(all_points_y[ 0 ])
-            canvas_all_points_x.push(canvas_all_points_x[ 0 ])
-            canvas_all_points_y.push(canvas_all_points_y[ 0 ])
+            all_points_x.push(all_points_x[0])
+            all_points_y.push(all_points_y[0])
+            canvas_all_points_x.push(canvas_all_points_x[0])
+            canvas_all_points_y.push(canvas_all_points_y[0])
             let polygon_region = new ImageRegion()
             polygon_region.shape_attributes.set('name', 'polygon')
             polygon_region.shape_attributes.set('all_points_x', all_points_x)
             polygon_region.shape_attributes.set('all_points_y', all_points_y)
-            this._via_current_polygon_region_id = this._via_img_metadata[ this._via_image_id ].regions.length
-            this._via_img_metadata[ this._via_image_id ].regions.push(polygon_region)
+            this._via_current_polygon_region_id = this._via_img_metadata[this._via_image_id].regions.length
+            this._via_img_metadata[this._via_image_id].regions.push(polygon_region)
 
             // newly drawn region is automatically selected
             this.selectOnlyRegion(this._via_current_polygon_region_id)
@@ -984,8 +988,8 @@ class GraphTag extends Render {
             this.update_attributes_panel()
           } else {
             // user clicked on a new polygon point
-            this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x').push(canvas_x0)
-            this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y').push(canvas_y0)
+            this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_x').push(canvas_x0)
+            this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes.get('all_points_y').push(canvas_y0)
           }
         } else {
           let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
@@ -1018,8 +1022,8 @@ class GraphTag extends Render {
 
                   let canvas_polygon_region = new ImageRegion()
                   canvas_polygon_region.shape_attributes.set('name', VIA_REGION_SHAPE.POLYGON)
-                  canvas_polygon_region.shape_attributes.set('all_points_x', [ Math.round(this._via_click_x0) ])
-                  canvas_polygon_region.shape_attributes.set('all_points_y', [ Math.round(this._via_click_y0) ])
+                  canvas_polygon_region.shape_attributes.set('all_points_x', [Math.round(this._via_click_x0)])
+                  canvas_polygon_region.shape_attributes.set('all_points_y', [Math.round(this._via_click_y0)])
                   this._via_canvas_regions.push(canvas_polygon_region)
                   this._via_current_polygon_region_id = this._via_canvas_regions.length - 1
                   break
@@ -1029,7 +1033,7 @@ class GraphTag extends Render {
                   point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT)
                   point_region.shape_attributes.set('cx', Math.round(this._via_click_x0 * this._via_canvas_scale))
                   point_region.shape_attributes.set('cy', Math.round(this._via_click_y0 * this._via_canvas_scale))
-                  this._via_img_metadata[ this._via_image_id ].regions.push(point_region)
+                  this._via_img_metadata[this._via_image_id].regions.push(point_region)
 
                   let canvas_point_region = new ImageRegion()
                   canvas_point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT)
@@ -1101,7 +1105,7 @@ class GraphTag extends Render {
     return this
   }
 
-  addEventListenerMouseover () {
+  addEventListenerMouseover() {
     this._via_reg_canvas.addEventListener('mouseover', function (e) {
       this._viaRedrawRegCanvas()
       this._via_reg_canvas.focus()
@@ -1109,7 +1113,7 @@ class GraphTag extends Render {
     return this
   }
 
-  addEventListenerMousemove () {
+  addEventListenerMousemove() {
     this._via_reg_canvas.addEventListener('mousemove', function (e) {
       if (!this._via_current_image_loaded) {
         return
@@ -1124,8 +1128,8 @@ class GraphTag extends Render {
 
           this._via_region_edge = this.isOnRegionCorner(this._via_current_x, this._via_current_y)
 
-          if (this._via_region_edge[ 0 ] === this._via_user_sel_region_id) {
-            switch (this._via_region_edge[ 1 ]) {
+          if (this._via_region_edge[0] === this._via_user_sel_region_id) {
+            switch (this._via_region_edge[1]) {
               // rect
               case 1: // top-left corner of rect
               case 3: // bottom-right corner of rect
@@ -1148,7 +1152,7 @@ class GraphTag extends Render {
                 this._via_reg_canvas.style.cursor = 'default'
             }
 
-            if (this._via_region_edge[ 1 ] >= VIA_POLYGON_RESIZE_VERTEX_OFFSET) {
+            if (this._via_region_edge[1] >= VIA_POLYGON_RESIZE_VERTEX_OFFSET) {
               // indicates mouse over polygon vertex
               this._via_reg_canvas.style.cursor = 'crosshair'
             }
@@ -1212,22 +1216,22 @@ class GraphTag extends Render {
           this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
         }
 
-        let region_id = this._via_region_edge[ 0 ]
-        let attr = this._via_canvas_regions[ region_id ].shape_attributes
+        let region_id = this._via_region_edge[0]
+        let attr = this._via_canvas_regions[region_id].shape_attributes
         switch (attr.get('name')) {
           case VIA_REGION_SHAPE.POLYGON:
             let moved_all_points_x = attr.get('all_points_x').slice(0)
             let moved_all_points_y = attr.get('all_points_y').slice(0)
-            let moved_vertex_id = this._via_region_edge[ 1 ] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
+            let moved_vertex_id = this._via_region_edge[1] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
 
-            moved_all_points_x[ moved_vertex_id ] = this._via_current_x
-            moved_all_points_y[ moved_vertex_id ] = this._via_current_y
+            moved_all_points_x[moved_vertex_id] = this._via_current_x
+            moved_all_points_y[moved_vertex_id] = this._via_current_y
 
             if (moved_vertex_id === 0) {
               // move both first and last vertex because we
               // the initial point at the end to close path
-              moved_all_points_x[ moved_all_points_x.length - 1 ] = this._via_current_x
-              moved_all_points_y[ moved_all_points_y.length - 1 ] = this._via_current_y
+              moved_all_points_x[moved_all_points_x.length - 1] = this._via_current_x
+              moved_all_points_y[moved_all_points_y.length - 1] = this._via_current_y
             }
 
             this._viaDrawPolygonRegion(moved_all_points_x, moved_all_points_y, true)
@@ -1247,15 +1251,15 @@ class GraphTag extends Render {
 
         let move_x = (this._via_current_x - this._via_region_click_x)
         let move_y = (this._via_current_y - this._via_region_click_y)
-        let attr = this._via_canvas_regions[ this._via_user_sel_region_id ].shape_attributes
+        let attr = this._via_canvas_regions[this._via_user_sel_region_id].shape_attributes
 
         switch (attr.get('name')) {
           case VIA_REGION_SHAPE.POLYGON:
             let moved_all_points_x = attr.get('all_points_x').slice(0)
             let moved_all_points_y = attr.get('all_points_y').slice(0)
             for (let i = 0; i < moved_all_points_x.length; ++i) {
-              moved_all_points_x[ i ] += move_x
-              moved_all_points_y[ i ] += move_y
+              moved_all_points_x[i] += move_x
+              moved_all_points_y[i] += move_y
             }
             this._viaDrawPolygonRegion(moved_all_points_x, moved_all_points_y, true)
             break
@@ -1270,17 +1274,121 @@ class GraphTag extends Render {
 
       if (this._via_is_user_drawing_polygon) {
         this._viaRedrawRegCanvas()
-        let attr = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes
+        let attr = this._via_canvas_regions[this._via_current_polygon_region_id].shape_attributes
         let all_points_x = attr.get('all_points_x')
         let all_points_y = attr.get('all_points_y')
         let npts = all_points_x.length
 
-        let line_x = [ all_points_x.slice(npts - 1), this._via_current_x ]
-        let line_y = [ all_points_y.slice(npts - 1), this._via_current_y ]
+        let line_x = [all_points_x.slice(npts - 1), this._via_current_x]
+        let line_y = [all_points_y.slice(npts - 1), this._via_current_y]
         this._viaDrawPolygonRegion(line_x, line_y, false)
       }
     }.bind(this), false)
     return this
+  }
+
+  // go update
+ zoom_out() {
+  if (!this._via_current_image_loaded) {
+    return
+  }
+
+  if (this._via_canvas_zoom_level_index === 0) {
+  } else {
+    this._via_canvas_zoom_level_index -= 1
+    this._via_is_canvas_zoomed = true
+    let zoom_scale = VIA_CANVAS_ZOOM_LEVELS[this._via_canvas_zoom_level_index]
+    this.set_all_canvas_scale(zoom_scale)
+    this.setAllCanvasSize(this._via_canvas_width  * zoom_scale, this._via_canvas_height * zoom_scale)
+    this._via_canvas_scale = this._via_canvas_scale_without_zoom / zoom_scale
+
+    this.loadCanvasRegions() // image to canvas space transform
+    this._viaRedrawImgCanvas()
+    this._viaRedrawRegCanvas()
+    this._via_reg_canvas.focus()
+  }
+}
+  _viaRedrawImgCanvas() {
+    if (this._via_current_image_loaded) {
+      this._via_img_ctx.clearRect(0, 0, this._via_img_canvas.width, this._via_img_canvas.height)
+      this._via_img_ctx.drawImage(this._via_current_image, 0, 0, this._via_img_canvas.width, this._via_img_canvas.height)
+    }
+  }
+
+  set_all_canvas_scale(s) {
+    this._via_img_ctx.scale(s, s)
+    this._via_reg_ctx.scale(s, s)
+  }
+
+  resetZoomLevel() {
+    if (!this._via_current_image_loaded) {
+      return
+    }
+    if (this._via_is_canvas_zoomed) {
+      this._via_is_canvas_zoomed = false
+      this._via_canvas_zoom_level_index = VIA_CANVAS_DEFAULT_ZOOM_LEVEL_INDEX
+
+      let zoom_scale = VIA_CANVAS_ZOOM_LEVELS[this._via_canvas_zoom_level_index]
+      this.set_all_canvas_scale(zoom_scale)
+      this.setAllCanvasSize(this._via_canvas_width, this._via_canvas_height)
+      this._via_canvas_scale = this._via_canvas_scale_without_zoom
+
+      this.loadCanvasRegions()// image to canvas space transform
+      this._viaRedrawImgCanvas()
+      this._viaRedrawRegCanvas()
+      this._via_reg_canvas.focus()
+    } else {
+      console.log('Cannot reset zoom because image zoom has not been applied!');
+    }
+  }
+
+  goUpdate() {
+    if (!this._via_is_window_resized && this._via_current_image_loaded) {
+      this._via_is_window_resized = true
+      this.showImage(this._via_image_index)
+      if (this._via_is_canvas_zoomed) {
+        this.resetZoomLevel()
+      }
+    }
+  }
+  getMetaData () {
+    //let _via_img_metadata_as_obj = {}
+    let image_data = {}
+    for (let image_id in this._via_img_metadata ) {
+      image_data = {}
+      //image_data.fileref = _via_img_metadata[image_id].fileref;
+      image_data.fileref = ''
+      image_data.size = this._via_img_metadata[image_id].size
+      image_data.filename = this._via_img_metadata[image_id].filename
+      image_data.base64_img_data = ''
+
+      // copy file attributes
+      image_data.file_attributes = {}
+      for (let key of this._via_img_metadata[image_id].file_attributes.keys()) {
+        let value = this._via_img_metadata[image_id].file_attributes.get(key)
+        image_data.file_attributes[key] = value
+      }
+
+      // copy all region shape_attributes
+      image_data.regions = {}
+      for (let i = 0; i < this._via_img_metadata[image_id].regions.length; ++i ) {
+        image_data.regions[i] = {}
+        image_data.regions[i].shape_attributes = {}
+        image_data.regions[i].region_attributes = {}
+        // copy region shape_attributes
+        for (let key of this._via_img_metadata[image_id].regions[i].shape_attributes.keys()) {
+          let value = this._via_img_metadata[image_id].regions[i].shape_attributes.get(key)
+          image_data.regions[i].shape_attributes[key] = value
+        }
+        // copy region_attributes
+        for (let key of this._via_img_metadata[image_id].regions[i].region_attributes.keys()) {
+          let value = this._via_img_metadata[image_id].regions[i].region_attributes.get(key)
+          image_data.regions[i].region_attributes[key] = value
+        }
+      }
+      //_via_img_metadata_as_obj[image_id] = image_data
+    }
+    return [JSON.stringify(image_data)]
   }
 }
 export default GraphTag

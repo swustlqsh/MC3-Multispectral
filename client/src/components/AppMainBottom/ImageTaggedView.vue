@@ -1,20 +1,43 @@
 <template>
   <div class="uk-grid image-tagged-view-main">
-    <!--<div class="uk-width-1-1 image-tagged-menu" id="image_menu">-->
-      <!--<ul class="uk-list">-->
-        <!--<li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"-->
-            <!--v-on:click.stop.prevent="getMenuMsg(menu.index)">-->
-          <!--<a href="#" v-if="index==0"><i class="uk-icon-justify {{menu.icon}}"></i></a>-->
-          <!--<a href="#" v-else>-->
-            <!--<img :src="menu.image" height="15" width="15"/>-->
-          <!--</a>-->
-        <!--</li>-->
-      <!--</ul>-->
-    <!--</div>-->
-    <div class="uk-thumbnail uk-thumbnail-expand" v-el:graph>
+    <div class="uk-width-1-1 image-tagged-menu" id="image_menu">
+      <ul class="uk-list">
+        <li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"
+            v-on:click.stop.prevent="getMenuMsg(menu.index)">
+          <a href="#" ><i class="uk-icon-justify {{menu.icon}}"></i></a>
+        </li>
+      </ul>
+    </div>
+    <div class="uk-thumbnail uk-thumbnail-expand del-padding" v-el:graph>
       <canvas id="image_canvas"></canvas>
       <canvas id="region_canvas"></canvas>
     </div>
+  </div>
+  <div id="attributes-panel" v-if="willShow">
+    <div class="uk-animation-slide-bottom close" @click="closeTag()"><i class="uk-icon-justify uk-icon-close"></i></div>
+    <template v-if="isShowTable">
+      <div class="error-msg">No selected feature</div>
+    </template>
+    <template v-else>
+      <table class="uk-table uk-table-hover uk-table-condensed">
+      <thead>
+      <tr>
+        <th v-for="head in tableHeader">
+          <input type="text" placeholder="head.name" class="uk-form-width-small"  v-model="head.name">
+        </th>
+        <th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="tbody in tableBody">
+        <td v-for="(i, attr) in tbody">
+          <input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>
+          <input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small"  v-model="attr.value">
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    </template>
   </div>
 </template>
 <script>
@@ -32,49 +55,101 @@
         selectedChannels: '', // 单个通道 或者 有意义的组合
         renderIns: null,
         selectedId: 0,
+        willShow: false,
         imageMenu: [
-          { name: '选择', icon: 'uk-icon-bars', index: 0 },
-          { name: '点击', icon: 'uk-icon-mouse-pointer', index: 1, image: '../../../assets/images/选择.png' },
-          { name: '放大', icon: 'uk-icon-search-plus', index: 2, image: '../../../assets/images/放大.png' },
-          { name: '缩小', icon: 'uk-icon-search-minus', index: 3, image: '../../../assets/images/缩小.png' },
-          { name: '平移', icon: 'uk-icon-arrows', index: 4, image: '../../../assets/images/移动.png' },
-          { name: '套索', icon: 'uk-icon-object-ungroup', index: 5, image: '../../../assets/images/套索.png' },
-          { name: '标记', icon: 'uk-icon-text-height', index: 6, image: '../../../assets/images/文字.png' }
-        ]
+          { name: '选择', icon: 'uk-icon-mouse-pointer', index: 0, image: '../../../assets/images/选择.png' },
+          { name: '放大', icon: 'uk-icon-search-plus', index: 1, image: '../../../assets/images/放大.png' },
+          { name: '缩小', icon: 'uk-icon-search-minus', index: 2, image: '../../../assets/images/缩小.png' },
+          { name: '平移', icon: 'uk-icon-arrows', index: 3, image: '../../../assets/images/移动.png' },
+          { name: '套索', icon: 'uk-icon-object-ungroup', index: 4, image: '../../../assets/images/套索.png' },
+          { name: '标记', icon: 'uk-icon-text-height', index: 5, image: '../../../assets/images/文字.png' }
+        ],
+        tableHeader: [{name: '#'}],
+        tableBody: [],
+        regions: {},
+        tableIndex: [],
+        featureName: 'Add New'
       }
     },
     watch: {
       pageSize: {
         handler (curVal, oldVal) {
-          this.init()
+          if (!this.renderIns) {
+            this.init()
+            this.renderIns.init({
+              image_canvas_id: 'image_canvas',
+              region_canvas_id: 'region_canvas',
+              image_real_width: Math.round($('#image-tagged').width()),
+              image_real_height: Math.round($('#image-tagged').height())
+            })
+            this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+            this.renderIns.showImage(0)
+            this.renderIns.addEventListenerMouseup()
+            this.renderIns.addEventListenerMousedown()
+            this.renderIns.addEventListenerMousemove()
+            this.renderIns.addEventListenerMouseover()
+            this.renderIns.updateDivContainer({
+              image_real_width: Math.round($('#image-tagged').width()),
+              image_real_height: Math.round($('#image-tagged').height())})
+            this.renderIns.goUpdate()
+          }
         },
         deep: true
       }
     },
+    computed: {
+      isShowTable () {
+        return Object.keys(this.regions).length === 0 || Object.keys(this.regions.regions).length === 0
+      }
+    },
     methods: {
       getMenuMsg (index) {
-        if (index === 0) {
-          this.isShowSelect = true
-        }
         this.selectedId = index
+        if (this.selectedId === 5) {
+          this.willShow = true
+          this.regions = JSON.parse(this.renderIns.getMetaData())
+          if (!this.isShowTable) {
+            let regionAttributes = this.regions.regions
+            let features = Object.keys(regionAttributes)
+            for (let i = 0; i < features.length; i++) {
+              let tbody = []
+              tbody.push({value: i})
+
+              let attributes = features[i].region_attributes
+              for (let attr in attributes) {
+                tbody.push({value: attributes[attr]})
+              }
+              this.tableBody.push(tbody)
+              if (i === 0) {
+                attributes && Object.keys(attributes).forEach(function (d) {
+                  this.tableHeader.push({name: d})
+                }.bind(this))
+              }
+            }
+
+            console.log('this.tableBody', this.tableBody)
+          }
+          console.log(JSON.parse(this.renderIns.getMetaData()))
+        }
+        console.log(this.selectedId)
       },
       // loadStart 读取相关的事件
       loadStart () {
       },
       init () {
         this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
-        this.renderIns.init({
-          image_canvas_id: 'image_canvas',
-          region_canvas_id: 'region_canvas',
-          image_real_width: Math.round($('#image-tagged').width()),
-          image_real_height: Math.round($('#image-tagged').height())
-        })
-        this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-        this.renderIns.showImage(0)
-        // this.renderIns.addEventListenerClick()
-        this.renderIns.addEventListenerMouseup()
-        this.renderIns.addEventListenerMousedown()
-        this.renderIns.addEventListenerMousemove()
+      },
+      closeTag (e) {
+        this.willShow = false
+      },
+      addNewFeature () {
+        console.log(this.featureName)
+        this.tableHeader.push({name: this.featureName})
+        for (let i = 0; i < this.tableBody.length; i++) {
+          this.tableBody[i].push({value: ''})
+        }
+        console.log(this.tableBody)
+        this.featureName = 'Add New'
       }
     },
     ready () {
@@ -87,8 +162,9 @@
     box-sizing: border-box;
     padding: 0 8px;
     .image-tagged-menu {
-      background: gray;
-      position: relative;
+      height: 30px;
+      margin: 0 auto;
+      line-height: 30px;
       li {
         list-style: none;
         float: left;
@@ -122,6 +198,34 @@
       padding: 5px;
       left: 0;
       z-index: 2;
+    }
+    .del-padding {
+      padding: 0;
+    }
+  }
+  #attributes-panel {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    max-height: 30%;
+    overflow: auto;
+    background-color: #fff;
+    border: 1px solid #324057;
+    padding: 0;
+    padding-bottom: 2em;
+    font-size: small;
+    left: 100%;
+    .error-msf {
+      text-align: center;
+      margin: 0 auto;
+    }
+    .close {
+      display: block;
+      height: 30px;
+      width: 100%;
+      position: relative;
+      padding: 0;
+      margin: 0;
     }
   }
 </style>
