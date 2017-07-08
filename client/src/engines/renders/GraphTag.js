@@ -206,7 +206,6 @@ class GraphTag extends Render {
       this.regCanvas.focus()
       this.isLoadingCurrentImage = false
     }.bind(this)
-
     this.currentImage.src = this.imgMetadata[ imgId ].file_ref
   }
   createCanvas (id, width, height) {
