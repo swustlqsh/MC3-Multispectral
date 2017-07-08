@@ -10,7 +10,7 @@
   import {event} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {event},
+      getters: { event },
       actions: {
         imgCompare
       }
@@ -261,8 +261,14 @@
             let channelName = imageObjArray2[ iI ][ jI ].channelName
             let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
             imageMatrixSvg.select('#' + imageName)
+              .append('rect')
+              .attr('class', 'original-image-bg')
+              .attr('id', imageName)
+              .attr('width', originalImageWidth)
+              .attr('height', originalImageWidth)
+            imageMatrixSvg.select('#' + imageName)
               .append('svg:image')
-              .attr('class', 'preserve-image')
+              .attr('class', 'original-image')
               .attr('id', imageName)
               .attr('xlink:href', '../../../data/' + channelName + '/' + imageName + '.png')
               .attr('cursor', 'pointer')
@@ -274,14 +280,23 @@
               })
               .on('mouseover', function (d, i) {
                 let imageNameId = d3.select(this).attr('id')
+                d3.select(this).classed('mouseover-highlight', true)
+                d3.select('.original-image-bg#' + imageName).classed('mouseover-highlight', true)
                 self.mouseover_handler(imageNameId)
               })
               .on('mouseout', function (d, i) {
                 let imageNameId = d3.select(this).attr('id')
+                d3.select(this).classed('mouseover-highlight', false)
+                d3.select('.original-image-bg#' + imageName).classed('mouseover-highlight', false)
                 self.mouseout_handler(imageNameId)
               })
               .on('click', function (d, i) {
                 let imageNameId = d3.select(this).attr('id')
+                if (d3.select('.original-image-bg#' + imageName).classed('click-highlight')) {
+                  d3.select('.original-image-bg#' + imageName).classed('click-highlight', false)
+                } else {
+                  d3.select('.original-image-bg#' + imageName).classed('click-highlight', true)
+                }
                 self.click_handler(imageNameId)
               })
           }
@@ -305,7 +320,7 @@
               .append('g')
               .attr('class', 'feature-control')
               .attr('id', 'feature-control-' + imageName)
-              .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - 2 * featureImageWidth) + ')')
+              .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - 3 * featureImageWidth) + ')')
               .style('visibility', 'hidden')
             imageMatrixSvg.select('#feature-control-' + imageName)
               .append('text')
@@ -452,7 +467,7 @@
             .append('g')
             .attr('class', 'feature-events')
             .attr('id', 'feature-events-' + imageName)
-            .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - featureImageWidth * 3) + ')')
+            .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - featureImageWidth * 2) + ')')
         }
         let eventsObj = imageMatrixSvg.select('#feature-events-' + imageName)
           .selectAll('.feature-event')
@@ -608,7 +623,6 @@
        **/
       feature_click_handler (featureId) {
         let selectionFeaturesArray = this.selectionFeaturesArray
-        this.featureSelectionIndex = this.featureSelectionIndex + 1
         if (d3.select('#' + featureId).classed('click-selection')) {
           selectionFeaturesArray.splice(selectionFeaturesArray.indexOf(featureId), 1)
         } else {
@@ -618,6 +632,7 @@
             selectionFeaturesArray.push(featureId)
           }
         }
+        this.featureSelectionIndex = this.featureSelectionIndex + 1
         d3.selectAll('.click-selection')
           .classed('click-selection', false)
         d3.selectAll('.click-feature-highlight')
@@ -628,8 +643,9 @@
             .classed('click-selection', true)
           let featureId = selectionFeaturesArray[ sI ]
           let imageNameId = featureId.split('-')[ 0 ]
-          comparisonFeaturesArray.push(imageNameId)
+          comparisonFeaturesArray.push(featureId)
           d3.select('.image-components#' + imageNameId)
+            .select('.background-image')
             .classed('click-feature-highlight', true)
         }
         this.update_comparison_features(comparisonFeaturesArray)
@@ -637,19 +653,15 @@
         if (d3.select('.click-feature-highlight').empty()) {
           d3.selectAll('.image-components')
             .classed('mouseover-unhighlight', false)
-        } else {
-          d3.selectAll('.image-components')
-            .classed('mouseover-unhighlight', true)
         }
       },
       /**
        * 鼠标悬浮在component的事件
        */
       mouseover_handler (imageNameId) {
-        d3.selectAll('.image-components')
-          .classed('mouseover-unhighlight', true)
         d3.select('.image-components#' + imageNameId)
-          .classed('mouseover-unhighlight', false)
+          .select('.background-image')
+          .classed('mouseover-highlight', true)
         let indexObj = this.getIndex(imageNameId)
         let imageObjArray2 = this.imageObjArray2
         let imageObj = imageObjArray2[ indexObj.i ][ indexObj.j ]
@@ -691,7 +703,8 @@
        */
       mouseout_handler (imageNameId) {
         d3.select('.image-components#' + imageNameId)
-          .classed('mouseover-unhighlight', true)
+          .select('.background-image')
+          .classed('mouseover-highlight', false)
         if ((d3.select('.image-components.click-highlight').empty()) && (d3.select('.image-components.click-feature-highlight').empty())) {
           d3.selectAll('.image-components')
             .classed('mouseover-unhighlight', false)
@@ -707,19 +720,16 @@
        * 鼠标点击component的事件
        */
       click_handler (imageNameId) {
-        if (d3.select('.image-components#' + imageNameId).classed('click-highlight')) {
-          d3.select('.image-components#' + imageNameId)
-            .classed('click-highlight', false)
-        } else {
-          d3.selectAll('.image-components.click-highlight')
-            .classed('click-highlight', false)
-          d3.select('.image-components#' + imageNameId)
-            .classed('click-highlight', true)
-        }
-        if (d3.select('.click-highlight').empty()) {
-          d3.selectAll('.image-components')
-            .classed('mouseover-unhighlight', false)
-        }
+        d3.selectAll('.background-image.click-highlight')
+          .classed('click-highlight', false)
+        d3.select('.image-components#' + imageNameId)
+          .select('.background-image')
+          .classed('click-highlight', true)
+        d3.selectAll('.original-image-bg.click-highlight')
+          .classed('click-highlight', false)
+        d3.select('.image-components#' + imageNameId)
+          .select('.original-image-bg')
+          .classed('click-highlight', true)
       },
       /**
        *  根据nameId得到横向与纵向的坐标值
@@ -741,9 +751,29 @@
        */
       update_comparison_features (featuresArray) {
         if (featuresArray.length === 1) {
-          this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': null })
+          let imageFeature1Name = featuresArray[ 0 ]
+          let feature1NameArray = imageFeature1Name.split('-')
+          let image1Name = feature1NameArray[ 0 ]
+          let feature1Name = feature1NameArray[ 1 ]
+          this.imgCompare({
+            'type': 'originalImgs', 'img1': {
+              'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name
+            }, 'img2': null
+          })
         } else if (featuresArray.length === 2) {
-          this.imgCompare({ 'type': 'originalImgs', 'img1name': featuresArray[ 0 ], 'img2name': featuresArray[ 1 ] })
+          let imageFeature1Name = featuresArray[ 0 ]
+          let feature1NameArray = imageFeature1Name.split('-')
+          let image1Name = feature1NameArray[ 0 ]
+          let feature1Name = feature1NameArray[ 1 ]
+          let imageFeature2Name = featuresArray[ 1 ]
+          let feature2NameArray = imageFeature2Name.split('-')
+          let image2Name = feature2NameArray[ 0 ]
+          let feature2Name = feature2NameArray[ 1 ]
+          this.imgCompare({
+            'type': 'originalImgs', 'img1': {
+              'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name
+            }, 'img2': { 'feature': { 'name': feature2Name, 'path': [] }, 'imgName': image2Name }
+          })
         }
       },
       dealWithEvent () {
@@ -776,11 +806,29 @@
   .image-components[class~=click-highlight] {
     opacity: 1 !important;
   }
-  .image-components[class~=click-feature-highlight] {
-    opacity: 1 !important;
+  .background-image[class~=click-feature-highlight] {
+    fill: #bababa;
   }
   .image-components[class~=mouseover-unhighlight] {
     opacity: 0.3;
+  }
+  .background-image[class~=mouseover-highlight] {
+    fill: #bababa;
+  }
+  .background-image[class~=click-highlight] {
+    fill: #bababa;
+  }
+  .original-image-bg[class~=mouseover-highlight] {
+    stroke: #2c7bb6;
+    stroke-width: 4px;
+    animation-name: original-highlight-animation;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .original-image-bg[class~=click-highlight] {
+    stroke: #2c7bb6;
+    stroke-width: 4px;
   }
   .feature-event {
     font-size: 1.3rem;
@@ -791,7 +839,7 @@
   .feature-image[class~=feature-highlight] {
     stroke: #fc8d59;
     stroke-width: 2px;
-    animation-name: highlight-animation;
+    animation-name: feature-highlight-animation;
     animation-duration: 1s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
@@ -799,7 +847,16 @@
   .channel-name {
     font-size: 0.7rem;
   }
-  @keyframes highlight-animation {
+  @keyframes original-highlight-animation {
+    0% {
+    }
+    50% {
+      stroke-width: 6px;
+    }
+    100% {
+    }
+  }
+  @keyframes feature-highlight-animation {
     0% {
     }
     50% {
