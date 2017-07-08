@@ -7,11 +7,11 @@
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
   import {imgCompare, imageToTaggedView} from '../../vuex/actions'
-  import {event} from '../../vuex/getters'
+  import {event, addedFeatures} from '../../vuex/getters'
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: { event },
+      getters: { event, addedFeatures },
       actions: {
         imgCompare,
         imageToTaggedView
@@ -41,6 +41,12 @@
       event: {
         handler (curVal, oldVal) { // object
           this.dealWithEvent()
+        },
+        deep: true
+      },
+      addedFeatures: {
+        handler (curVal, oldVal) { // object
+          console.log('features')
         },
         deep: true
       }

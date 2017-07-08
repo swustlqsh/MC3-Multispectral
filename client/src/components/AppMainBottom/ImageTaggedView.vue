@@ -45,9 +45,13 @@
   import $ from 'jquery'
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
+  import {addFeatures} from '../../vuex/actions'
   export default {
     vuex: {
-      getters: {pageSize, selectedImage}
+      getters: {pageSize, selectedImage},
+      actions: {
+        addFeatures
+      }
     },
     data () {
       return {
@@ -168,6 +172,8 @@
           regionAttributes[j] = tempBox
         }
         this.willShow = false
+        this.addFeatures('features')
+        console.log('click submit')
       },
       addNewFeature () {
         console.log(this.featureName)

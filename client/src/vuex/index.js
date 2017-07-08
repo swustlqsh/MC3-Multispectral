@@ -11,7 +11,7 @@ import imgCompareMutations from './imgCompare/mutations'
 import colorDistributionMutations from './colorDistribution/mutations'
 import selectionMutations from './selection/mutations'
 import imageToTaggedMutations from './imageToTaggedView/mutations'
-
+import addFeaturesMutations from './addFeatures/mutations'
 
 Vue.use(Vuex)
 // 在Vue实例中通过this.vxMutations进行使用
@@ -28,12 +28,13 @@ const state = {
     pageWidth: 0,
     pageHeight: 0
   },
-  selectedImage: {}
+  selectedImage: {},
+  addedFeatures:{}
 }
 
 const mutations = Object.assign(
   {},
-  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations, imageToTaggedMutations)
+  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, selectionMutations, imageToTaggedMutations, addFeaturesMutations, imageToTaggedMutations)
 
 export default new Vuex.Store({
   strict: true,
