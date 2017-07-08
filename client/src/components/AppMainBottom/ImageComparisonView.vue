@@ -1,39 +1,39 @@
 <template>
-    <div id = 'imageCompare' style = 'padding-left: 0; padding-right: 0'>
-        <div v-el:graph1 id="graph1">
-            <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-            <canvas id="image_canvas1" class="image_canvas"></canvas>
-            <canvas id="region_canvas1" class="region_canvas"></canvas>
-        </div>
-        <div v-el:graph2 id="graph2">
-            <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-            <canvas id="image_canvas2" class="image_canvas"></canvas>
-            <canvas id="region_canvas2" class="region_canvas"></canvas>
-        </div>
+  <div id='imageCompare' style='padding-left: 0; padding-right: 0'>
+    <div v-el:graph1 id="graph1">
+      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+      <canvas id="image_canvas1" class="image_canvas"></canvas>
+      <canvas id="region_canvas1" class="region_canvas"></canvas>
     </div>
-    <div id = 'statistics'>
-        <div id = 'tagChannel'></div>
-        <div id = 'submmit'>
-            <div>
-                Type
-                <select style="margin-left: 20px" id = 'eventSelect'>
-                    <option value="Flood">Flood</option>
-                    <option value="Burnt">Burnt</option>
-                    <option value="Shrink">Shrink</option>
-                    <option value="Expand">Expand</option>
-                </select>
-            </div>
-            <div style="margin-top: 20px">
-                Description
-            </div>
-            <div style="height: 50%">
-                <textarea id = 'commentsText' name = 'textarea'></textarea>
-            </div>
-            <div style="text-align: center;" id="submitButton">
-                <button type="button" id="sbutton"> Submit </button>
-            </div>
-        </div>
+    <div v-el:graph2 id="graph2">
+      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+      <canvas id="image_canvas2" class="image_canvas"></canvas>
+      <canvas id="region_canvas2" class="region_canvas"></canvas>
     </div>
+  </div>
+  <div id='statistics'>
+    <div id='tagChannel'></div>
+    <div id='submmit'>
+      <div>
+        Type
+        <select style="margin-left: 20px" id='eventSelect'>
+          <option value="Flood">Flood</option>
+          <option value="Burnt">Burnt</option>
+          <option value="Shrink">Shrink</option>
+          <option value="Expand">Expand</option>
+        </select>
+      </div>
+      <div style="margin-top: 20px">
+        Description
+      </div>
+      <div style="height: 50%">
+        <textarea id='commentsText' name='textarea'></textarea>
+      </div>
+      <div style="text-align: center;" id="submitButton">
+        <button type="button" id="sbutton"> Submit</button>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
   import $ from 'jquery'
@@ -89,6 +89,7 @@
         let self = this
         $('#sbutton').click(function () {
           self.localEventSubmit()
+          $('#commentsText').val('')
         })
         this.drawTagPannel()
       },

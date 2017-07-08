@@ -564,6 +564,14 @@
             d3.select(this).classed('event-highlight', false)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseout_handler(imageNameId)
+            let className = d3.select(this).attr('class')
+            let classNameArray = className.split(' ')
+            let eventName = classNameArray[ 1 ]
+            if (d.eventObj.eventType === 'start') {
+              d3.selectAll('.end.' + eventName).classed('event-highlight', false)
+            } else {
+              d3.selectAll('.start.' + eventName).classed('event-highlight', false)
+            }
           })
           .style('fill', function (d, i) {
             if(typeof(d.eventObj)==='undefined'){
