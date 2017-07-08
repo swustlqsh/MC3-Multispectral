@@ -1,6 +1,8 @@
 /**
  * Created by liqiusheng on 06/07/2017.
  */
+
+import config from './config.js'
 export const getPageSize = () => {
   let winWidth = 0
   let winHeight = 0
@@ -16,7 +18,6 @@ export const getPageSize = () => {
     winHeight = document.documentElement.clientHeight
     winWidth = document.documentElement.clientWidth
   }
-
   return {width: winWidth, height: winHeight}
 }
 

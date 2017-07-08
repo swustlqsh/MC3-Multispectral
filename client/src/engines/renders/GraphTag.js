@@ -356,46 +356,6 @@ class GraphTag extends Render {
     return result
   }
 
-    this.currentImage.onload =  function () {
-        // application
-      this.imageId = imgId
-      this.imageIndex = imageIndex
-      this.currenImageFilename = fileName
-      this.currentImageLoaded = true
-      this.isLoadingCurrentImage = false
-      // region
-      this.clickX0 = 0
-      this.clickX1 = 0
-      this.clickY0 = 0
-      this.clickY1 = 0
-      this.isUserDrawingRegion = false
-      this.isWindowResized = false
-      this.isUserResizingRegion = false
-      this.isUserMovingRegion = false
-      this.isUserDrawingPolygon = false
-      this.isRegionSelected = false
-      this.userSelRegionId = -1
-      this.currentImageWidth = this.currentImage.naturalWidth
-      this.currentImageHeight = this.currentImage.naturalHeight
-      // update canvas
-      this.currentCanvasWidth = Math.round(this.currentImageWidth)
-      this.currentCanvasHeight = Math.round(this.currentImageHeight)
-      this.canvasScale = this.currentImage.naturalWidth / this.currentCanvasWidth
-      this.canvasScaleWithoutZoom = this.canvasScale
-      this.setAllCanvasSize(this.currentCanvasWidth, this.currentCanvasHeight)
-      if (this.currentCanvasWidth != this.currentCanvasHeight) {
-        this.currentCanvasHeight = this.currentCanvasWidth
-      }
-      // image canvas
-      this.imgCtx.clearRect(0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
-      this.imgCtx.drawImage(this.currentImage, 0, 0, this.currentCanvasWidth, this.currentCanvasWidth)
-      // region canvas
-      this.loadCanvasRegions()
-      this.redrawRegCanvas()
-      this.regCanvas.focus()
-      this.isLoadingCurrentImage = false
-    }.bind(this)
-    this.currentImage.src = this.imgMetadata[ imgId ].file_ref
   _viaDrawPointRegion (cx, cy, is_selected) {
     if (is_selected) {
       this._viaDrawPoint(cx, cy, VIA_REGION_POINT_RADIUS)

@@ -5,22 +5,14 @@
 <script>
   import $ from 'jquery'
   import {pageSize} from '../../vuex/getters'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: {pageSize}
     },
     props: [ 'features' ],
     data () {
-      return {
-        burnt: '#ef8a62',
-        flood: '#2b8cbe',
-        defaultFeatures: [
-          ['Moun', 'orange'],
-          ['Rode', '#D6E2D7'],
-          ['Lake', 'blue'],
-          ['City', 'gray']
-        ]
-      }
+      return {}
     },
     watch: {
       iconUpdate () {
@@ -39,6 +31,7 @@
     },
     methods: {
       init () {
+        console.log(config)
         let width = $('#icon-list').width()
         let height = $('#icon-list').height()
         let d3 = window.d3
@@ -57,7 +50,7 @@
           .attr('cx', width * leftR)
           .attr('cy', height * vRatio)
           .attr('r', r)
-          .style('fill', this.burnt)
+          .style('fill', config.burnt)
         svg.append('text')
           .text('Burnt')
           .attr('font-size', '10')
@@ -68,7 +61,7 @@
           .attr('cx', width * leftR)
           .attr('cy', height * vRatio * 3)
           .attr('r', r)
-          .style('fill', this.flood)
+          .style('fill', config.flood)
         svg.append('text')
           .text('Flood')
           .attr('font-size', '10')
@@ -76,7 +69,7 @@
           .attr('y', height * vRatio * 3 + 20)
           .attr('text-anchor', 'middle')
         let g = svg.append('g')
-        let features = this.defaultFeatures
+        let features = config.defaultFeatures
         let leftR2 = 0.8
         g.selectAll('circle')
           .data(features)
