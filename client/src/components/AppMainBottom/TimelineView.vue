@@ -83,6 +83,7 @@
         if (!this.timeLineDone) {
           this.drawTimelineView()
         }
+        $('.timeCurve').remove()
         let localComparedMessage = $.extend(true, {}, this.comparedMessage)
         let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
           '2016_06_26, 2016_09_06, 2016_12_19'
@@ -90,6 +91,13 @@
         time = time.map(function (d, i) {
           return d.trim()
         })
+        if (localComparedMessage.img2 === null) {
+          let arr1 = localComparedMessage.img1.imgName.split('_')
+          let startT = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
+          let sindex = time.indexOf(startT)
+          this.drawCurve(sindex, 0)
+          return
+        }
         let arr1 = localComparedMessage.img1.imgName.split('_')
         let startT = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
         let arr2 = localComparedMessage.img2.imgName.split('_')
@@ -101,6 +109,7 @@
           sindex = eindex
           eindex = a
         }
+//        console.log(sindex, eindex)
         this.drawCurve(sindex, 0)
         this.drawCurve(eindex, 1)
       },
@@ -132,6 +141,7 @@
           .attr('stroke-opacity', '0.5')
           .attr('stroke-width', 2)
           .attr('d', line)
+          .attr('class', 'timeCurve')
       }
     },
     ready () {

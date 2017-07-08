@@ -89,7 +89,7 @@
         $('#sbutton').click(function () {
           self.localEventSubmit()
         })
-//        this.loadComparisonImages()
+        this.drawTagPannel()
       },
       drawTagPannel () {
         let d3 = window.d3
@@ -170,7 +170,6 @@
 //          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
 //          .attr('width', width / 2)
 //          .attr('height', height)
-        this.drawTagPannel()
         let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
           '2016_06_26, 2016_09_06, 2016_12_19'
         time = time.split(',')
@@ -179,13 +178,28 @@
         })
         this.time = time
         if (this.comparedMessage.type === 'originalImgs') {
+          if (this.comparedMessage.img2 === null) {
+            let comparedMessage = $.extend(true, {}, this.comparedMessage)
+            this.localComparedMessage = comparedMessage
+            let img1Name = comparedMessage.img1.imgName
+            if (img1Name !== null) {
+              this.renderIns1 = new EG.renders.GraphTag({ selector: this.$els.graph1 })
+              this.renderIns1.init({
+                image_canvas_id: 'image_canvas1',
+                region_canvas_id: 'region_canvas1'
+              })
+              let prefix = img1Name.split('_')[ 0 ]
+              this.renderIns1.loadStoreLocalImg('../../../data/' + prefix + '/' + img1Name + '.png', img1Name)
+              this.renderIns1.showImage(0)
+            }
+            return
+          }
           let arr1 = this.comparedMessage.img1.imgName.split('_')
           let date1 = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
           let arr2 = this.comparedMessage.img2.imgName.split('_')
           let date2 = arr2[ 1 ] + '_' + arr2[ 2 ] + '_' + arr2[ 3 ]
           let index1 = this.time.indexOf(date1)
           let index2 = this.time.indexOf(date2)
-          console.log(index1, index2)
           let comparedMessage = $.extend(true, {}, this.comparedMessage)
           if (index1 > index2) {
             let mid = $.extend(true, {}, comparedMessage.img1)
