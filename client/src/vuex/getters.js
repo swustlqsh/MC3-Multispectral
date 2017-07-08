@@ -7,6 +7,7 @@ import pageLayoutGetters from './pageLayout/getters'
 import eventGetters from './eventSubmit/getters'
 import imgCompareGetters from './imgCompare/getters'
 import selectionGetters from './selection/getters'
+import imageToTaggedViewGetters from './imageToTaggedView/getters'
 
 /**
  * |————————————————————————————————|
@@ -19,6 +20,7 @@ export const pageWidth = pageLayoutGetters.pageWidth
 export const pageHeight = pageLayoutGetters.pageHeight
 export const event = eventGetters.event
 export const comparedMessage = imgCompareGetters.comparedMessage
+export const selectedImage = imageToTaggedViewGetters.selectedImage
 
 export const activeRegion = selectionGetters.activeRegion
 export const activeImages = selectionGetters.activeImages

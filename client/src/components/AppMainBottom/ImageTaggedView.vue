@@ -44,10 +44,10 @@
 <script>
   import $ from 'jquery'
   import EG from 'ENGINES'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, selectedImage} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize, selectedImage}
     },
     data () {
       return {
@@ -94,6 +94,13 @@
               image_real_height: Math.round($('#image-tagged').height())})
             this.renderIns.goUpdate()
           }
+        },
+        deep: true
+      },
+      selectedImage: {
+        handler (curVal, oldVal) { // object
+          //  接收到select image然后可以更新图片
+          console.log('selectedImage', this.selectedImage)
         },
         deep: true
       }

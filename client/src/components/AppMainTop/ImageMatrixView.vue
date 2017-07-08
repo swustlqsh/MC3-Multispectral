@@ -6,14 +6,15 @@
   import ImageRow from '../ImageRow/ImageRow.vue'
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
-  import {imgCompare} from '../../vuex/actions'
+  import {imgCompare, imageToTaggedView} from '../../vuex/actions'
   import {event} from '../../vuex/getters'
   import config from '../../commons/config'
   export default {
     vuex: {
       getters: { event },
       actions: {
-        imgCompare
+        imgCompare,
+        imageToTaggedView
       }
     },
     components: {
@@ -462,7 +463,7 @@
           }
         }
       },
-      highlight_features_image(){
+      highlight_features_image () {
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         let selectionFeaturesArray = this.selectionFeaturesArray
         for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
@@ -574,13 +575,13 @@
             }
           })
           .style('fill', function (d, i) {
-            if(typeof(d.eventObj)==='undefined'){
+            if (typeof (d.eventObj) === 'undefined') {
               return 'black'
-            }else{
+            } else {
               let eventCategory = d.eventObj.eventCategory
-              if(typeof(categoryColor) !== 'undefined'){
-                return categoryColor[eventCategory]
-              }else{
+              if (typeof (categoryColor) !== 'undefined') {
+                return categoryColor[ eventCategory ]
+              } else {
                 return 'black'
               }
             }
@@ -787,11 +788,13 @@
           d3.select('.image-components#' + imageNameId)
             .select('.original-image-bg')
             .classed('click-highlight', true)
+          this.sendSelectImage(imageNameId)
         } else {
           d3.selectAll('.background-image.click-highlight')
             .classed('click-highlight', false)
           d3.selectAll('.original-image-bg.click-highlight')
             .classed('click-highlight', false)
+          this.sendSelectImage()
         }
       },
       /**
@@ -847,8 +850,12 @@
         let eventCategory = this.event.type
         eventArray.push(this.event)
         let eventIndex = eventArray.length - 1
-        this.addEventStart(startObj, eventCategory, eventIndex, 'start')
-        this.addEventEnd(endObj, eventCategory, eventIndex, 'end')
+        if (typeof (startObj) !== 'undefined') {
+          this.addEventStart(startObj, eventCategory, eventIndex, 'start')
+        }
+        if (typeof (endObj) !== 'undefined') {
+          this.addEventEnd(endObj, eventCategory, eventIndex, 'end')
+        }
       },
       addEventStart (startObj, eventCategory, eventIndex, eventType) {
         let channel = startObj.channel
@@ -894,7 +901,17 @@
           }
         }
         this.render_each_events(channelIndex, timeIndex)
-        console.log('end imageObj', imageObj)
+      },
+      //  传递点击的图片的数据
+      sendSelectImage (imageNameId) {
+        console.log('imageNameId', imageNameId)
+        if (typeof (imageNameId) !== 'undefined') {
+          //  传递给imageTaggedView
+          this.imageToTaggedView(imageNameId)
+        } else {
+          //  传递空图片
+          this.imageToTaggedView(null)
+        }
       }
     }
   }
