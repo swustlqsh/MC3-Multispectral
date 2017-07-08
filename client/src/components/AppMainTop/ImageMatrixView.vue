@@ -10,7 +10,7 @@
   import {event} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {event},
+      getters: { event },
       actions: {
         imgCompare
       }
@@ -756,11 +756,9 @@
           let image1Name = feature1NameArray[ 0 ]
           let feature1Name = feature1NameArray[ 1 ]
           this.imgCompare({
-            'type': 'originalImgs',
-            'img1name': image1Name,
-            'feature1Name': feature1Name,
-            'img2name': null,
-            'feature2Name': null
+            'type': 'originalImgs', 'img1': {
+              'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name
+            }, 'img2': null
           })
         } else if (featuresArray.length === 2) {
           let imageFeature1Name = featuresArray[ 0 ]
@@ -772,11 +770,9 @@
           let image2Name = feature2NameArray[ 0 ]
           let feature2Name = feature2NameArray[ 1 ]
           this.imgCompare({
-            'type': 'originalImgs',
-            'img1name': image1Name,
-            'feature1Name': feature1Name,
-            'img2name': image2Name,
-            'feature2Name': feature2Name
+            'type': 'originalImgs', 'img1': {
+              'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name
+            }, 'img2': { 'feature': { 'name': feature2Name, 'path': [] }, 'imgName': image2Name }
           })
         }
       },
