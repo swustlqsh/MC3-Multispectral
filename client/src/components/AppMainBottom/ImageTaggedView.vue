@@ -38,15 +38,16 @@
       </tbody>
     </table>
     </template>
+    <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
   </div>
 </template>
 <script>
   import $ from 'jquery'
   import EG from 'ENGINES'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, selectedImage} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize, selectedImage}
     },
     data () {
       return {
@@ -82,7 +83,7 @@
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
             this.renderIns.showImage(0)
             this.renderIns.addEventListenerMouseup()
             this.renderIns.addEventListenerMousedown()
@@ -93,6 +94,13 @@
               image_real_height: Math.round($('#image-tagged').height())})
             this.renderIns.goUpdate()
           }
+        },
+        deep: true
+      },
+      selectedImage: {
+        handler (curVal, oldVal) { // object
+          //  接收到select image然后可以更新图片
+          console.log('selectedImage', this.selectedImage)
         },
         deep: true
       }
@@ -146,6 +154,19 @@
         this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
       closeTag (e) {
+        this.willShow = false
+      },
+      goSubmit () {
+        let regionAttributes = {}
+        let bodyNum = this.tableBody.length
+        for (let j = 0; j < bodyNum; j++) {
+          regionAttributes[j] = {}
+          let tempBox = {}
+          for (let i = 1; i < this.tableHeader.length; i++) {
+            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
+          }
+          regionAttributes[j] = tempBox
+        }
         this.willShow = false
       },
       addNewFeature () {

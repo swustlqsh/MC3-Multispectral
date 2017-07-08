@@ -1322,7 +1322,13 @@ class GraphTag extends Render {
       }
     }
   }
-
+  setMetaData (data) {
+    let img_metadata = this._via_img_metadata[this._via_image_id ]
+    console.log('img_metadata', img_metadata)
+    for (let key in data) {
+      img_metadata[key].regions.region_attributes = data[key]
+    }
+  }
   getMetaData () {
     //let _via_img_metadata_as_obj = {}
     let image_data = {}

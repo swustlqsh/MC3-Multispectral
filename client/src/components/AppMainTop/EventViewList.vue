@@ -16,7 +16,7 @@
       return {
         eventList: [],
         eventNum: 0,
-        colors: { 'Burnt': '#ef8a62', 'Flood': '#2b8cbe' }
+        colors: { 'Burnt': 'red', 'Flood': '#2b8cbe' }
       }
     },
     watch: {

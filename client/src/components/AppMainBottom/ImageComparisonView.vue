@@ -257,10 +257,7 @@
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
         this.eventSubmit(event)
-//        console.log(this.exportArea)
-        this.exportArea({ 'x': 2, 'y': 10, 'width': 20, 'height': 30 })
-        console.log(this.currentChannel)
-        this.updatePanel(this.currentChannel)
+        this.updatePanel('B5')
       }
     },
     ready () {
@@ -315,7 +312,7 @@
     top: 50%;
   }
   #submitButton {
-    margin-top: 6%;
+    margin-top: 8%;
   }
   textarea {
     width: 95%;

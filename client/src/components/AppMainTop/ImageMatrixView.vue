@@ -6,13 +6,15 @@
   import ImageRow from '../ImageRow/ImageRow.vue'
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
-  import {imgCompare} from '../../vuex/actions'
+  import {imgCompare, imageToTaggedView} from '../../vuex/actions'
   import {event} from '../../vuex/getters'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: { event },
       actions: {
-        imgCompare
+        imgCompare,
+        imageToTaggedView
       }
     },
     components: {
@@ -30,7 +32,9 @@
         imageHeight: 0,
         channelArray: [],
         dateArray: [],
-        featureSelectionIndex: 0
+        featureSelectionIndex: 0,
+        eventArray: [],
+        categoryColor: config.defaultFeaturesObj
       }
     },
     watch: {
@@ -74,12 +78,12 @@
           '2016_03_06', '2016_06_26', '2016_09_06', '2016_12_19' ]
         this.channelArray = channelArray
         this.dateArray = dateArray
-        let imageMatrixViewHeight = imageHeight * channelArray.length
+        let imageMatrixViewHeight = (imageHeight + padding) * channelArray.length
         $('#image-matrix-div').height(imageMatrixViewHeight)
         let imageObjArray2 = []
         for (let i = 0; i < channelArray.length; i++) {
           let imageObjArray = []
-          let locationY = i * imageHeight
+          let locationY = i * (imageHeight + padding)
           let channelName = channelArray[ i ]
           for (let j = 0; j < dateArray.length; j++) {
             let imageObj = {}
@@ -101,33 +105,38 @@
             imageObj.featuresArray = [ {
               featureName: 'a'//  ,
 //              eventObj: {
+//                eventCategory: 'flood',
 //                eventName: 'event-a1',
 //                eventType: 'start'
 //              }
             }, {
               featureName: 'b'//  ,
 //              eventObj: {
+//                eventCategory: 'flood',
 //                eventName: 'event-b2',
 //                eventType: 'start'
 //              }
             }, {
               featureName: 'c'//  ,
 //              eventObj: {
+//                eventCategory: 'flood',
 //                eventName: 'event-c3',
 //                eventType: 'start'
 //              }
             }, {
-              featureName: 'e',
-              eventObj: {
-                eventName: 'event-e4',
-                eventType: 'start'
-              }
+              featureName: 'e'//  ,
+//              eventObj: {
+//                eventCategory: 'flood',
+//                eventName: 'event-e4',
+//                eventType: 'start'
+//              }
             }, {
-              featureName: 'f',
-              eventObj: {
-                eventName: 'event-f5',
-                eventType: 'end'
-              }
+              featureName: 'f'//  ,
+//              eventObj: {
+//                eventCategory: 'flood',
+//                eventName: 'event-f5',
+//                eventType: 'end'
+//              }
             } ]
             imageObj.displayRange = [ 2, 4 ]
             imageObj.eventsArray = []
@@ -327,6 +336,9 @@
               .attr('x', function (d, i) {
                 return padding + featureImageWidth / 2
               })
+              .attr('y', function (d, i) {
+                return featureImageWidth / 4
+              })
               .attr('text-anchor', 'middle')
               .attr('dominant-baseline', 'middle')
               .attr('cursor', 'pointer')
@@ -362,6 +374,9 @@
               .append('text')
               .attr('x', function (d, i) {
                 return padding + (featureImageWidth + padding) * 2 + featureImageWidth / 2
+              })
+              .attr('y', function (d, i) {
+                return featureImageWidth / 4
               })
               .attr('text-anchor', 'middle')
               .attr('dominant-baseline', 'middle')
@@ -409,6 +424,7 @@
         }
         this.render_each_features_image(iI, jI)
         this.render_each_events(iI, jI)
+        this.highlight_features_image()
       },
       /**
        *  点击向右的按键
@@ -423,6 +439,7 @@
         }
         this.render_each_features_image(iI, jI)
         this.render_each_events(iI, jI)
+        this.highlight_features_image()
       },
       /**
        *  向每一个components中增加features图片
@@ -446,6 +463,18 @@
           }
         }
       },
+      highlight_features_image () {
+        var imageMatrixSvg = d3.select('#image-matrix-svg')
+        let selectionFeaturesArray = this.selectionFeaturesArray
+        for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
+          let featuresName = selectionFeaturesArray[ sI ]
+          let featuresNameArray = featuresName.split('-')
+          let imageName = featuresNameArray[ 0 ]
+          imageMatrixSvg.select('#feature-image-' + imageName)
+            .select('#' + featuresName)
+            .classed('click-selection', true)
+        }
+      },
       /**
        * 更新在每一个components中增加事件
        **/
@@ -459,6 +488,7 @@
         let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
         let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
         var padding = imageObjArray2[ iI ][ jI ].padding
+        let categoryColor = this.categoryColor
         if (imageMatrixSvg
             .select('#' + imageName)
             .select('#feature-events-' + imageName)
@@ -500,7 +530,7 @@
           .attr('x', function (d, i) {
             return padding + (featureImageWidth + padding) * i + featureImageWidth / 2
           })
-          .attr('y', 0)
+          .attr('y', featureImageWidth / 2)
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
           .attr('cursor', 'pointer')
@@ -535,6 +565,26 @@
             d3.select(this).classed('event-highlight', false)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseout_handler(imageNameId)
+            let className = d3.select(this).attr('class')
+            let classNameArray = className.split(' ')
+            let eventName = classNameArray[ 1 ]
+            if (d.eventObj.eventType === 'start') {
+              d3.selectAll('.end.' + eventName).classed('event-highlight', false)
+            } else {
+              d3.selectAll('.start.' + eventName).classed('event-highlight', false)
+            }
+          })
+          .style('fill', function (d, i) {
+            if (typeof (d.eventObj) === 'undefined') {
+              return 'black'
+            } else {
+              let eventCategory = d.eventObj.eventCategory
+              if (typeof (categoryColor) !== 'undefined') {
+                return categoryColor[ eventCategory ]
+              } else {
+                return 'black'
+              }
+            }
           })
           .on('click', function (d, i) {
             //  传递到imageComparisonView
@@ -551,7 +601,7 @@
           .attr('x', function (d, i) {
             return padding + (featureImageWidth + padding) * i + featureImageWidth / 2
           })
-          .attr('y', 0)
+          .attr('y', featureImageWidth / 2)
         eventsObj.exit().remove()
       },
       /**
@@ -567,6 +617,7 @@
         var featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
         var displayRange = imageObjArray2[ iI ][ jI ].displayRange
         var padding = imageObjArray2[ iI ][ jI ].padding
+        let selectionFeaturesArray = this.selectionFeaturesArray
         if (imageMatrixSvg.select('#' + imageName).select('#feature-image-' + imageName).empty()) {
           imageMatrixSvg.select('#' + imageName)
             .append('g')
@@ -616,6 +667,12 @@
           .attr('y', 0)
           .attr('width', featureImageWidth)
           .attr('height', featureImageWidth)
+        for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
+          let featuresName = selectionFeaturesArray[ sI ]
+          imageMatrixSvg.select('#feature-image-' + imageName)
+            .select('#' + featuresName)
+            .classed('click-selection', true)
+        }
         featuresObj.exit().remove()
       },
       /**
@@ -720,16 +777,25 @@
        * 鼠标点击component的事件
        */
       click_handler (imageNameId) {
-        d3.selectAll('.background-image.click-highlight')
-          .classed('click-highlight', false)
-        d3.select('.image-components#' + imageNameId)
-          .select('.background-image')
-          .classed('click-highlight', true)
-        d3.selectAll('.original-image-bg.click-highlight')
-          .classed('click-highlight', false)
-        d3.select('.image-components#' + imageNameId)
-          .select('.original-image-bg')
-          .classed('click-highlight', true)
+        if (!d3.select('.image-components#' + imageNameId).select('.background-image').classed('click-highlight')) {
+          d3.selectAll('.background-image.click-highlight')
+            .classed('click-highlight', false)
+          d3.select('.image-components#' + imageNameId)
+            .select('.background-image')
+            .classed('click-highlight', true)
+          d3.selectAll('.original-image-bg.click-highlight')
+            .classed('click-highlight', false)
+          d3.select('.image-components#' + imageNameId)
+            .select('.original-image-bg')
+            .classed('click-highlight', true)
+          this.sendSelectImage(imageNameId)
+        } else {
+          d3.selectAll('.background-image.click-highlight')
+            .classed('click-highlight', false)
+          d3.selectAll('.original-image-bg.click-highlight')
+            .classed('click-highlight', false)
+          this.sendSelectImage()
+        }
       },
       /**
        *  根据nameId得到横向与纵向的坐标值
@@ -777,12 +843,75 @@
         }
       },
       dealWithEvent () {
-        console.log(this.event)
-//        event format
-//        event.comments = $('#commentsText').val()
-//        event.type = $('#eventSelect').val()
-//        event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
-//        event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
+        //  event format
+        let eventArray = this.eventArray
+        let endObj = this.event.end
+        let startObj = this.event.start
+        let eventCategory = this.event.type
+        eventArray.push(this.event)
+        let eventIndex = eventArray.length - 1
+        if (typeof (startObj) !== 'undefined') {
+          this.addEventStart(startObj, eventCategory, eventIndex, 'start')
+        }
+        if (typeof (endObj) !== 'undefined') {
+          this.addEventEnd(endObj, eventCategory, eventIndex, 'end')
+        }
+      },
+      addEventStart (startObj, eventCategory, eventIndex, eventType) {
+        let channel = startObj.channel
+        let time = startObj.time
+        let feature = startObj.feature
+        let dateArray = this.dateArray
+        let channelArray = this.channelArray
+        let imageObjArray2 = this.imageObjArray2
+        let channelIndex = channelArray.indexOf(channel)
+        let timeIndex = dateArray.indexOf(time)
+        let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
+        let featuresArray = imageObj.featuresArray
+        let eventName = 'event' + eventIndex
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          if (featuresArray[ fI ].featureName === feature) {
+            featuresArray[ fI ].eventObj = {}
+            featuresArray[ fI ].eventObj.eventName = eventName
+            featuresArray[ fI ].eventObj.eventCategory = eventCategory
+            featuresArray[ fI ].eventObj.eventType = eventType
+          }
+        }
+        this.render_each_events(channelIndex, timeIndex)
+        console.log('start imageObj', imageObj)
+      },
+      addEventEnd (endObj, eventCategory, eventIndex, eventType) {
+        let channel = endObj.channel
+        let time = endObj.time
+        let feature = endObj.feature
+        let dateArray = this.dateArray
+        let channelArray = this.channelArray
+        let imageObjArray2 = this.imageObjArray2
+        let channelIndex = channelArray.indexOf(channel)
+        let timeIndex = dateArray.indexOf(time)
+        let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
+        let featuresArray = imageObj.featuresArray
+        let eventName = 'event' + eventIndex
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          if (featuresArray[ fI ].featureName === feature) {
+            featuresArray[ fI ].eventObj = {}
+            featuresArray[ fI ].eventObj.eventName = eventName
+            featuresArray[ fI ].eventObj.eventCategory = eventCategory
+            featuresArray[ fI ].eventObj.eventType = eventType
+          }
+        }
+        this.render_each_events(channelIndex, timeIndex)
+      },
+      //  传递点击的图片的数据
+      sendSelectImage (imageNameId) {
+        console.log('imageNameId', imageNameId)
+        if (typeof (imageNameId) !== 'undefined') {
+          //  传递给imageTaggedView
+          this.imageToTaggedView(imageNameId)
+        } else {
+          //  传递空图片
+          this.imageToTaggedView(null)
+        }
       }
     }
   }
@@ -798,6 +927,11 @@
   }
   .feature-control[class~=hidden-control] {
     visibility: hidden;
+  }
+  .feature-image {
+    fill: white;
+    stroke: gray;
+    stroke-width: 1px;
   }
   .feature-image[class~=click-selection] {
     stroke: #fc8d59;

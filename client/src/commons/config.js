@@ -26,7 +26,15 @@ let config = {
     '2016_06_26',
     '2016_09_06',
     '2016_12_19'
-  ]
+  ],
+  defaultFeaturesObj: {
+    Moun: 'orange',
+    Rode: '#D6E2D7',
+    Lake: 'blue',
+    City: 'gray',
+    Flood: '#2b8cbe',
+    Burnt: 'red'
+  }
 }
 let winWidth = 0
 let winHeight = 0
