@@ -1,5 +1,5 @@
 <template>
-    <div id = 'imageCompare' style = 'padding-left: 0; padding-right: 0'>
+    <div id = 'imageCompare' style = 'padding-left: 0; padding-right: 0; padding-top: 0'>
         <div v-el:graph1 id="graph1">
             <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
             <canvas id="image_canvas1" class="image_canvas"></canvas>
@@ -23,7 +23,7 @@
                     <option value="Expand">Expand</option>
                 </select>
             </div>
-            <div style="margin-top: 20px">
+            <div style="margin-top: 10px">
                 Description
             </div>
             <div style="height: 50%">
@@ -38,12 +38,13 @@
 <script>
   import $ from 'jquery'
   import {pageSize, comparedMessage} from '../../vuex/getters'
-  import {eventSubmit} from '../../vuex/actions'
+  import {eventSubmit, exportArea} from '../../vuex/actions'
+  import config from '../../commons/config'
   import EG from 'ENGINES'
   export default {
     vuex: {
       actions: {
-        eventSubmit
+        eventSubmit, exportArea
       },
       getters: { pageSize, comparedMessage }
     },
@@ -51,6 +52,7 @@
       return {
         divName: 'image-comparison',
         load: false,
+        currentChannel: 'B1',
         channelTagNum: {
           'B3B2B1': 3,
           'B5B4B2': 2,
@@ -131,6 +133,7 @@
           .text(function (d) {
             return d
           })
+          .attr('font-size', config.emSize)
           .attr('text-anchor', 'end')
         g.append('text')
           .attr('x', function (d, i) {
@@ -143,6 +146,7 @@
           .attr('id', function (d) {
             return 'text' + d
           })
+          .attr('font-size', config.emSize)
         this.cellWidth = cellWidth
         this.textWidth = textWidth
         this.channelTagNum = channelTagNum
@@ -170,12 +174,13 @@
 //          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
 //          .attr('width', width / 2)
 //          .attr('height', height)
-        let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
+        let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03_06, ' +
           '2016_06_26, 2016_09_06, 2016_12_19'
         time = time.split(',')
         time = time.map(function (d, i) {
           return d.trim()
         })
+        this.currentChannel = this.comparedMessage.img1.feature.name
         this.time = time
         if (this.comparedMessage.type === 'originalImgs') {
           if (this.comparedMessage.img2 === null) {
@@ -252,7 +257,10 @@
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
         this.eventSubmit(event)
-        this.updatePanel('B5')
+//        console.log(this.exportArea)
+        this.exportArea({ 'x': 2, 'y': 10, 'width': 20, 'height': 30 })
+        console.log(this.currentChannel)
+        this.updatePanel(this.currentChannel)
       }
     },
     ready () {
@@ -307,7 +315,7 @@
     top: 50%;
   }
   #submitButton {
-    margin-top: 8%;
+    margin-top: 6%;
   }
   textarea {
     width: 95%;

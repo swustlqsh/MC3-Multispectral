@@ -8,6 +8,7 @@ import frame from 'FRAME'
 import pageLayoutMutations from './pageLayout/mutations'
 import eventSubmitMutations from './eventSubmit/mutations'
 import imgCompareMutations from './imgCompare/mutations'
+import colorDistributionMutations from './colorDistribution/mutations'
 Vue.use(Vuex)
 // 在Vue实例中通过this.vxMutations进行使用
 frame.vueInstall({ module: 'vx', name: 'mutations' }, types)
@@ -18,6 +19,7 @@ const state = {
   event: {},
   comparedMessage: {},
   selections: {},
+  rectArea: {},
   pageSize: {
     pageWidth: 0,
     pageHeight: 0
@@ -26,7 +28,7 @@ const state = {
 
 const mutations = Object.assign(
   {},
-  pageLayoutMutations, eventSubmitMutations, imgCompareMutations)
+  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations)
 
 export default new Vuex.Store({
   strict: true,

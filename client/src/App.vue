@@ -10,6 +10,8 @@ import AppHeader from './components/AppHeader.vue'
 import AppMain from './components/AppMain.vue'
 import {updatePageSize} from './vuex/actions'
 import {pageWidth} from './vuex/getters'
+import UTIF from './commons/utif'
+import config from './commons/config'
 export default {
   vuex: {
     actions: {updatePageSize},
@@ -31,6 +33,43 @@ export default {
     let pageSize = getPageSize()
     pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
     that.updatePageSize(pageSize.width, pageSize.height)
+    let date = config.date
+    let dataArr = []
+    date.forEach(function (d, i) {
+      dataLoad(i, function (response) {
+        dataArr.push(response)
+      })
+    })
+
+    function dataLoad (i, done) {
+      console.log(i)
+      let tag = '' + (i + 1)
+      let xhr = new XMLHttpRequest()
+      if (i + 1 < 10) tag = '0' + tag
+      xhr.open('GET', '../data/tiffile/image' + tag + '_' + date[ i ] + '.tif', true)
+      xhr.responseType = 'arraybuffer'
+      xhr.onload = function (e) {
+        let pages = UTIF.decode(e.target.response)
+//        console.log(pages)
+        let arr = []
+        for (let i = 0; i < 651; i++) {
+          arr.push([])
+          for (let j = 0; j < 651; j++) {
+            arr[ i ].push(0)
+          }
+        }
+        let data = pages[ 0 ].data
+        for (let y = 0; y < 651; y++) {
+          for (let x = 0; x < 651; x++) {
+            let index = (y * 651 + x) * 6
+            arr[ x ][ y ] = data.slice(index, index + 6)
+          }
+        }
+        return done(arr)
+      }
+      xhr.send()
+    }
+    window.dataArr = dataArr
     window.onresize = () => {
       return (() => {
         if (!that.timer) {

@@ -6,7 +6,7 @@
 import pageLayoutGetters from './pageLayout/getters'
 import eventGetters from './eventSubmit/getters'
 import imgCompareGetters from './imgCompare/getters'
-
+import colorDistributionGetters from './colorDistribution/getters'
 /**
  * |————————————————————————————————|
  * |            PageLayout         |
@@ -18,3 +18,4 @@ export const pageWidth = pageLayoutGetters.pageWidth
 export const pageHeight = pageLayoutGetters.pageHeight
 export const event = eventGetters.event
 export const comparedMessage = imgCompareGetters.comparedMessage
+export const rectArea = colorDistributionGetters.rectArea

@@ -155,8 +155,8 @@
       render () {
         this.imgCompare({
           'type': 'originalImgs', 'img1': {
-            'feature': { 'name': 'll', 'path': [] }, 'imgName': 'B1_2014_08_24'
-          }, 'img2': { 'feature': { 'name': 'zz', 'path': [] }, 'imgName': 'B1_2014_03_17' }
+            'feature': { 'name': 'B1', 'path': [] }, 'imgName': 'B1_2014_08_24'
+          }, 'img2': { 'feature': { 'name': 'B1', 'path': [] }, 'imgName': 'B1_2014_03_17' }
         })
         var imageObjArray2 = this.imageObjArray2
         var imageMatrixSvg = d3.select('#image-matrix-svg')

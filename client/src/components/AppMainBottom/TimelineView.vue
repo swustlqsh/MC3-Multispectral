@@ -5,6 +5,7 @@
 <script>
   import $ from 'jquery'
   import {pageSize, comparedMessage} from '../../vuex/getters'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: {pageSize, comparedMessage}
@@ -71,7 +72,7 @@
             .attr('y', padding.top + height / 3 + height / 2.2)
             .attr('x', sw * i + sw / 2 + padding.left)
             .text(d)
-            .attr('font-size', '1em')
+            .attr('font-size', config.emSize)
         })
         this.width = width
         this.padding = padding
@@ -138,7 +139,7 @@
           .datum(points)
           .attr('fill', 'none')
           .attr('stroke', 'grey')
-          .attr('stroke-opacity', '0.5')
+          .attr('stroke-opacity', '0.8')
           .attr('stroke-width', 2)
           .attr('d', line)
           .attr('class', 'timeCurve')

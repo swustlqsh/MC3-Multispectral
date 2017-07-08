@@ -53,7 +53,7 @@
           .style('fill', config.burnt)
         svg.append('text')
           .text('Burnt')
-          .attr('font-size', '10')
+          .attr('font-size', config.emSize * 0.8)
           .attr('x', width * leftR)
           .attr('y', height * vRatio + 20)
           .attr('text-anchor', 'middle')
@@ -64,7 +64,7 @@
           .style('fill', config.flood)
         svg.append('text')
           .text('Flood')
-          .attr('font-size', '10')
+          .attr('font-size', config.emSize * 0.8)
           .attr('x', width * leftR)
           .attr('y', height * vRatio * 3 + 20)
           .attr('text-anchor', 'middle')
@@ -94,7 +94,7 @@
           .attr('y', function (d, i) {
             return height * vRatio * (i * 2 + 1) + 20
           })
-          .attr('font-size', '10')
+          .attr('font-size', config.emSize * 0.8)
           .text(function (d, i) {
             return d[0]
           })
