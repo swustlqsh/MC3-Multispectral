@@ -83,7 +83,7 @@
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
             this.renderIns.showImage(0)
             this.renderIns.addEventListenerMouseup()
             this.renderIns.addEventListenerMousedown()

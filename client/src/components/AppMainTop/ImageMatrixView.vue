@@ -571,9 +571,6 @@
             }else{
               let eventCategory = d.eventObj.eventCategory
               if(typeof(categoryColor) !== 'undefined'){
-                console.log('eventCategory', eventCategory)
-                console.log('categoryColor', categoryColor)
-                console.log('color', categoryColor[eventCategory])
                 return categoryColor[eventCategory]
               }else{
                 return 'black'

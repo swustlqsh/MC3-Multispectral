@@ -5,7 +5,7 @@ console.log(lessVars)
 let config = {
   debug: process.SkyEye.ENV === 'dev',
   emSize: 0,
-  burnt: '#ef8a62',
+  burnt: 'red',
   flood: '#2b8cbe',
   defaultFeatures: [
     [ 'Moun', 'orange' ],
@@ -17,7 +17,9 @@ let config = {
     Moun: 'orange',
     Rode: '#D6E2D7',
     Lake: 'blue',
-    City: 'gray'
+    City: 'gray',
+    Flood: '#2b8cbe',
+    Burnt: 'red'
   }
 }
 let winWidth = 0
