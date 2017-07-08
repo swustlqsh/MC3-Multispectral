@@ -38,6 +38,7 @@
       </tbody>
     </table>
     </template>
+    <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
   </div>
 </template>
 <script>
@@ -146,6 +147,19 @@
         this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
       closeTag (e) {
+        this.willShow = false
+      },
+      goSubmit () {
+        let regionAttributes = {}
+        let bodyNum = this.tableBody.length
+        for (let j = 0; j < bodyNum; j++) {
+          regionAttributes[j] = {}
+          let tempBox = {}
+          for (let i = 1; i < this.tableHeader.length; i++) {
+            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
+          }
+          regionAttributes[j] = tempBox
+        }
         this.willShow = false
       },
       addNewFeature () {
