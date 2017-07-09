@@ -45,12 +45,12 @@
   import $ from 'jquery'
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
-  import {addFeatures, exportArea} from '../../vuex/actions'
+  import {createSelection, addFeatures, exportArea} from '../../vuex/actions'
   export default {
     vuex: {
       getters: {pageSize, selectedImage},
       actions: {
-        addFeatures, exportArea
+        addFeatures, exportArea, createSelection
       }
     },
     data () {
@@ -71,7 +71,7 @@
         ],
         tableHeader: [{name: '#'}],
         tableBody: [],
-        regions: {},
+        $regions: {},
         tableIndex: [],
         featureName: 'Add New'
       }
@@ -79,6 +79,17 @@
     watch: {
       pageSize: {
         handler (curVal, oldVal) {
+//          this.init()
+//          this.renderIns.init({
+//            image_canvas_id: 'image_canvas',
+//            region_canvas_id: 'region_canvas',
+//            image_real_width: Math.round($('#image-tagged').width()),
+//            image_real_height: Math.round($('#image-tagged').height())
+//          })
+//          this.renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
+//          this.renderIns.on('dblclick', this.clickEvent)
+//          this.renderIns.regionBindAllEvent()
+
           if (!this.renderIns) {
             this.init()
             this.renderIns.init({
@@ -93,6 +104,7 @@
             this.renderIns.addEventListenerMousedown()
             this.renderIns.addEventListenerMousemove()
             this.renderIns.addEventListenerMouseover()
+          } else {
             this.renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())})
@@ -111,7 +123,7 @@
     },
     computed: {
       isShowTable () {
-        return Object.keys(this.regions).length === 0 || Object.keys(this.regions.regions).length === 0
+        return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       }
     },
     methods: {
@@ -121,9 +133,9 @@
           this.willShow = true
           this.tableHeader = [{name: '#'}]
           this.tableBody = []
-          this.regions = JSON.parse(this.renderIns.getMetaData())
+          this.$regions = JSON.parse(this.renderIns.getMetaData())
           if (!this.isShowTable) {
-            let regionAttributes = this.regions.regions
+            let regionAttributes = this.$regions.regions
             let features = Object.keys(regionAttributes)
             for (let i = 0; i < features.length; i++) {
               let tbody = []
@@ -140,7 +152,6 @@
               }
             }
           }
-          console.log(JSON.parse(this.renderIns.getMetaData()))
           return
         }
         if (this.selectedId === 1) {
@@ -171,7 +182,14 @@
           }
           regionAttributes[j] = tempBox
         }
+
         this.willShow = false
+        for (let key in regionAttributes) {
+          let typs = regionAttributes[key]
+          this.$regions.regions[key].region_attributes = typs
+        }
+        this.createSelection('B1B5B6_2014_03_17', this.$regions)
+        this.renderIns.resetMetaData()
         this.addFeatures('features')
         console.log('click submit')
       },
@@ -186,6 +204,7 @@
       }
     },
     ready () {
+//      this.init()
     }
   }
 </script>
