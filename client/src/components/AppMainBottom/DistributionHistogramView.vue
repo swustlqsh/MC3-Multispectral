@@ -31,10 +31,10 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, rectArea} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize, rectArea}
     },
     data () {
       return {
@@ -54,6 +54,12 @@
             this.updateLine('#timelineRight')
           }
           this.load = true
+        },
+        deep: true
+      },
+      rectArea: {
+        handler (curVal, oldVal) {
+          console.log(this.rectArea)
         },
         deep: true
       }

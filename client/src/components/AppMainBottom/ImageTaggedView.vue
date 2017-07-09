@@ -44,12 +44,12 @@
 <script>
   import $ from 'jquery'
   import EG from 'ENGINES'
-  import {pageSize} from '../../vuex/getters'
-  import {createSelection} from '../../vuex/actions'
+  import {pageSize, selectedImage} from '../../vuex/getters'
+  import {createSelection, addFeatures} from '../../vuex/actions'
   export default {
     vuex: {
-      getters: {pageSize},
-      actions: {createSelection}
+      getters: {pageSize, selectedImage},
+      actions: {createSelection, addFeatures}
     },
     data () {
       return {
@@ -96,7 +96,7 @@
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
             this.renderIns.showImage(0)
             this.renderIns.addEventListenerMouseup()
             this.renderIns.addEventListenerMousedown()
@@ -109,6 +109,13 @@
 
             this.renderIns.goUpdate()
           }
+        },
+        deep: true
+      },
+      selectedImage: {
+        handler (curVal, oldVal) { // object
+          //  接收到select image然后可以更新图片
+          console.log('selectedImage', this.selectedImage)
         },
         deep: true
       }
@@ -182,6 +189,7 @@
         }
         this.createSelection('B1B5B6_2014_03_17', this.$regions)
         this.renderIns.resetMetaData()
+        this.addFeatures('features')
       },
       addNewFeature () {
         this.tableHeader.push({name: this.featureName})

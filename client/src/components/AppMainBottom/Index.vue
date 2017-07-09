@@ -26,7 +26,7 @@
     },
     data () {
       return {
-        tH2: 30
+        tH2: 33
       }
     },
     components: {

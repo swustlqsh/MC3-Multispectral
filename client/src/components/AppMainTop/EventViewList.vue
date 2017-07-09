@@ -6,7 +6,7 @@
   //  import d3 from 'd3'
   import $ from 'jquery'
   import {pageSize, event} from '../../vuex/getters'
-
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: {pageSize, event}
@@ -16,7 +16,7 @@
       return {
         eventList: [],
         eventNum: 0,
-        colors: { 'Burnt': '#ef8a62', 'Flood': '#2b8cbe' }
+        colors: { 'Burnt': 'red', 'Flood': '#2b8cbe' }
       }
     },
     watch: {
@@ -43,6 +43,7 @@
         let d3 = window.d3
         let ratio = 1
         let padding = { top: 20, left: 20, right: 5, bottom: 2 }
+        padding.top = config.emSize + 10
         this.eventNum = 0
         d3.select('#eventList').html('')
         let svgL = d3.select('#eventList').append('svg').attr('width', width * ratio).attr('height', height)
@@ -66,7 +67,7 @@
             return padding.left + rectValue * 2 + i * 4 * rectValue
           })
           .attr('y', padding.top / 2)
-          .attr('font-size', this.fontSize)
+          .attr('font-size', config.emSize)
           .attr('text-anchor', 'middle')
         this.svgL.append('line')
           .attr('x1', padding.left)
@@ -101,9 +102,9 @@
         svg.append('text')
           .text(this.eventNum + 1)
           .attr('x', padding.left / 2)
-          .attr('y', padding.top + eventNum * rectValue + rectValue / 2 + rectValue / 4)
+          .attr('y', padding.top + eventNum * rectValue + rectValue / 2 + config.emSize / 2)
           .attr('text-anchor', 'middle')
-          .attr('font-size', this.fontSize)
+          .attr('font-size', config.emSize)
 //          .attr('alignment-baseline', 'middle')
         for (let i = 0; i < 13; i++) {
           svg.append('line')

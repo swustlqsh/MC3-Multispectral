@@ -12,7 +12,29 @@ let config = {
     ['Rode', '#D6E2D7'],
     ['Lake', 'blue'],
     ['City', 'gray']
-  ]
+  ],
+  date: [
+    '2014_03_17',
+    '2014_08_24',
+    '2014_11_28',
+    '2014_12_30',
+    '2015_02_15',
+    '2015_06_24',
+    '2015_09_12',
+    '2015_11_15',
+    '2016_03_06',
+    '2016_06_26',
+    '2016_09_06',
+    '2016_12_19'
+  ],
+  defaultFeaturesObj: {
+    Moun: 'orange',
+    Rode: '#D6E2D7',
+    Lake: 'blue',
+    City: 'gray',
+    Flood: '#2b8cbe',
+    Burnt: 'red'
+  }
 }
 let winWidth = 0
 let winHeight = 0
@@ -30,21 +52,21 @@ if (document.documentElement && document.documentElement.clientHeight && documen
 }
 let emSize = '12px'
 if (winWidth < 2000) {
-  emSize = '12px'
+  emSize = 12
 } else if (winWidth < 3000) {
-  emSize = '15px'
+  emSize = 15
 } else if (winWidth < 4000) {
-  emSize = '25px'
+  emSize = 25
 } else if (winWidth < 5000) {
-  emSize = '30px'
+  emSize = 30
 } else if (winWidth < 6000) {
-  emSize = '35px'
+  emSize = 35
 } else if (winWidth < 7000) {
-  emSize = '40px'
+  emSize = 40
 } else if (winWidth < 8000) {
-  emSize = '45px'
+  emSize = 45
 } else if (winWidth < 9000) {
-  emSize = '50px'
+  emSize = 50
 }
 config.emSize = emSize
 
