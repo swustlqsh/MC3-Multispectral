@@ -45,12 +45,12 @@
   import $ from 'jquery'
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
-  import {addFeatures} from '../../vuex/actions'
+  import {addFeatures, exportArea} from '../../vuex/actions'
   export default {
     vuex: {
       getters: {pageSize, selectedImage},
       actions: {
-        addFeatures
+        addFeatures, exportArea
       }
     },
     data () {

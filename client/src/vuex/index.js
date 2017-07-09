@@ -23,7 +23,7 @@ const state = {
   event: {},
   comparedMessage: {},
   selections: {},
-  rectArea: {},
+  lassoArea: [],
   pageSize: {
     pageWidth: 0,
     pageHeight: 0

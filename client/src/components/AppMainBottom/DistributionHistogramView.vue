@@ -31,10 +31,10 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize, rectArea} from '../../vuex/getters'
+  import {pageSize, lassoArea} from '../../vuex/getters'
   export default {
     vuex: {
-      getters: {pageSize, rectArea}
+      getters: {pageSize, lassoArea}
     },
     data () {
       return {
@@ -57,7 +57,7 @@
         },
         deep: true
       },
-      rectArea: {
+      lassoArea: {
         handler (curVal, oldVal) {
           console.log(this.rectArea)
         },

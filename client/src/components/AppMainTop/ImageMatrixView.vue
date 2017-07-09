@@ -988,8 +988,7 @@
     font-size: 0.7rem;
   }
   @keyframes original-highlight-animation {
-    0% {
-    }
+    0% {}
     50% {
       stroke-width: 6px;
     }
@@ -997,8 +996,7 @@
     }
   }
   @keyframes feature-highlight-animation {
-    0% {
-    }
+    0% {}
     50% {
       stroke-width: 3px;
     }

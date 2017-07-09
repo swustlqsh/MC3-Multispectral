@@ -1,6 +1,5 @@
 <template>
     <div id = 'timeLine'></div>
-    </div>
 </template>
 <script>
   import $ from 'jquery'

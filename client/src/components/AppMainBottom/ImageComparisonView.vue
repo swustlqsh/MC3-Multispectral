@@ -38,13 +38,13 @@
 <script>
   import $ from 'jquery'
   import {pageSize, comparedMessage} from '../../vuex/getters'
-  import {eventSubmit, exportArea} from '../../vuex/actions'
+  import {eventSubmit} from '../../vuex/actions'
   import config from '../../commons/config'
   import EG from 'ENGINES'
   export default {
     vuex: {
       actions: {
-        eventSubmit, exportArea
+        eventSubmit
       },
       getters: { pageSize, comparedMessage }
     },
