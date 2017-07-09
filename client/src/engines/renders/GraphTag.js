@@ -225,11 +225,7 @@ class GraphTag extends Render {
 
   _viaDrawControlPoint (cx, cy) {
     this._via_reg_ctx.beginPath()
-    this._via_reg_ctx.beginPath()
-    this._via_reg_ctx.beginPath()
-    this._via_reg_ctx.beginPath()
     this._via_reg_ctx.arc(cx, cy, VIA_REGION_POINT_RADIUS, 0, 2 * Math.PI, false)
-    this._via_reg_ctx.beginPath()
     this._via_reg_ctx.closePath()
     this._via_reg_ctx.fillStyle = VIA_THEME_CONTROL_POINT_COLOR
     this._via_reg_ctx.globalAlpha = 1.0
@@ -587,7 +583,7 @@ class GraphTag extends Render {
       }
       this._via_canvas_width = Math.round(this._via_canvas_width)
       this._via_canvas_height = Math.round(this._via_canvas_height)
-
+      console.log('this._via_current_image.naturalWidth', this._via_current_image.naturalWidth)
       this._via_canvas_scale = this._via_current_image.naturalWidth / this._via_canvas_width
 
       this._via_canvas_width_scale = this._via_current_image.naturalWidth / this._via_canvas_width
@@ -1328,6 +1324,11 @@ class GraphTag extends Render {
     for (let key in data) {
       img_metadata[key].regions.region_attributes = data[key]
     }
+  }
+  resetMetaData () {
+    console.log('this._via_img_metadata', this._via_img_metadata)
+    this._via_img_metadata[ this._via_image_id ].regions = []
+    this.showImage(this._via_image_index)
   }
   getMetaData () {
     //let _via_img_metadata_as_obj = {}

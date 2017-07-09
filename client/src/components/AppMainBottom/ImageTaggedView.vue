@@ -45,9 +45,11 @@
   import $ from 'jquery'
   import EG from 'ENGINES'
   import {pageSize} from '../../vuex/getters'
+  import {createSelection} from '../../vuex/actions'
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize},
+      actions: {createSelection}
     },
     data () {
       return {
@@ -67,7 +69,7 @@
         ],
         tableHeader: [{name: '#'}],
         tableBody: [],
-        regions: {},
+        $regions: {},
         tableIndex: [],
         featureName: 'Add New'
       }
@@ -75,6 +77,17 @@
     watch: {
       pageSize: {
         handler (curVal, oldVal) {
+//          this.init()
+//          this.renderIns.init({
+//            image_canvas_id: 'image_canvas',
+//            region_canvas_id: 'region_canvas',
+//            image_real_width: Math.round($('#image-tagged').width()),
+//            image_real_height: Math.round($('#image-tagged').height())
+//          })
+//          this.renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
+//          this.renderIns.on('dblclick', this.clickEvent)
+//          this.renderIns.regionBindAllEvent()
+
           if (!this.renderIns) {
             this.init()
             this.renderIns.init({
@@ -89,9 +102,11 @@
             this.renderIns.addEventListenerMousedown()
             this.renderIns.addEventListenerMousemove()
             this.renderIns.addEventListenerMouseover()
+          } else {
             this.renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())})
+
             this.renderIns.goUpdate()
           }
         },
@@ -100,7 +115,7 @@
     },
     computed: {
       isShowTable () {
-        return Object.keys(this.regions).length === 0 || Object.keys(this.regions.regions).length === 0
+        return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       }
     },
     methods: {
@@ -110,9 +125,9 @@
           this.willShow = true
           this.tableHeader = [{name: '#'}]
           this.tableBody = []
-          this.regions = JSON.parse(this.renderIns.getMetaData())
+          this.$regions = JSON.parse(this.renderIns.getMetaData())
           if (!this.isShowTable) {
-            let regionAttributes = this.regions.regions
+            let regionAttributes = this.$regions.regions
             let features = Object.keys(regionAttributes)
             for (let i = 0; i < features.length; i++) {
               let tbody = []
@@ -129,7 +144,6 @@
               }
             }
           }
-          console.log(JSON.parse(this.renderIns.getMetaData()))
           return
         }
         if (this.selectedId === 1) {
@@ -160,19 +174,25 @@
           }
           regionAttributes[j] = tempBox
         }
+
         this.willShow = false
+        for (let key in regionAttributes) {
+          let typs = regionAttributes[key]
+          this.$regions.regions[key].region_attributes = typs
+        }
+        this.createSelection('B1B5B6_2014_03_17', this.$regions)
+        this.renderIns.resetMetaData()
       },
       addNewFeature () {
-        console.log(this.featureName)
         this.tableHeader.push({name: this.featureName})
         for (let i = 0; i < this.tableBody.length; i++) {
           this.tableBody[i].push({value: ''})
         }
-        console.log(this.tableBody)
         this.featureName = 'Add New'
       }
     },
     ready () {
+//      this.init()
     }
   }
 </script>
