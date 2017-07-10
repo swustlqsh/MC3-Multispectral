@@ -46,7 +46,8 @@
       },
       addedFeatures: {
         handler (curVal, oldVal) { // object
-          this.handleWithFeatures()
+          console.log('addedFeatures', this.addedFeatures)
+//          this.handleWithFeatures()
         },
         deep: true
       },
