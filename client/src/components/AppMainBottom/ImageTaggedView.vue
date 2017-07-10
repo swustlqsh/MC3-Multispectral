@@ -188,6 +188,8 @@
           let typs = regionAttributes[key]
           this.$regions.regions[key].region_attributes = typs
         }
+        // 传递lasso区域，只支持一个区域
+        this.exportArea([ this.$regions.regions[ 0 ].shape_attributes.all_points_x, this.$regions.regions[ 0 ].shape_attributes.all_points_y ])
         this.createSelection('B1B5B6_2014_03_17', this.$regions)
         this.renderIns.resetMetaData()
         this.addFeatures('features')

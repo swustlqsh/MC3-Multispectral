@@ -32,6 +32,7 @@
 <script>
   import $ from 'jquery'
   import {pageSize, lassoArea} from '../../vuex/getters'
+  import {getPointsOfArea} from '../../commons/utils'
   export default {
     vuex: {
       getters: {pageSize, lassoArea}
@@ -49,9 +50,9 @@
               for (var i = 0; i < 20; i++) {
                 data.push({'time': i, 'num': parseInt(Math.random() * 20)})
               }
-              this.init('#timeline' + j, data)
+//              this.init('#timeline' + j, data)
             }
-            this.updateLine('#timelineRight')
+//            this.updateLine('#timelineRight')
           }
           this.load = true
         },
@@ -59,7 +60,14 @@
       },
       lassoArea: {
         handler (curVal, oldVal) {
-          console.log(this.rectArea)
+          let area = []
+          let num = this.lassoArea[ 0 ].length
+          for (let i = 0; i < num; i++) {
+            area.push([ this.lassoArea[ 0 ][ i ], this.lassoArea[ 1 ][ i ] ])
+          }
+//          console.log(area)
+//          console.log(getPointsOfArea)
+          this.updateDistribution(getPointsOfArea(area))
         },
         deep: true
       }
@@ -88,6 +96,7 @@
                          return ''
                        })
                        .ticks(2)
+        $(panelSelector).empty()
         self.svg = d3.select(panelSelector)
             .append('svg')
             .attr('width', self.width + self.margin.left + self.margin.right)
@@ -121,6 +130,39 @@
           .attr('height', function (d) { return self.height - self.yScale(d.num) })
           .style('fill', 'steelblue')
       },
+      updateDistribution (points) {
+        let dataArr = window.dataArr
+        let step = 255
+        let w = 255 / step
+        let calNum = {}
+        for (let i = 0; i < step; i++) {
+          let p = i * w
+          calNum[ p ] = 0
+        }
+        calNum[ 255 ] = 0
+        let channel = 0
+        let pLen = points.length
+        for (let i = 0; i < 12; i++) {
+          for (let j = 0; j < step; j++) {
+            let p = j * w
+            calNum[ p ] = 0
+          }
+          calNum[ 255 ] = 0
+//          console.log(calNum)
+          for (let j = 0; j < pLen; j++) {
+            let value = dataArr[ i ][ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channel ]
+            let index = parseInt(value / w)
+            calNum[ index * w ] += 1
+          }
+          let data = []
+          for (let k in calNum) {
+            data.push({ 'time': k, 'num': calNum[ k ] })
+          }
+//          console.log(data)
+          this.init('#timeline' + (i + 1), data)
+        }
+        this.updateLine('#timelineRight')
+      },
       updateLine (panelSelector) {
         let d3 = require('../../../plugins/d3v3.min.js')
         let width = $(panelSelector).width()
@@ -128,6 +170,7 @@
         let minHeight = height / 24
         let singleHeight = height / 12
         let minWidth = width / 5
+        $(panelSelector).empty()
         let diffSVG = d3.select(panelSelector)
           .append('svg')
           .attr('class', 'timeline')
