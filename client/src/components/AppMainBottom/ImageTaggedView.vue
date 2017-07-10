@@ -15,7 +15,7 @@
   </div>
   <div id="attributes-panel" v-if="willShow">
     <div class="uk-animation-slide-bottom close" @click="closeTag()"><i class="uk-icon-justify uk-icon-close"></i></div>
-    <template v-if="isShowTable">
+    <template v-if="isShowSelectTable">
       <div class="error-msg">No selected feature</div>
     </template>
     <template v-else>
@@ -23,29 +23,43 @@
       <thead>
       <tr>
         <th v-for="head in tableHeader">
-          <input type="text" placeholder="head.name" class="uk-form-width-small"  v-model="head.name">
+          <input type="text" placeholder="head.name" class="uk-form-width-small"  v-model="head.name" disabled>
         </th>
-        <th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>
+       <!--<th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>-->
       </tr>
       </thead>
       <tbody>
-      <tr v-for="tbody in tableBody">
-        <td v-for="(i, attr) in tbody">
+      <tr>
+        <td v-for="(i, attr) in selectRegionTableBody">
           <input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>
-          <input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small"  v-model="attr.value">
+          <select v-else v-model="attr.value" @change="chooseRegionType(attr.value)">
+            <option v-for="opt in featuresObj">{{ opt }}</option>
+          </select>
         </td>
+        <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
       </tr>
+      <!--<tr v-for="tbody in tableBody">-->
+        <!--<td v-for="(i, attr) in tbody">-->
+          <!--<input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>-->
+          <!--<select v-else v-model="attr.value">-->
+               <!--<option v-for="opt in featuresObj">{{ opt }}</option>-->
+          <!--</select>-->
+          <!--&lt;!&ndash;<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">&ndash;&gt;-->
+        <!--</td>-->
+      <!--</tr>-->
       </tbody>
     </table>
+      <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
     </template>
-    <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
   </div>
+  <div class="image-time">{{imageTime}}</div>
 </template>
 <script>
   import $ from 'jquery'
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
   import {createSelection, addFeatures, exportArea} from '../../vuex/actions'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: {pageSize, selectedImage},
@@ -69,11 +83,15 @@
           { name: '套索', icon: 'uk-icon-object-ungroup', index: 4, image: '../../../assets/images/套索.png' },
           { name: '标记', icon: 'uk-icon-text-height', index: 5, image: '../../../assets/images/文字.png' }
         ],
-        tableHeader: [{name: '#'}],
+        tableHeader: [{name: '#'}, {name: 'Type'}],
         tableBody: [],
         $regions: {},
         tableIndex: [],
-        featureName: 'Add New'
+        featureName: 'Add New',
+        featuresObj: Object.keys(config.defaultFeaturesObj),
+        imageTime: '',
+        selectRegionTableBody: [], // 当前选中的region
+        $selectRegionsObs: {} // 不执行vue绑定操作
       }
     },
     watch: {
@@ -98,8 +116,9 @@
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-            this.renderIns.showImage(0)
+//            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+//            this.renderIns.showImage(0)
+//            this.renderIns.addEventListenerClick() // default
             this.renderIns.addEventListenerMouseup()
             this.renderIns.addEventListenerMousedown()
             this.renderIns.addEventListenerMousemove()
@@ -117,6 +136,12 @@
         handler (curVal, oldVal) { // object
           //  接收到select image然后可以更新图片
           console.log('selectedImage', this.selectedImage)
+          this.imageTime = this.selectedImage.split('_').slice(1).join('_')
+          let path = '../../../data/' + this.selectedImage.split('_')[0] + '/' + this.selectedImage + '.png'
+          if (this.renderIns) {
+            this.renderIns.loadStoreLocalImg(path, this.selectedImage)
+            this.renderIns.showImage(0)
+          }
         },
         deep: true
       }
@@ -124,33 +149,73 @@
     computed: {
       isShowTable () {
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
+      },
+      isShowSelectTable () {
+        return this.renderIns._via_user_sel_region_id === -1
       }
     },
     methods: {
+      chooseRegionType (attr) {
+        let newAttr = JSON.parse(JSON.stringify(attr))
+        let info = { 'type': newAttr, 'color': config.defaultFeaturesObj[newAttr] }
+        if (this.selectRegionTableBody.length !== 0) {
+          this.$selectRegionsObs[this.selectRegionTableBody[0].value - 1] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
+          console.log('infoddd', info)
+          this.renderIns.updateCurrentSelectRegion(info)
+        }
+      },
       getMenuMsg (index) {
+        if (this.selectedId === index) {
+          return
+        }
+
         this.selectedId = index
+        if (this.selectedId === 0) {
+          return
+        }
+        if (this.selectedId === 4) {
+          return
+        }
         if (this.selectedId === 5) {
           this.willShow = true
-          this.tableHeader = [{name: '#'}]
+//          this.tableHeader = [{name: '#'}]
+          let isEx = this.tableBody.length
+          if (isEx > 0) {
+            return
+          }
           this.tableBody = []
-          this.$regions = JSON.parse(this.renderIns.getMetaData())
-          if (!this.isShowTable) {
-            let regionAttributes = this.$regions.regions
-            let features = Object.keys(regionAttributes)
-            for (let i = 0; i < features.length; i++) {
-              let tbody = []
-              tbody.push({value: i})
-              let attributes = features[i].region_attributes
-              for (let attr in attributes) {
-                tbody.push({value: attributes[attr]})
-              }
-              this.tableBody.push(tbody)
-              if (i === 0) {
-                attributes && Object.keys(attributes).forEach(function (d) {
-                  this.tableHeader.push({name: d})
-                }.bind(this))
-              }
+//          this.$regions = JSON.parse(this.renderIns.getMetaData())
+//          console.log('this.$regions', this.$regions)
+
+          // 确保当前有选中的节点
+          if (this.isShowSelectTable !== -1) {
+//            let regionAttributes = this.$regions.regions
+            let id = this.renderIns._via_user_sel_region_id
+            console.log(id, this.$selectRegionsObs)
+            if (this.$selectRegionsObs !== undefined && id in this.$selectRegionsObs) {
+              this.selectRegionTableBody = this.$selectRegionsObs[id]
+            } else {
+              this.selectRegionTableBody = []
+              this.selectRegionTableBody.push({ value: id + 1 })
+              this.selectRegionTableBody.push({ value: '' })
             }
+
+//            let features = Object.keys(regionAttributes)
+//            for (let i = 0; i < features.length; i++) {
+//              let tbody = []
+//              tbody.push({value: i})
+//              tbody.push({value: ''})
+//              let attributes = features[i].region_attributes
+//              for (let attr in attributes) {
+//                tbody.push({value: attributes[attr]})
+//              }
+//              this.tableBody.push(tbody)
+//              if (i === 0) {
+//                attributes && Object.keys(attributes).forEach(function (d) {
+//                  this.tableHeader.push({name: d})
+//                }.bind(this))
+//              }
+//            }
           }
           return
         }
@@ -170,28 +235,32 @@
       },
       closeTag (e) {
         this.willShow = false
+        this.selectedId = 0
       },
       goSubmit () {
-        let regionAttributes = {}
-        let bodyNum = this.tableBody.length
-        for (let j = 0; j < bodyNum; j++) {
-          regionAttributes[j] = {}
-          let tempBox = {}
-          for (let i = 1; i < this.tableHeader.length; i++) {
-            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
-          }
-          regionAttributes[j] = tempBox
-        }
-
+        this.selectedId = 0
         this.willShow = false
-        for (let key in regionAttributes) {
-          let typs = regionAttributes[key]
-          this.$regions.regions[key].region_attributes = typs
-        }
+//        let regionAttributes = {}
+//        let bodyNum = this.tableBody.length
+//        for (let j = 0; j < bodyNum; j++) {
+//          regionAttributes[j] = {}
+//          let tempBox = {}
+//          for (let i = 1; i < this.tableHeader.length; i++) {
+//            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
+//          }
+//          regionAttributes[j] = tempBox
+//        }
+//        for (let key in regionAttributes) {
+//          let typs = regionAttributes[key]
+//          this.$regions.regions[key].region_attributes = typs
+//        }
+        let selectId = this.selectRegionTableBody[0].value - 1
+        this.$regions = JSON.parse(this.renderIns.getMetaData(selectId))
+        console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
-        this.exportArea([ this.$regions.regions[ 0 ].shape_attributes.all_points_x, this.$regions.regions[ 0 ].shape_attributes.all_points_y ])
-        this.createSelection('B1B5B6_2014_03_17', this.$regions)
-        this.renderIns.resetMetaData()
+        this.exportArea([ this.$regions.regions[selectId].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
+        this.createSelection(this.selectedImage, this.$regions)
+//        this.renderIns.resetMetaData()
         this.addFeatures('features')
         console.log('click submit')
       },
@@ -206,6 +275,7 @@
       }
     },
     ready () {
+      this.$selectRegionsObs = {}
 //      this.init()
     }
   }
@@ -243,13 +313,11 @@
     }
     #image_canvas {
       position: absolute;
-      padding: 5px;
       left: 0;
       z-index: 1;
     }
     #region_canvas {
       position: absolute;
-      padding: 5px;
       left: 0;
       z-index: 2;
     }
@@ -269,9 +337,9 @@
     padding-bottom: 2em;
     font-size: small;
     left: 100%;
-    .error-msf {
+    .error-msg {
       text-align: center;
-      margin: 0 auto;
+      width: 100%;
     }
     .close {
       display: block;
@@ -282,4 +350,11 @@
       margin: 0;
     }
   }
+  .image-time {
+    position: absolute;
+    width: 100%;
+    top: 96%;
+    text-align: center;
+  }
+
 </style>

@@ -70,3 +70,33 @@ export const getPointsOfArea = (oArea) => {
     return n % 2 === 1
   }
 }
+/**
+ 16进制颜色转为RGB格式
+ */
+export const getColorRgb = (color, type = 0) => {
+  let sColor = color.toLowerCase()
+  let reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/
+  if (sColor && reg.test(sColor)) {
+    if (sColor.length === 4) {
+      let sColorNew = '#'
+      for (let i = 1; i < 4; i += 1) {
+        sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1))
+      }
+      sColor = sColorNew
+    }
+    let sColorChange = []
+    for (let i = 1; i < 7; i += 2) {
+      sColorChange.push(parseInt('0x' + sColor.slice(i, i + 2)))
+    }
+    if (type === 0) {
+      return sColorChange
+    } else {
+      return 'RGB(' + sColorChange.join(',') + ')'
+    }
+  } else {
+    return sColor
+  }
+}
+/**
+将选中区域的颜色高亮
+ */
