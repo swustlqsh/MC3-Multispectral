@@ -15,7 +15,7 @@
   </div>
   <div id="attributes-panel" v-if="willShow">
     <div class="uk-animation-slide-bottom close" @click="closeTag()"><i class="uk-icon-justify uk-icon-close"></i></div>
-    <template v-if="isShowTable">
+    <template v-if="isShowSelectTable">
       <div class="error-msg">No selected feature</div>
     </template>
     <template v-else>
@@ -29,19 +29,28 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="tbody in tableBody">
-        <td v-for="(i, attr) in tbody">
+      <tr>
+        <td v-for="(i, attr) in selectRegionTableBody">
           <input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>
-          <select v-else v-model="attr.value">
-               <option v-for="opt in featuresObj">{{ opt }}</option>
+          <select v-else v-model="attr.value" @change="chooseRegionType(attr.value)">
+            <option v-for="opt in featuresObj">{{ opt }}</option>
           </select>
-          <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
         </td>
+        <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
       </tr>
+      <!--<tr v-for="tbody in tableBody">-->
+        <!--<td v-for="(i, attr) in tbody">-->
+          <!--<input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>-->
+          <!--<select v-else v-model="attr.value">-->
+               <!--<option v-for="opt in featuresObj">{{ opt }}</option>-->
+          <!--</select>-->
+          <!--&lt;!&ndash;<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">&ndash;&gt;-->
+        <!--</td>-->
+      <!--</tr>-->
       </tbody>
     </table>
+      <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
     </template>
-    <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
   </div>
   <div class="image-time">{{imageTime}}</div>
 </template>
@@ -80,7 +89,9 @@
         tableIndex: [],
         featureName: 'Add New',
         featuresObj: Object.keys(config.defaultFeaturesObj),
-        imageTime: ''
+        imageTime: '',
+        selectRegionTableBody: [], // 当前选中的region
+        $selectRegionsObs: {} // 不执行vue绑定操作
       }
     },
     watch: {
@@ -138,9 +149,17 @@
     computed: {
       isShowTable () {
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
+      },
+      isShowSelectTable () {
+        return this.renderIns._via_user_sel_region_id === -1
       }
     },
     methods: {
+      chooseRegionType (attr) {
+        let newAttr = JSON.parse(JSON.stringify(attr))
+        let info = { 'type': newAttr, 'color': config.defaultFeaturesObj[newAttr] }
+        this.renderIns.updateCurrentSelectRegion(info)
+      },
       getMenuMsg (index) {
         if (this.selectedId === index) {
           return
@@ -157,28 +176,31 @@
           this.willShow = true
 //          this.tableHeader = [{name: '#'}]
           this.tableBody = []
-          this.$regions = JSON.parse(this.renderIns.getMetaData())
-          console.log('this.$regions', this.$regions)
-          if (!this.isShowTable) {
-            let regionAttributes = this.$regions.regions
-            let features = Object.keys(regionAttributes)
-            for (let i = 0; i < features.length; i++) {
-              let tbody = []
-              tbody.push({value: i})
-              tbody.push({value: ''})
-              let attributes = features[i].region_attributes
-              for (let attr in attributes) {
-                tbody.push({value: attributes[attr]})
-              }
-              this.tableBody.push(tbody)
+//          this.$regions = JSON.parse(this.renderIns.getMetaData())
+//          console.log('this.$regions', this.$regions)
+          // 确保当前有选中的节点
+          if (this.isShowSelectTable !== -1) {
+//            let regionAttributes = this.$regions.regions
+            this.selectRegionTableBody = []
+            this.selectRegionTableBody.push({ value: this.renderIns._via_user_sel_region_id + 1 })
+            this.selectRegionTableBody.push({ value: '' })
+//            let features = Object.keys(regionAttributes)
+//            for (let i = 0; i < features.length; i++) {
+//              let tbody = []
+//              tbody.push({value: i})
+//              tbody.push({value: ''})
+//              let attributes = features[i].region_attributes
+//              for (let attr in attributes) {
+//                tbody.push({value: attributes[attr]})
+//              }
+//              this.tableBody.push(tbody)
 //              if (i === 0) {
 //                attributes && Object.keys(attributes).forEach(function (d) {
 //                  this.tableHeader.push({name: d})
 //                }.bind(this))
 //              }
-            }
+//            }
           }
-          console.log('tableBody', this.tableBody)
           return
         }
         if (this.selectedId === 1) {
@@ -187,7 +209,6 @@
         }
         if (this.selectedId === 2) {
           this.renderIns && this.renderIns.zoom_out()
-          return
         }
       },
       // loadStart 读取相关的事件
@@ -198,6 +219,7 @@
       },
       closeTag (e) {
         this.willShow = false
+        this.selectedId = 0
       },
       goSubmit () {
         this.selectedId = 0
@@ -217,10 +239,12 @@
           let typs = regionAttributes[key]
           this.$regions.regions[key].region_attributes = typs
         }
+        this.$regions = JSON.parse(this.renderIns.getMetaData())
+        console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
-        this.exportArea([ this.$regions.regions[ 0 ].shape_attributes.all_points_x, this.$regions.regions[ 0 ].shape_attributes.all_points_y ])
+        this.exportArea([ this.$regions.regions[this.renderIns._via_user_sel_region_id].shape_attributes.all_points_x, this.$regions.regions[ 0 ].shape_attributes.all_points_y ])
         this.createSelection('B1B5B6_2014_03_17', this.$regions)
-        this.renderIns.resetMetaData()
+//        this.renderIns.resetMetaData()
         this.addFeatures('features')
         console.log('click submit')
       },
@@ -296,9 +320,9 @@
     padding-bottom: 2em;
     font-size: small;
     left: 100%;
-    .error-msf {
+    .error-msg {
       text-align: center;
-      margin: 0 auto;
+      width: 100%;
     }
     .close {
       display: block;

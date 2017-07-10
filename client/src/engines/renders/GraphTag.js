@@ -56,6 +56,7 @@ function ImageMetadata (fileref, filename, size) {
 
 function ImageRegion () {
   this.is_user_selected = false
+  this.is_user_tagged = false
   this.shape_attributes = new Map() // region shape attributes
   this.region_attributes = new Map() // region attributes
 }
@@ -241,7 +242,25 @@ class GraphTag extends Render {
     this._via_reg_ctx.fill()
   }
 
-  _viaDrawPolygonRegion (all_points_x, all_points_y, is_selected) {
+  _viaDrawPolygonRegion (all_points_x, all_points_y, is_selected, is_tagged, region_attributes) {
+    if (is_tagged) {
+      console.log('color', region_attributes.get('color'))
+      this._via_reg_ctx.beginPath()
+      this._via_reg_ctx.moveTo(all_points_x[ 0 ], all_points_y[ 0 ])
+      for (let i = 1; i < all_points_x.length; ++i) {
+        this._via_reg_ctx.lineTo(all_points_x[ i ], all_points_y[ i ])
+      }
+      this._via_reg_ctx.strokeStyle = VIA_THEME_SEL_REGION_FILL_BOUNDARY_COLOR
+      this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 2
+      this._via_reg_ctx.stroke()
+
+      this._via_reg_ctx.fillStyle = VIA_THEME_SEL_REGION_FILL_COLOR
+      this._via_reg_ctx.globalAlpha = VIA_THEME_SEL_REGION_OPACITY
+      this._via_reg_ctx.fillStyle = 'red'
+      this._via_reg_ctx.fillStyle = region_attributes.get('color')
+      this._via_reg_ctx.fill()
+      this._via_reg_ctx.globalAlpha = 1.0
+    }
     if (is_selected) {
       this._via_reg_ctx.beginPath()
       this._via_reg_ctx.moveTo(all_points_x[ 0 ], all_points_y[ 0 ])
@@ -263,6 +282,7 @@ class GraphTag extends Render {
     } else {
       for (let i = 1; i < all_points_x.length; ++i) {
         // draw a fill line
+        this._via_reg_ctx.fillStyle = 'red'
         this._via_reg_ctx.strokeStyle = VIA_THEME_BOUNDARY_FILL_COLOR
         this._via_reg_ctx.lineWidth = VIA_THEME_REGION_BOUNDARY_WIDTH / 2
         this._via_reg_ctx.beginPath()
@@ -394,9 +414,11 @@ class GraphTag extends Render {
     for (let i = 0; i < this._via_canvas_regions.length; ++i) {
       let attr = this._via_canvas_regions[ i ].shape_attributes
       let is_selected = this._via_canvas_regions[ i ].is_user_selected
+      let is_tagged = this._via_canvas_regions[ i ].is_user_tagged
+      let region_attributes =  this._via_canvas_regions[ i ].region_attributes
       switch (attr.get('name')) {
         case VIA_REGION_SHAPE.POLYGON:
-          this._viaDrawPolygonRegion(attr.get('all_points_x'), attr.get('all_points_y'), is_selected)
+          this._viaDrawPolygonRegion(attr.get('all_points_x'), attr.get('all_points_y'), is_selected, is_tagged, region_attributes)
           break
         case VIA_REGION_SHAPE.POINT:
           this._viaDrawPointRegion(attr.get('cx'), attr.get('cy'), is_selected)
@@ -739,7 +761,7 @@ class GraphTag extends Render {
     this._via_click_x0 = e.offsetX
     this._via_click_y0 = e.offsetY
     let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
-    console.log('region_id', region_id)
+    // console.log('region_id', region_id)
     if (region_id !== -1) {
       // 显示region属性列表
     }
@@ -979,6 +1001,8 @@ class GraphTag extends Render {
                 this._via_is_user_drawing_polygon = true
 
                 let canvas_polygon_region = new ImageRegion()
+                canvas_polygon_region.region_attributes.set('type', '')
+                canvas_polygon_region.region_attributes.set('color', VIA_THEME_SEL_REGION_FILL_COLOR)
                 canvas_polygon_region.shape_attributes.set('name', VIA_REGION_SHAPE.POLYGON)
                 canvas_polygon_region.shape_attributes.set('all_points_x', [ Math.round(this._via_click_x0) ])
                 canvas_polygon_region.shape_attributes.set('all_points_y', [ Math.round(this._via_click_y0) ])
@@ -1340,7 +1364,7 @@ class GraphTag extends Render {
       this._viaRedrawRegCanvas()
       this._via_reg_canvas.focus()
     } else {
-      console.log('Cannot reset zoom because image zoom has not been applied!');
+      console.log('Cannot reset zoom because image zoom has not been applied!')
     }
   }
 
@@ -1355,7 +1379,7 @@ class GraphTag extends Render {
   }
   setMetaData (data) {
     let img_metadata = this._via_img_metadata[this._via_image_id ]
-    console.log('img_metadata', img_metadata)
+    // console.log('img_metadata', img_metadata)
     for (let key in data) {
       img_metadata[key].regions.region_attributes = data[key]
     }
@@ -1365,7 +1389,7 @@ class GraphTag extends Render {
     this._via_img_metadata[ this._via_image_id ].regions = []
     this.showImage(this._via_image_index)
   }
-  getMetaData () {
+  getMetaData (id) {
     //let _via_img_metadata_as_obj = {}
     let scale = this._via_canvas_scale
     let image_data = {}
@@ -1394,9 +1418,9 @@ class GraphTag extends Render {
         for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
           let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
           if (Array.isArray(value)) {
-            value = value.map(function(item){
-                return Math.round(item * scale)
-              })
+            value = value.map(function (item) {
+              return Math.round(item * scale)
+            })
           }
 
           image_data.regions[ i ].shape_attributes[ key ] = value
@@ -1409,7 +1433,22 @@ class GraphTag extends Render {
       }
       //_via_img_metadata_as_obj[image_id] = image_data
     }
+    console.log('image_data', image_data)
     return [ JSON.stringify(image_data) ]
+  }
+  updateCurrentSelectRegion (values) {
+    let user_select_id = this._via_user_sel_region_id
+    let img_metadata = this._via_img_metadata[this._via_image_id ]
+    let img_attributes =  img_metadata.regions[user_select_id].region_attributes
+    for(let k in values) {
+      img_attributes.set(k, values[k])
+    }
+    let region_attributes = this._via_canvas_regions[user_select_id].region_attributes
+    region_attributes.set('type', values.type)
+    region_attributes.set('color', values.color)
+    this._via_canvas_regions[user_select_id].is_user_tagged = true
+    this._viaRedrawRegCanvas()
+    // 改变背景色
   }
 }
 export default GraphTag
