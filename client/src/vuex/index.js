@@ -29,7 +29,7 @@ const state = {
     pageHeight: 0
   },
   selectedImage: {},
-  addedFeatures:{}
+  addedFeatures: {}
 }
 
 const mutations = Object.assign(

@@ -244,7 +244,6 @@ class GraphTag extends Render {
 
   _viaDrawPolygonRegion (all_points_x, all_points_y, is_selected, is_tagged, region_attributes) {
     if (is_tagged) {
-      console.log('color', region_attributes.get('color'))
       this._via_reg_ctx.beginPath()
       this._via_reg_ctx.moveTo(all_points_x[ 0 ], all_points_y[ 0 ])
       for (let i = 1; i < all_points_x.length; ++i) {

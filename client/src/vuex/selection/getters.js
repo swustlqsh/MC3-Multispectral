@@ -4,5 +4,6 @@
 export default {
   activeRegion: (state) => state.selections.activeRegion,
   activeImages: (state) => state.selections.activeImages,
-  allRegions: (state) => state.selections.regions
+  allRegions: (state) => state.selections.regions,
+  activeRegions: (state) => state.selections.activeRegions
 }

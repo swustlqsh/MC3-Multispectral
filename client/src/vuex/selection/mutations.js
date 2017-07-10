@@ -2,7 +2,7 @@
  * Created by liqiusheng@b.360.cn on 2017/7/8.
  */
 import * as types from '../mutations'
-
+import _ from 'lodash'
 export default {
   [types.CREATE_SELECTION] (state, imgId, data) {
     if (!state.selections.regions) {
@@ -31,7 +31,22 @@ export default {
     }
     state.selections.activeImages.push(imgId)
   },
-  [types.ACTIVE_REGION_SELECTION] (state, imgId) {
-    state.selections.activeRegion = imgId
+  [types.ACTIVE_REGION_SELECTION] (state, imgId, regionId) {
+    state.selections.activeRegion = {imgId: imgId, id: regionId}
+  },
+  [types.ACTIVE_REGION_SELECTION_IDS] (state, imgId, ids) {
+    state.selections.activeRegions = {}
+    let imageMeta = state.selections.regions[imgId]
+    let newRegions = {}
+    let newMeta = {imgId: {}}
+    let regions = imageMeta.regions
+    newMeta = _.cloneDeep(imageMeta)
+    if (Array.isArray(ids)) {
+      ids.forEach((id) => {
+        newRegions = regions[id]
+      })
+      newMeta.regions = newRegions
+    }
+    state.selections.activeRegions = newMeta
   }
 }
