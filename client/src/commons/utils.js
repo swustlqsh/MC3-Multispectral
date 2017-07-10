@@ -19,8 +19,13 @@ export const getPageSize = () => {
   return { width: winWidth, height: winHeight }
 }
 
-export const getPointsOfArea = (area) => {
-  let num = area.length
+export const getPointsOfArea = (oArea) => {
+  // return the points arr, like [[x0,y0], [x1, y1]....]
+  let area = []
+  let num = oArea[ 0 ].length
+  for (let i = 0; i < num; i++) {
+    area.push([ oArea[ 0 ][ i ], oArea[ 1 ][ i ] ])
+  }
   //[[2,3], [3,4]]
   let minX = 100000
   let maxX = -1

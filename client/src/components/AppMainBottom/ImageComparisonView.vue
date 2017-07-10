@@ -228,6 +228,7 @@
           let img2Name = comparedMessage.img2.imgName
           if (img1Name !== null) {
             let prefix = img1Name.split('_')[ 0 ]
+            this.currentChannel = prefix
             let path = '../../../data/' + prefix + '/' + img1Name + '.png'
             let g = svg1.append('g')
             g.append('image')
@@ -280,7 +281,7 @@
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
         this.eventSubmit(event)
-        this.updatePanel('B5')
+        this.updatePanel(this.currentChannel)
       }
     },
     ready () {
