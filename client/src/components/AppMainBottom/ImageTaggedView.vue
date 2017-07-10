@@ -23,16 +23,19 @@
       <thead>
       <tr>
         <th v-for="head in tableHeader">
-          <input type="text" placeholder="head.name" class="uk-form-width-small"  v-model="head.name">
+          <input type="text" placeholder="head.name" class="uk-form-width-small"  v-model="head.name" disabled>
         </th>
-        <th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>
+       <!--<th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>-->
       </tr>
       </thead>
       <tbody>
       <tr v-for="tbody in tableBody">
         <td v-for="(i, attr) in tbody">
           <input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>
-          <input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small"  v-model="attr.value">
+          <select v-else v-model="attr.value">
+               <option v-for="opt in featuresObj">{{ opt }}</option>
+          </select>
+          <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
         </td>
       </tr>
       </tbody>
@@ -46,6 +49,8 @@
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
   import {createSelection, addFeatures} from '../../vuex/actions'
+  import config from '../../commons/config'
+
   export default {
     vuex: {
       getters: {pageSize, selectedImage},
@@ -67,11 +72,12 @@
           { name: '套索', icon: 'uk-icon-object-ungroup', index: 4, image: '../../../assets/images/套索.png' },
           { name: '标记', icon: 'uk-icon-text-height', index: 5, image: '../../../assets/images/文字.png' }
         ],
-        tableHeader: [{name: '#'}],
+        tableHeader: [{name: '#'}, {name: 'Type'}],
         tableBody: [],
         $regions: {},
         tableIndex: [],
-        featureName: 'Add New'
+        featureName: 'Add New',
+        featuresObj: Object.keys(config.defaultFeaturesObj)
       }
     },
     watch: {
@@ -96,8 +102,9 @@
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-            this.renderIns.showImage(0)
+//            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+//            this.renderIns.showImage(0)
+//            this.renderIns.addEventListenerClick() // default
             this.renderIns.addEventListenerMouseup()
             this.renderIns.addEventListenerMousedown()
             this.renderIns.addEventListenerMousemove()
@@ -116,6 +123,12 @@
         handler (curVal, oldVal) { // object
           //  接收到select image然后可以更新图片
           console.log('selectedImage', this.selectedImage)
+          this.selectedImage.split('_')[0]
+          let path = '../../../data/' + this.selectedImage.split('_')[0] + '/' + this.selectedImage + '.png'
+          if (this.renderIns) {
+            this.renderIns.loadStoreLocalImg(path, this.selectedImage)
+            this.renderIns.showImage(0)
+          }
         },
         deep: true
       }
@@ -127,30 +140,43 @@
     },
     methods: {
       getMenuMsg (index) {
+        if (this.selectedId === index) {
+          return
+        }
+
         this.selectedId = index
+        if (this.selectedId === 0) {
+          return
+        }
+        if (this.selectedId === 4) {
+          return
+        }
         if (this.selectedId === 5) {
           this.willShow = true
-          this.tableHeader = [{name: '#'}]
+//          this.tableHeader = [{name: '#'}]
           this.tableBody = []
           this.$regions = JSON.parse(this.renderIns.getMetaData())
+          console.log('this.$regions', this.$regions)
           if (!this.isShowTable) {
             let regionAttributes = this.$regions.regions
             let features = Object.keys(regionAttributes)
             for (let i = 0; i < features.length; i++) {
               let tbody = []
               tbody.push({value: i})
+              tbody.push({value: ''})
               let attributes = features[i].region_attributes
               for (let attr in attributes) {
                 tbody.push({value: attributes[attr]})
               }
               this.tableBody.push(tbody)
-              if (i === 0) {
-                attributes && Object.keys(attributes).forEach(function (d) {
-                  this.tableHeader.push({name: d})
-                }.bind(this))
-              }
+//              if (i === 0) {
+//                attributes && Object.keys(attributes).forEach(function (d) {
+//                  this.tableHeader.push({name: d})
+//                }.bind(this))
+//              }
             }
           }
+          console.log('tableBody', this.tableBody)
           return
         }
         if (this.selectedId === 1) {
@@ -159,6 +185,7 @@
         }
         if (this.selectedId === 2) {
           this.renderIns && this.renderIns.zoom_out()
+          return
         }
       },
       // loadStart 读取相关的事件
@@ -237,13 +264,11 @@
     }
     #image_canvas {
       position: absolute;
-      padding: 5px;
       left: 0;
       z-index: 1;
     }
     #region_canvas {
       position: absolute;
-      padding: 5px;
       left: 0;
       z-index: 2;
     }

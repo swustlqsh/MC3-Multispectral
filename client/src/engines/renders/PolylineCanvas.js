@@ -82,7 +82,7 @@ class PolylineCanvas extends Render {
 
   updateCanvas() {
     this.imgCtx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
-    this.imgCtx.drawImage(this.sourceImgCanvas,
+    this.imgCtx.drawImage(this.sourceImgCsourceImgCanvasanvas,
       -this.xPosition / this.scale,
       -this.yPosition / this.scale,
       this.canvasWidth / this.scale,

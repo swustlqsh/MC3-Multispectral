@@ -14,7 +14,7 @@ let VIA_REGION_SHAPE = {
 let VIA_REGION_EDGE_TOL = 5
 let VIA_REGION_CONTROL_POINT_SIZE = 2
 let VIA_REGION_POINT_RADIUS = 3
-let VIA_POLYGON_VERTEX_MATCH_TOL = 5
+let VIA_POLYGON_VERTEX_MATCH_TOL = 10 // 5
 let VIA_REGION_MIN_DIM = 3
 let VIA_MOUSE_CLICK_TOL = 2
 let VIA_ELLIPSE_EDGE_TOL = 0.2
@@ -90,6 +90,7 @@ class GraphTag extends Render {
     // image
     this._via_div_real_width = 0
     this._via_div_real_height = 0
+    this._via_real_scale = 1
     // canvas zoom
     this._via_canvas_zoom_level_index = VIA_CANVAS_DEFAULT_ZOOM_LEVEL_INDEX
     this._via_canvas_scale_without_zoom = 1.0
@@ -148,6 +149,14 @@ class GraphTag extends Render {
     this._via_loaded_img_region_attr_miss_count = []
     this._via_loaded_img_file_attr_miss_count = []
     this._via_loaded_img_table_html = []
+    // 交互功能
+    this.interaction = {
+      select: true,
+      zoomOn: false,
+      zoomIn: false,
+      move: false,
+      polygon: false
+    }
     return this
   }
 
@@ -716,521 +725,547 @@ class GraphTag extends Render {
 
   }
 
-  addEventListenerDBClick () {
-    this._via_reg_canvas.addEventListener('dblclick', function (e) {
-      this._via_click_x0 = e.offsetX
-      this._via_click_y0 = e.offsetY
-      let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
-      if (region_id !== -1) {
-        // 显示region属性列表
+  eventClick (e) {
+    this._via_click_x0 = e.offsetX
+    this._via_click_y0 = e.offsetY
+    let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
+    console.log('region_id', region_id)
+    if (region_id !== -1) {
+      // 显示region属性列表
+    }
+  }
+
+  eventDBClick (e) {
+    this._via_click_x0 = e.offsetX
+    this._via_click_y0 = e.offsetY
+    let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
+    console.log('region_id', region_id)
+    if (region_id !== -1) {
+      // 显示region属性列表
+    }
+  }
+  eventMousedown (e) {
+    this._via_click_x0 = e.offsetX
+    this._via_click_y0 = e.offsetY
+    this._via_region_edge = this.isOnRegionCorner(this._via_click_x0, this._via_click_y0)
+    let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
+
+    if (this._via_is_region_selected) {
+      // check if user clicked on the region boundary
+      if (this._via_region_edge[ 1 ] > 0) {
+        if (!this._via_is_user_resizing_region) {
+          // resize region
+          if (this._via_region_edge[ 0 ] !== this._via_user_sel_region_id) {
+            this._via_user_sel_region_id = this._via_region_edge[ 0 ]
+          }
+          this._via_is_user_resizing_region = true
+        }
+      } else {
+        let yes = this.is_inside_this_region(this._via_click_x0, this._via_click_y0, this._via_user_sel_region_id)
+        if (yes) {
+          if (!this._via_is_user_moving_region) {
+            this._via_is_user_moving_region = true
+            this._via_region_click_x = this._via_click_x0
+            this._via_region_click_y = this._via_click_y0
+          }
+        }
+        if (region_id === -1) {
+          // mousedown on outside any region
+          this._via_is_user_drawing_region = true
+          // unselect all regions
+          this._via_is_region_selected = false
+          this._via_user_sel_region_id = -1
+          this.toggleAllRegionsSelection(false)
+        }
       }
-    }.bind(this), false)
+    } else {
+      if (region_id === -1) {
+        // mousedown outside a region
+        if (this._via_current_shape !== VIA_REGION_SHAPE.POLYGON &&
+          this._via_current_shape !== VIA_REGION_SHAPE.POINT) {
+          // this is a bounding box drawing event
+          this._via_is_user_drawing_region = true
+        }
+      } else {
+        // mousedown inside a region
+        // this could lead to (1) region selection or (2) region drawing
+        this._via_is_user_drawing_region = true
+      }
+    }
+    e.preventDefault()
+  }
+  eventMouseup (e) {
+    this._via_click_x1 = e.offsetX
+    this._via_click_y1 = e.offsetY
+
+    let click_dx = Math.abs(this._via_click_x1 - this._via_click_x0)
+    let click_dy = Math.abs(this._via_click_y1 - this._via_click_y0)
+
+    // indicates that user has finished moving a region
+    if (this._via_is_user_moving_region) {
+      this._via_is_user_moving_region = false
+      this._via_reg_canvas.style.cursor = 'default'
+
+      let move_x = Math.round(this._via_click_x1 - this._via_region_click_x)
+      let move_y = Math.round(this._via_click_y1 - this._via_region_click_y)
+
+      if (Math.abs(move_x) > VIA_MOUSE_CLICK_TOL || Math.abs(move_y) > VIA_MOUSE_CLICK_TOL) {
+
+        let image_attr = this._via_img_metadata[ this._via_image_id ].regions[ this._via_user_sel_region_id ].shape_attributes
+        let canvas_attr = this._via_canvas_regions[ this._via_user_sel_region_id ].shape_attributes
+
+        switch (canvas_attr.get('name')) {
+          case VIA_REGION_SHAPE.POINT:
+            let cxnew = image_attr.get('cx') + Math.round(move_x * this._via_canvas_scale)
+            let cynew = image_attr.get('cy') + Math.round(move_y * this._via_canvas_scale)
+            image_attr.set('cx', cxnew)
+            image_attr.set('cy', cynew)
+
+            let canvas_xnew = canvas_attr.get('cx') + move_x
+            let canvas_ynew = canvas_attr.get('cy') + move_y
+            canvas_attr.set('cx', canvas_xnew)
+            canvas_attr.set('cy', canvas_ynew)
+            break
+          case VIA_REGION_SHAPE.POLYGON:
+            let img_px = image_attr.get('all_points_x')
+            let img_py = image_attr.get('all_points_y')
+            for (let i = 0; i < img_px.length; ++i) {
+              img_px[ i ] = img_px[ i ] + Math.round(move_x * this._via_canvas_scale)
+              img_py[ i ] = img_py[ i ] + Math.round(move_y * this._via_canvas_scale)
+            }
+
+            let canvas_px = canvas_attr.get('all_points_x')
+            let canvas_py = canvas_attr.get('all_points_y')
+            for (let i = 0; i < canvas_px.length; ++i) {
+              canvas_px[ i ] = canvas_px[ i ] + move_x
+              canvas_py[ i ] = canvas_py[ i ] + move_y
+            }
+            break
+        }
+      } else {
+        // indicates a user click on an already selected region
+        // this could indicate a user's intention to select another
+        // nested region within this region
+
+        // traverse the canvas regions in alternating ascending
+        // and descending order to solve the issue of nested regions
+        let nested_region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0, true)
+        if (nested_region_id >= 0 && nested_region_id !== this._via_user_sel_region_id) {
+          this._via_user_sel_region_id = nested_region_id
+          this._via_is_region_selected = true
+          this._via_is_user_moving_region = false
+
+          // de-select all other regions if the user has not pressed Shift
+          if (!e.shiftKey) {
+            this.toggleAllRegionsSelection(false)
+          }
+          this.setRegionSelectState(nested_region_id, true)
+          this.update_attributes_panel()
+        }
+      }
+      this._viaRedrawRegCanvas()
+      this._via_reg_canvas.focus()
+      return
+    }
+
+    // indicates that user has finished resizing a region
+    if (this._via_is_user_resizing_region) {
+      // _via_click(x0,y0) to _via_click(x1,y1)
+      this._via_is_user_resizing_region = false
+      this._via_reg_canvas.style.cursor = 'default'
+
+      // update the region
+      let region_id = this._via_region_edge[ 0 ]
+      let image_attr = this._via_img_metadata[ this._via_image_id ].regions[ region_id ].shape_attributes
+      let canvas_attr = this._via_canvas_regions[ region_id ].shape_attributes
+
+      switch (canvas_attr.get('name')) {
+        case VIA_REGION_SHAPE.POLYGON:
+          let moved_vertex_id = this._via_region_edge[ 1 ] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
+
+          canvas_attr.get('all_points_x')[ moved_vertex_id ] = Math.round(this._via_current_x)
+          canvas_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y)
+          image_attr.get('all_points_x')[ moved_vertex_id ] = Math.round(this._via_current_x * this._via_canvas_scale)
+          image_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y * this._via_canvas_scale)
+
+          if (moved_vertex_id === 0) {
+            // move both first and last vertex because we
+            // the initial point at the end to close path
+            let n = canvas_attr.get('all_points_x').length
+            canvas_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x)
+            canvas_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y)
+            image_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x * this._via_canvas_scale)
+            image_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y * this._via_canvas_scale)
+          }
+          break
+      }
+
+      this._viaRedrawRegCanvas()
+      this._via_reg_canvas.focus()
+      return
+    }
+
+    // denotes a single click (= mouse down + mouse up)
+    if (click_dx < VIA_MOUSE_CLICK_TOL || click_dy < VIA_MOUSE_CLICK_TOL) {
+      // if user is already drawing ploygon, then each click adds a new point
+      if (this._via_is_user_drawing_polygon) {
+        let canvas_x0 = Math.round(this._via_click_x0)
+        let canvas_y0 = Math.round(this._via_click_y0)
+
+        // check if the clicked point is close to the first point
+        let fx0 = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x')[ 0 ]
+        let fy0 = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y')[ 0 ]
+        let dx = (fx0 - canvas_x0)
+        let dy = (fy0 - canvas_y0)
+        if (Math.sqrt(dx * dx + dy * dy) <= VIA_POLYGON_VERTEX_MATCH_TOL) {
+          // user clicked on the first polygon point to close the path
+          this._via_is_user_drawing_polygon = false
+
+          // add all polygon points stored in _via_canvas_regions[]
+          let all_points_x = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x').slice(0)
+          let all_points_y = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y').slice(0)
+          let canvas_all_points_x = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x')
+          let canvas_all_points_y = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y')
+
+          // close path
+          all_points_x.push(all_points_x[ 0 ])
+          all_points_y.push(all_points_y[ 0 ])
+          canvas_all_points_x.push(canvas_all_points_x[ 0 ])
+          canvas_all_points_y.push(canvas_all_points_y[ 0 ])
+          let polygon_region = new ImageRegion()
+          polygon_region.shape_attributes.set('name', 'polygon')
+          polygon_region.shape_attributes.set('all_points_x', all_points_x)
+          polygon_region.shape_attributes.set('all_points_y', all_points_y)
+          this._via_current_polygon_region_id = this._via_img_metadata[ this._via_image_id ].regions.length
+          this._via_img_metadata[ this._via_image_id ].regions.push(polygon_region)
+
+          // newly drawn region is automatically selected
+          this.selectOnlyRegion(this._via_current_polygon_region_id)
+
+          this._via_current_polygon_region_id = -1
+          this.update_attributes_panel()
+        } else {
+          // user clicked on a new polygon point
+          this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x').push(canvas_x0)
+          this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y').push(canvas_y0)
+        }
+      } else {
+        let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
+        if (region_id >= 0) {
+          // first click selects region
+          this._via_user_sel_region_id = region_id
+          this._via_is_region_selected = true
+          this._via_is_user_moving_region = false
+          this._via_is_user_drawing_region = false
+
+          // de-select all other regions if the user has not pressed Shift
+          if (!e.shiftKey) {
+            this.toggleAllRegionsSelection(false)
+          }
+          this.setRegionSelectState(region_id, true)
+          this.update_attributes_panel()
+        } else {
+          if (this._via_is_user_drawing_region) {
+            // clear all region selection
+            this._via_is_user_drawing_region = false
+            this._via_is_region_selected = false
+            this._via_use_sel_region_id = -1
+            this.toggleAllRegionsSelection(false)
+            this.update_attributes_panel()
+          } else {
+            switch (this._via_current_shape) {
+              case VIA_REGION_SHAPE.POLYGON:
+                // user has clicked on the first point in a new polygon
+                this._via_is_user_drawing_polygon = true
+
+                let canvas_polygon_region = new ImageRegion()
+                canvas_polygon_region.shape_attributes.set('name', VIA_REGION_SHAPE.POLYGON)
+                canvas_polygon_region.shape_attributes.set('all_points_x', [ Math.round(this._via_click_x0) ])
+                canvas_polygon_region.shape_attributes.set('all_points_y', [ Math.round(this._via_click_y0) ])
+                this._via_canvas_regions.push(canvas_polygon_region)
+                this._via_current_polygon_region_id = this._via_canvas_regions.length - 1
+                break
+              case VIA_REGION_SHAPE.POINT:
+                // user has marked a landmark point
+                let point_region = new ImageRegion()
+                point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT)
+                point_region.shape_attributes.set('cx', Math.round(this._via_click_x0 * this._via_canvas_scale))
+                point_region.shape_attributes.set('cy', Math.round(this._via_click_y0 * this._via_canvas_scale))
+                this._via_img_metadata[ this._via_image_id ].regions.push(point_region)
+
+                let canvas_point_region = new ImageRegion()
+                canvas_point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT)
+                canvas_point_region.shape_attributes.set('cx', Math.round(this._via_click_x0))
+                canvas_point_region.shape_attributes.set('cy', Math.round(this._via_click_y0))
+                this._via_canvas_regions.push(canvas_point_region)
+
+                this.update_attributes_panel()
+                break
+            }
+          }
+        }
+      }
+      this._viaRedrawRegCanvas()
+      this._via_reg_canvas.focus()
+      return
+    }
+
+    // indicates that user has finished drawing a new region
+    if (this._via_is_user_drawing_region) {
+      this._via_is_user_drawing_region = false
+      let region_x0
+      let region_y0
+      let region_x1
+      let region_y1
+      // ensure that (x0,y0) is top-left and (x1,y1) is bottom-right
+      if (this._via_click_x0 < this._via_click_x1) {
+        region_x0 = this._via_click_x0
+        region_x1 = this._via_click_x1
+      } else {
+        region_x0 = this._via_click_x1
+        region_x1 = this._via_click_x0
+      }
+
+      if (this._via_click_y0 < this._via_click_y1) {
+        region_y0 = this._via_click_y0
+        region_y1 = this._via_click_y1
+      } else {
+        region_y0 = this._via_click_y1
+        region_y1 = this._via_click_y0
+      }
+
+      let original_img_region = new ImageRegion()
+      let canvas_img_region = new ImageRegion()
+      let region_dx = Math.abs(region_x1 - region_x0)
+      let region_dy = Math.abs(region_y1 - region_y0)
+
+      // newly drawn region is automatically selected
+      this.toggleAllRegionsSelection(false)
+      original_img_region.is_user_selected = true
+      canvas_img_region.is_user_selected = true
+      this._via_is_region_selected = true
+      this._via_user_sel_region_id = this._via_canvas_regions.length // new region's id
+
+      if (region_dx > VIA_REGION_MIN_DIM || region_dy > VIA_REGION_MIN_DIM) { // avoid regions with 0 dim
+        switch (this._via_current_shape) {
+          case VIA_REGION_SHAPE.POLYGON:
+            // handled by _via_is_user_drawing polygon
+            break
+        }
+      } else {
+      }
+      this.update_attributes_panel()
+      this._viaRedrawRegCanvas()
+      this._via_reg_canvas.focus()
+      return
+    }
+  }
+  eventMouseOver (e) {
+    this._viaRedrawRegCanvas()
+    this._via_reg_canvas.focus()
+  }
+  eventMouseMove (e) {
+    if (!this._via_current_image_loaded) {
+      return
+    }
+    this._via_current_x = e.offsetX
+    this._via_current_y = e.offsetY
+
+    if (this._via_is_region_selected) {
+      if (!this._via_is_user_resizing_region) {
+        // check if user moved mouse cursor to region boundary
+        // which indicates an intention to resize the reigon
+
+        this._via_region_edge = this.isOnRegionCorner(this._via_current_x, this._via_current_y)
+
+        if (this._via_region_edge[ 0 ] === this._via_user_sel_region_id) {
+          switch (this._via_region_edge[ 1 ]) {
+            // rect
+            case 1: // top-left corner of rect
+            case 3: // bottom-right corner of rect
+              this._via_reg_canvas.style.cursor = 'nwse-resize'
+              break
+            case 2: // top-right corner of rect
+            case 4: // bottom-left corner of rect
+              this._via_reg_canvas.style.cursor = 'nesw-resize'
+              break
+
+            // circle and ellipse
+            case 5:
+              this._via_reg_canvas.style.cursor = 'n-resize'
+              break
+            case 6:
+              this._via_reg_canvas.style.cursor = 'e-resize'
+              break
+
+            default:
+              this._via_reg_canvas.style.cursor = 'default'
+          }
+
+          if (this._via_region_edge[ 1 ] >= VIA_POLYGON_RESIZE_VERTEX_OFFSET) {
+            // indicates mouse over polygon vertex
+            this._via_reg_canvas.style.cursor = 'crosshair'
+          }
+        } else {
+          let yes = this.is_inside_this_region(this._via_current_x, this._via_current_y, this._via_user_sel_region_id)
+          if (yes) {
+            this._via_reg_canvas.style.cursor = 'move'
+          } else {
+            this._via_reg_canvas.style.cursor = 'default'
+          }
+        }
+      }
+    }
+
+    if (this._via_is_user_drawing_region) {
+      // draw region as the user drags the mouse cousor
+      if (this._via_canvas_regions.length) {
+        this._viaRedrawRegCanvas() // clear old intermediate rectangle
+      } else {
+        // first region being drawn, just clear the full region canvas
+        this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
+      }
+
+      let region_x0
+      let region_y0
+
+      if (this._via_click_x0 < this._via_current_x) {
+        if (this._via_click_y0 < this._via_current_y) {
+          region_x0 = this._via_click_x0
+          region_y0 = this._via_click_y0
+        } else {
+          region_x0 = this._via_click_x0
+          region_y0 = this._via_current_y
+        }
+      } else {
+        if (this._via_click_y0 < this._via_current_y) {
+          region_x0 = this._via_current_x
+          region_y0 = this._via_click_y0
+        } else {
+          region_x0 = this._via_current_x
+          region_y0 = this._via_current_y
+        }
+      }
+      let dx = Math.round(Math.abs(this._via_current_x - this._via_click_x0))
+      let dy = Math.round(Math.abs(this._via_current_y - this._via_click_y0))
+
+      switch (this._via_current_shape) {
+        case VIA_REGION_SHAPE.POLYGON:
+          break
+      }
+      this._via_reg_canvas.focus()
+    }
+
+    if (this._via_is_user_resizing_region) {
+      // user has clicked mouse on bounding box edge and is now moving it
+      // draw region as the user drags the mouse cousor
+      if (this._via_canvas_regions.length) {
+        this._viaRedrawRegCanvas() // clear old intermediate rectangle
+      } else {
+        // first region being drawn, just clear the full region canvas
+        this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
+      }
+
+      let region_id = this._via_region_edge[ 0 ]
+      let attr = this._via_canvas_regions[ region_id ].shape_attributes
+      switch (attr.get('name')) {
+        case VIA_REGION_SHAPE.POLYGON:
+          let moved_all_points_x = attr.get('all_points_x').slice(0)
+          let moved_all_points_y = attr.get('all_points_y').slice(0)
+          let moved_vertex_id = this._via_region_edge[ 1 ] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
+
+          moved_all_points_x[ moved_vertex_id ] = this._via_current_x
+          moved_all_points_y[ moved_vertex_id ] = this._via_current_y
+
+          if (moved_vertex_id === 0) {
+            // move both first and last vertex because we
+            // the initial point at the end to close path
+            moved_all_points_x[ moved_all_points_x.length - 1 ] = this._via_current_x
+            moved_all_points_y[ moved_all_points_y.length - 1 ] = this._via_current_y
+          }
+
+          this._viaDrawPolygonRegion(moved_all_points_x, moved_all_points_y, true)
+          break
+      }
+      this._via_reg_canvas.focus()
+    }
+
+    if (this._via_is_user_moving_region) {
+      // draw region as the user drags the mouse cousor
+      if (this._via_canvas_regions.length) {
+        this._viaRedrawRegCanvas() // clear old intermediate rectangle
+      } else {
+        // first region being drawn, just clear the full region canvas
+        this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
+      }
+
+      let move_x = (this._via_current_x - this._via_region_click_x)
+      let move_y = (this._via_current_y - this._via_region_click_y)
+      let attr = this._via_canvas_regions[ this._via_user_sel_region_id ].shape_attributes
+
+      switch (attr.get('name')) {
+        case VIA_REGION_SHAPE.POLYGON:
+          let moved_all_points_x = attr.get('all_points_x').slice(0)
+          let moved_all_points_y = attr.get('all_points_y').slice(0)
+          for (let i = 0; i < moved_all_points_x.length; ++i) {
+            moved_all_points_x[ i ] += move_x
+            moved_all_points_y[ i ] += move_y
+          }
+          this._viaDrawPolygonRegion(moved_all_points_x, moved_all_points_y, true)
+          break
+
+        case VIA_REGION_SHAPE.POINT:
+          this._viaDrawPointRegion(attr.get('cx') + move_x, attr.get('cy') + move_y, true)
+          break
+      }
+      this._via_reg_canvas.focus()
+      return
+    }
+
+    if (this._via_is_user_drawing_polygon) {
+      this._viaRedrawRegCanvas()
+      let attr = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes
+      let all_points_x = attr.get('all_points_x')
+      let all_points_y = attr.get('all_points_y')
+      let npts = all_points_x.length
+
+      let line_x = [ all_points_x.slice(npts - 1), this._via_current_x ]
+      let line_y = [ all_points_y.slice(npts - 1), this._via_current_y ]
+      this._viaDrawPolygonRegion(line_x, line_y, false)
+    }
+
+  }
+  addEventListenerClick () {
+    this._via_reg_canvas.addEventListener('click',this.eventClick.bind(this), false)
+  }
+  addEventListenerDBClick () {
+    this._via_reg_canvas.addEventListener('dblclick',this.eventClick.bind(this), false)
     return this
   }
 
   addEventListenerMousedown () {
-    this._via_reg_canvas.addEventListener('mousedown', function (e) {
-      this._via_click_x0 = e.offsetX
-      this._via_click_y0 = e.offsetY
-      this._via_region_edge = this.isOnRegionCorner(this._via_click_x0, this._via_click_y0)
-      let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
-
-      if (this._via_is_region_selected) {
-        // check if user clicked on the region boundary
-        if (this._via_region_edge[ 1 ] > 0) {
-          if (!this._via_is_user_resizing_region) {
-            // resize region
-            if (this._via_region_edge[ 0 ] !== this._via_user_sel_region_id) {
-              this._via_user_sel_region_id = this._via_region_edge[ 0 ]
-            }
-            this._via_is_user_resizing_region = true
-          }
-        } else {
-          let yes = this.is_inside_this_region(this._via_click_x0, this._via_click_y0, this._via_user_sel_region_id)
-          if (yes) {
-            if (!this._via_is_user_moving_region) {
-              this._via_is_user_moving_region = true
-              this._via_region_click_x = this._via_click_x0
-              this._via_region_click_y = this._via_click_y0
-            }
-          }
-          if (region_id === -1) {
-            // mousedown on outside any region
-            this._via_is_user_drawing_region = true
-            // unselect all regions
-            this._via_is_region_selected = false
-            this._via_user_sel_region_id = -1
-            this.toggleAllRegionsSelection(false)
-          }
-        }
-      } else {
-        if (region_id === -1) {
-          // mousedown outside a region
-          if (this._via_current_shape !== VIA_REGION_SHAPE.POLYGON &&
-            this._via_current_shape !== VIA_REGION_SHAPE.POINT) {
-            // this is a bounding box drawing event
-            this._via_is_user_drawing_region = true
-          }
-        } else {
-          // mousedown inside a region
-          // this could lead to (1) region selection or (2) region drawing
-          this._via_is_user_drawing_region = true
-        }
-      }
-      e.preventDefault()
-    }.bind(this), false)
+    this._via_reg_canvas.addEventListener('mousedown',this.eventMousedown.bind(this), false)
+    return this
   }
 
   addEventListenerMouseup () {
-    this._via_reg_canvas.addEventListener('mouseup', function (e) {
-      this._via_click_x1 = e.offsetX
-      this._via_click_y1 = e.offsetY
-
-      let click_dx = Math.abs(this._via_click_x1 - this._via_click_x0)
-      let click_dy = Math.abs(this._via_click_y1 - this._via_click_y0)
-
-      // indicates that user has finished moving a region
-      if (this._via_is_user_moving_region) {
-        this._via_is_user_moving_region = false
-        this._via_reg_canvas.style.cursor = 'default'
-
-        let move_x = Math.round(this._via_click_x1 - this._via_region_click_x)
-        let move_y = Math.round(this._via_click_y1 - this._via_region_click_y)
-
-        if (Math.abs(move_x) > VIA_MOUSE_CLICK_TOL || Math.abs(move_y) > VIA_MOUSE_CLICK_TOL) {
-
-          let image_attr = this._via_img_metadata[ this._via_image_id ].regions[ this._via_user_sel_region_id ].shape_attributes
-          let canvas_attr = this._via_canvas_regions[ this._via_user_sel_region_id ].shape_attributes
-
-          switch (canvas_attr.get('name')) {
-            case VIA_REGION_SHAPE.POINT:
-              let cxnew = image_attr.get('cx') + Math.round(move_x * this._via_canvas_scale)
-              let cynew = image_attr.get('cy') + Math.round(move_y * this._via_canvas_scale)
-              image_attr.set('cx', cxnew)
-              image_attr.set('cy', cynew)
-
-              let canvas_xnew = canvas_attr.get('cx') + move_x
-              let canvas_ynew = canvas_attr.get('cy') + move_y
-              canvas_attr.set('cx', canvas_xnew)
-              canvas_attr.set('cy', canvas_ynew)
-              break
-            case VIA_REGION_SHAPE.POLYGON:
-              let img_px = image_attr.get('all_points_x')
-              let img_py = image_attr.get('all_points_y')
-              for (let i = 0; i < img_px.length; ++i) {
-                img_px[ i ] = img_px[ i ] + Math.round(move_x * this._via_canvas_scale)
-                img_py[ i ] = img_py[ i ] + Math.round(move_y * this._via_canvas_scale)
-              }
-
-              let canvas_px = canvas_attr.get('all_points_x')
-              let canvas_py = canvas_attr.get('all_points_y')
-              for (let i = 0; i < canvas_px.length; ++i) {
-                canvas_px[ i ] = canvas_px[ i ] + move_x
-                canvas_py[ i ] = canvas_py[ i ] + move_y
-              }
-              break
-          }
-        } else {
-          // indicates a user click on an already selected region
-          // this could indicate a user's intention to select another
-          // nested region within this region
-
-          // traverse the canvas regions in alternating ascending
-          // and descending order to solve the issue of nested regions
-          let nested_region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0, true)
-          if (nested_region_id >= 0 && nested_region_id !== this._via_user_sel_region_id) {
-            this._via_user_sel_region_id = nested_region_id
-            this._via_is_region_selected = true
-            this._via_is_user_moving_region = false
-
-            // de-select all other regions if the user has not pressed Shift
-            if (!e.shiftKey) {
-              this.toggleAllRegionsSelection(false)
-            }
-            this.setRegionSelectState(nested_region_id, true)
-            this.update_attributes_panel()
-          }
-        }
-        this._viaRedrawRegCanvas()
-        this._via_reg_canvas.focus()
-        return
-      }
-
-      // indicates that user has finished resizing a region
-      if (this._via_is_user_resizing_region) {
-        // _via_click(x0,y0) to _via_click(x1,y1)
-        this._via_is_user_resizing_region = false
-        this._via_reg_canvas.style.cursor = 'default'
-
-        // update the region
-        let region_id = this._via_region_edge[ 0 ]
-        let image_attr = this._via_img_metadata[ this._via_image_id ].regions[ region_id ].shape_attributes
-        let canvas_attr = this._via_canvas_regions[ region_id ].shape_attributes
-
-        switch (canvas_attr.get('name')) {
-          case VIA_REGION_SHAPE.POLYGON:
-            let moved_vertex_id = this._via_region_edge[ 1 ] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
-
-            canvas_attr.get('all_points_x')[ moved_vertex_id ] = Math.round(this._via_current_x)
-            canvas_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y)
-            image_attr.get('all_points_x')[ moved_vertex_id ] = Math.round(this._via_current_x * this._via_canvas_scale)
-            image_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y * this._via_canvas_scale)
-
-            if (moved_vertex_id === 0) {
-              // move both first and last vertex because we
-              // the initial point at the end to close path
-              let n = canvas_attr.get('all_points_x').length
-              canvas_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x)
-              canvas_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y)
-              image_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x * this._via_canvas_scale)
-              image_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y * this._via_canvas_scale)
-            }
-            break
-        }
-
-        this._viaRedrawRegCanvas()
-        this._via_reg_canvas.focus()
-        return
-      }
-
-      // denotes a single click (= mouse down + mouse up)
-      if (click_dx < VIA_MOUSE_CLICK_TOL || click_dy < VIA_MOUSE_CLICK_TOL) {
-        // if user is already drawing ploygon, then each click adds a new point
-        if (this._via_is_user_drawing_polygon) {
-          let canvas_x0 = Math.round(this._via_click_x0)
-          let canvas_y0 = Math.round(this._via_click_y0)
-
-          // check if the clicked point is close to the first point
-          let fx0 = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x')[ 0 ]
-          let fy0 = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y')[ 0 ]
-          let dx = (fx0 - canvas_x0)
-          let dy = (fy0 - canvas_y0)
-          if (Math.sqrt(dx * dx + dy * dy) <= VIA_POLYGON_VERTEX_MATCH_TOL) {
-            // user clicked on the first polygon point to close the path
-            this._via_is_user_drawing_polygon = false
-
-            // add all polygon points stored in _via_canvas_regions[]
-            let all_points_x = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x').slice(0)
-            let all_points_y = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y').slice(0)
-            let canvas_all_points_x = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x')
-            let canvas_all_points_y = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y')
-
-            // close path
-            all_points_x.push(all_points_x[ 0 ])
-            all_points_y.push(all_points_y[ 0 ])
-            canvas_all_points_x.push(canvas_all_points_x[ 0 ])
-            canvas_all_points_y.push(canvas_all_points_y[ 0 ])
-            let polygon_region = new ImageRegion()
-            polygon_region.shape_attributes.set('name', 'polygon')
-            polygon_region.shape_attributes.set('all_points_x', all_points_x)
-            polygon_region.shape_attributes.set('all_points_y', all_points_y)
-            this._via_current_polygon_region_id = this._via_img_metadata[ this._via_image_id ].regions.length
-            this._via_img_metadata[ this._via_image_id ].regions.push(polygon_region)
-
-            // newly drawn region is automatically selected
-            this.selectOnlyRegion(this._via_current_polygon_region_id)
-
-            this._via_current_polygon_region_id = -1
-            this.update_attributes_panel()
-          } else {
-            // user clicked on a new polygon point
-            this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_x').push(canvas_x0)
-            this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes.get('all_points_y').push(canvas_y0)
-          }
-        } else {
-          let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
-          if (region_id >= 0) {
-            // first click selects region
-            this._via_user_sel_region_id = region_id
-            this._via_is_region_selected = true
-            this._via_is_user_moving_region = false
-            this._via_is_user_drawing_region = false
-
-            // de-select all other regions if the user has not pressed Shift
-            if (!e.shiftKey) {
-              this.toggleAllRegionsSelection(false)
-            }
-            this.setRegionSelectState(region_id, true)
-            this.update_attributes_panel()
-          } else {
-            if (this._via_is_user_drawing_region) {
-              // clear all region selection
-              this._via_is_user_drawing_region = false
-              this._via_is_region_selected = false
-              this._via_use_sel_region_id = -1
-              this.toggleAllRegionsSelection(false)
-              this.update_attributes_panel()
-            } else {
-              switch (this._via_current_shape) {
-                case VIA_REGION_SHAPE.POLYGON:
-                  // user has clicked on the first point in a new polygon
-                  this._via_is_user_drawing_polygon = true
-
-                  let canvas_polygon_region = new ImageRegion()
-                  canvas_polygon_region.shape_attributes.set('name', VIA_REGION_SHAPE.POLYGON)
-                  canvas_polygon_region.shape_attributes.set('all_points_x', [ Math.round(this._via_click_x0) ])
-                  canvas_polygon_region.shape_attributes.set('all_points_y', [ Math.round(this._via_click_y0) ])
-                  this._via_canvas_regions.push(canvas_polygon_region)
-                  this._via_current_polygon_region_id = this._via_canvas_regions.length - 1
-                  break
-                case VIA_REGION_SHAPE.POINT:
-                  // user has marked a landmark point
-                  let point_region = new ImageRegion()
-                  point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT)
-                  point_region.shape_attributes.set('cx', Math.round(this._via_click_x0 * this._via_canvas_scale))
-                  point_region.shape_attributes.set('cy', Math.round(this._via_click_y0 * this._via_canvas_scale))
-                  this._via_img_metadata[ this._via_image_id ].regions.push(point_region)
-
-                  let canvas_point_region = new ImageRegion()
-                  canvas_point_region.shape_attributes.set('name', VIA_REGION_SHAPE.POINT)
-                  canvas_point_region.shape_attributes.set('cx', Math.round(this._via_click_x0))
-                  canvas_point_region.shape_attributes.set('cy', Math.round(this._via_click_y0))
-                  this._via_canvas_regions.push(canvas_point_region)
-
-                  this.update_attributes_panel()
-                  break
-              }
-            }
-          }
-        }
-        this._viaRedrawRegCanvas()
-        this._via_reg_canvas.focus()
-        return
-      }
-
-      // indicates that user has finished drawing a new region
-      if (this._via_is_user_drawing_region) {
-        this._via_is_user_drawing_region = false
-        let region_x0
-        let region_y0
-        let region_x1
-        let region_y1
-        // ensure that (x0,y0) is top-left and (x1,y1) is bottom-right
-        if (this._via_click_x0 < this._via_click_x1) {
-          region_x0 = this._via_click_x0
-          region_x1 = this._via_click_x1
-        } else {
-          region_x0 = this._via_click_x1
-          region_x1 = this._via_click_x0
-        }
-
-        if (this._via_click_y0 < this._via_click_y1) {
-          region_y0 = this._via_click_y0
-          region_y1 = this._via_click_y1
-        } else {
-          region_y0 = this._via_click_y1
-          region_y1 = this._via_click_y0
-        }
-
-        let original_img_region = new ImageRegion()
-        let canvas_img_region = new ImageRegion()
-        let region_dx = Math.abs(region_x1 - region_x0)
-        let region_dy = Math.abs(region_y1 - region_y0)
-
-        // newly drawn region is automatically selected
-        this.toggleAllRegionsSelection(false)
-        original_img_region.is_user_selected = true
-        canvas_img_region.is_user_selected = true
-        this._via_is_region_selected = true
-        this._via_user_sel_region_id = this._via_canvas_regions.length // new region's id
-
-        if (region_dx > VIA_REGION_MIN_DIM || region_dy > VIA_REGION_MIN_DIM) { // avoid regions with 0 dim
-          switch (this._via_current_shape) {
-            case VIA_REGION_SHAPE.POLYGON:
-              // handled by _via_is_user_drawing polygon
-              break
-          }
-        } else {
-        }
-        this.update_attributes_panel()
-        this._viaRedrawRegCanvas()
-        this._via_reg_canvas.focus()
-        return
-      }
-    }.bind(this), false)
+    this._via_reg_canvas.addEventListener('mouseup',this.eventMouseup.bind(this), false)
     return this
   }
 
   addEventListenerMouseover () {
-    this._via_reg_canvas.addEventListener('mouseover', function (e) {
-      this._viaRedrawRegCanvas()
-      this._via_reg_canvas.focus()
-    }.bind(this), false)
+    this._via_reg_canvas.addEventListener('mouseover',this.eventMouseOver.bind(this), false)
     return this
   }
 
   addEventListenerMousemove () {
-    this._via_reg_canvas.addEventListener('mousemove', function (e) {
-      if (!this._via_current_image_loaded) {
-        return
-      }
-      this._via_current_x = e.offsetX
-      this._via_current_y = e.offsetY
-
-      if (this._via_is_region_selected) {
-        if (!this._via_is_user_resizing_region) {
-          // check if user moved mouse cursor to region boundary
-          // which indicates an intention to resize the reigon
-
-          this._via_region_edge = this.isOnRegionCorner(this._via_current_x, this._via_current_y)
-
-          if (this._via_region_edge[ 0 ] === this._via_user_sel_region_id) {
-            switch (this._via_region_edge[ 1 ]) {
-              // rect
-              case 1: // top-left corner of rect
-              case 3: // bottom-right corner of rect
-                this._via_reg_canvas.style.cursor = 'nwse-resize'
-                break
-              case 2: // top-right corner of rect
-              case 4: // bottom-left corner of rect
-                this._via_reg_canvas.style.cursor = 'nesw-resize'
-                break
-
-              // circle and ellipse
-              case 5:
-                this._via_reg_canvas.style.cursor = 'n-resize'
-                break
-              case 6:
-                this._via_reg_canvas.style.cursor = 'e-resize'
-                break
-
-              default:
-                this._via_reg_canvas.style.cursor = 'default'
-            }
-
-            if (this._via_region_edge[ 1 ] >= VIA_POLYGON_RESIZE_VERTEX_OFFSET) {
-              // indicates mouse over polygon vertex
-              this._via_reg_canvas.style.cursor = 'crosshair'
-            }
-          } else {
-            let yes = this.is_inside_this_region(this._via_current_x, this._via_current_y, this._via_user_sel_region_id)
-            if (yes) {
-              this._via_reg_canvas.style.cursor = 'move'
-            } else {
-              this._via_reg_canvas.style.cursor = 'default'
-            }
-          }
-        }
-      }
-
-      if (this._via_is_user_drawing_region) {
-        // draw region as the user drags the mouse cousor
-        if (this._via_canvas_regions.length) {
-          this._viaRedrawRegCanvas() // clear old intermediate rectangle
-        } else {
-          // first region being drawn, just clear the full region canvas
-          this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
-        }
-
-        let region_x0
-        let region_y0
-
-        if (this._via_click_x0 < this._via_current_x) {
-          if (this._via_click_y0 < this._via_current_y) {
-            region_x0 = this._via_click_x0
-            region_y0 = this._via_click_y0
-          } else {
-            region_x0 = this._via_click_x0
-            region_y0 = this._via_current_y
-          }
-        } else {
-          if (this._via_click_y0 < this._via_current_y) {
-            region_x0 = this._via_current_x
-            region_y0 = this._via_click_y0
-          } else {
-            region_x0 = this._via_current_x
-            region_y0 = this._via_current_y
-          }
-        }
-        let dx = Math.round(Math.abs(this._via_current_x - this._via_click_x0))
-        let dy = Math.round(Math.abs(this._via_current_y - this._via_click_y0))
-
-        switch (this._via_current_shape) {
-          case VIA_REGION_SHAPE.POLYGON:
-            break
-        }
-        this._via_reg_canvas.focus()
-      }
-
-      if (this._via_is_user_resizing_region) {
-        // user has clicked mouse on bounding box edge and is now moving it
-        // draw region as the user drags the mouse cousor
-        if (this._via_canvas_regions.length) {
-          this._viaRedrawRegCanvas() // clear old intermediate rectangle
-        } else {
-          // first region being drawn, just clear the full region canvas
-          this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
-        }
-
-        let region_id = this._via_region_edge[ 0 ]
-        let attr = this._via_canvas_regions[ region_id ].shape_attributes
-        switch (attr.get('name')) {
-          case VIA_REGION_SHAPE.POLYGON:
-            let moved_all_points_x = attr.get('all_points_x').slice(0)
-            let moved_all_points_y = attr.get('all_points_y').slice(0)
-            let moved_vertex_id = this._via_region_edge[ 1 ] - VIA_POLYGON_RESIZE_VERTEX_OFFSET
-
-            moved_all_points_x[ moved_vertex_id ] = this._via_current_x
-            moved_all_points_y[ moved_vertex_id ] = this._via_current_y
-
-            if (moved_vertex_id === 0) {
-              // move both first and last vertex because we
-              // the initial point at the end to close path
-              moved_all_points_x[ moved_all_points_x.length - 1 ] = this._via_current_x
-              moved_all_points_y[ moved_all_points_y.length - 1 ] = this._via_current_y
-            }
-
-            this._viaDrawPolygonRegion(moved_all_points_x, moved_all_points_y, true)
-            break
-        }
-        this._via_reg_canvas.focus()
-      }
-
-      if (this._via_is_user_moving_region) {
-        // draw region as the user drags the mouse cousor
-        if (this._via_canvas_regions.length) {
-          this._viaRedrawRegCanvas() // clear old intermediate rectangle
-        } else {
-          // first region being drawn, just clear the full region canvas
-          this._via_reg_ctx.clearRect(0, 0, this._via_reg_canvas.width, this._via_reg_canvas.height)
-        }
-
-        let move_x = (this._via_current_x - this._via_region_click_x)
-        let move_y = (this._via_current_y - this._via_region_click_y)
-        let attr = this._via_canvas_regions[ this._via_user_sel_region_id ].shape_attributes
-
-        switch (attr.get('name')) {
-          case VIA_REGION_SHAPE.POLYGON:
-            let moved_all_points_x = attr.get('all_points_x').slice(0)
-            let moved_all_points_y = attr.get('all_points_y').slice(0)
-            for (let i = 0; i < moved_all_points_x.length; ++i) {
-              moved_all_points_x[ i ] += move_x
-              moved_all_points_y[ i ] += move_y
-            }
-            this._viaDrawPolygonRegion(moved_all_points_x, moved_all_points_y, true)
-            break
-
-          case VIA_REGION_SHAPE.POINT:
-            this._viaDrawPointRegion(attr.get('cx') + move_x, attr.get('cy') + move_y, true)
-            break
-        }
-        this._via_reg_canvas.focus()
-        return
-      }
-
-      if (this._via_is_user_drawing_polygon) {
-        this._viaRedrawRegCanvas()
-        let attr = this._via_canvas_regions[ this._via_current_polygon_region_id ].shape_attributes
-        let all_points_x = attr.get('all_points_x')
-        let all_points_y = attr.get('all_points_y')
-        let npts = all_points_x.length
-
-        let line_x = [ all_points_x.slice(npts - 1), this._via_current_x ]
-        let line_y = [ all_points_y.slice(npts - 1), this._via_current_y ]
-        this._viaDrawPolygonRegion(line_x, line_y, false)
-      }
-    }.bind(this), false)
+    this._via_reg_canvas.addEventListener('mousemove',this.eventMouseMove.bind(this), false)
     return this
+  }
+  removeEventListener (eventName) {
+    // window.removeEventListener('mouseup', this.eventMouseup.bind(this))
+    // window.removeEventListener('mousemove', this.eventMouseMove.bind(this))
+    this._via_reg_canvas.addEventListener(eventName, null, false)
   }
 
   // go update
@@ -1332,6 +1367,7 @@ class GraphTag extends Render {
   }
   getMetaData () {
     //let _via_img_metadata_as_obj = {}
+    let scale = this._via_canvas_scale
     let image_data = {}
     for (let image_id in this._via_img_metadata) {
       image_data = {}
@@ -1357,6 +1393,12 @@ class GraphTag extends Render {
         // copy region shape_attributes
         for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
           let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
+          if (Array.isArray(value)) {
+            value = value.map(function(item){
+                return Math.round(item * scale)
+              })
+          }
+
           image_data.regions[ i ].shape_attributes[ key ] = value
         }
         // copy region_attributes

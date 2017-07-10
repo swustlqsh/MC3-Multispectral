@@ -1,6 +1,6 @@
 <template>
   <div class="main-bottom" :style="mainBottomStyle">
-    <div id='image-tagged'>
+    <div id='image-tagged' :style="imageTaggedStyle">
       <image-tagged-view></image-tagged-view>
     </div>
     <div id='image-comparison' :style="imageComparisonStyle">
