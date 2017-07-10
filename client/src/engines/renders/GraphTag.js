@@ -1463,7 +1463,7 @@ class GraphTag extends Render {
   updateCurrentSelectRegion (values) {
     let user_select_id = this._via_user_sel_region_id
     let img_metadata = this._via_img_metadata[this._via_image_id ]
-    let img_attributes =  img_metadata.regions[user_select_id].region_attributes
+    let img_attributes = img_metadata.regions[user_select_id].region_attributes
     for(let k in values) {
       img_attributes.set(k, values[k])
     }
@@ -1473,6 +1473,9 @@ class GraphTag extends Render {
     this._via_canvas_regions[user_select_id].is_user_tagged = true
     this._viaRedrawRegCanvas()
     // 改变背景色
+  }
+  importAnnotationsFromJson (metaData) {
+
   }
 }
 export default GraphTag
