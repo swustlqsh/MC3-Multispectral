@@ -7,11 +7,11 @@
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
   import {imgCompare, imageToTaggedView} from '../../vuex/actions'
-  import {event, addedFeatures} from '../../vuex/getters'
+  import {pageSize, event, addedFeatures} from '../../vuex/getters'
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: { event, addedFeatures },
+      getters: { pageSize, event, addedFeatures },
       actions: {
         imgCompare,
         imageToTaggedView
@@ -34,7 +34,7 @@
         dateArray: [],
         featureSelectionIndex: 0,
         eventArray: [],
-        categoryColor: config.defaultFeaturesObj
+        categoryColor: config.defaultFeaturesObj,
       }
     },
     watch: {
@@ -46,22 +46,67 @@
       },
       addedFeatures: {
         handler (curVal, oldVal) { // object
-          console.log('features')
+          this.handleWithFeatures()
+        },
+        deep: true
+      },
+      pageSize: {
+        handler (curVal, oldVal) {
+          this.initSize()
+          this.getImageOriginalData()
+          this.init()
+          this.render()
+          this.renderBgRect()
+          this.renderOriginalImage()
+          this.renderFeaturesControl()
+          this.renderFeaturesImage()
+          this.renderEvents()
         },
         deep: true
       }
     },
     ready () {
-      this.getImageOriginalData()
-      this.init()
-      this.render()
-      this.renderBgRect()
-      this.renderOriginalImage()
-      this.renderFeaturesControl()
-      this.renderFeaturesImage()
-      this.renderEvents()
     },
     methods: {
+      /**
+       *  初始化所有的尺寸大小
+       **/
+      initSize () {
+        let globalWidth = +$('#image-matrix').width() / (79.2 / 100)
+        let globalHeight = +this.pageSize.pageHeight / 3 - 15
+        let globalYInterval = globalHeight / 11
+        let paddingY = globalYInterval * 0.1
+        let originalImageWidth = globalYInterval * 0.9
+        let globalXInterval = 6.25 / 100 * globalWidth
+        let featureImagesInterval = globalXInterval - originalImageWidth
+        let featureImageEachInterval = featureImagesInterval / 8
+        let featureImageWidth = featureImageEachInterval * 0.9
+        let paddingFeatureX = featureImageEachInterval * 0.1
+        let imageHeight = originalImageWidth + paddingY
+        let paddingX = 4.2 / 100 * globalWidth
+        this.globalWidth = globalWidth
+        this.padding = paddingY
+        this.paddingTop = 0
+        this.originalImageWidth = originalImageWidth
+        this.featureImageEachInterval = featureImageEachInterval
+        this.featureImageWidth = featureImageWidth
+        this.paddingFeatureX = paddingFeatureX
+        this.imageHeight = imageHeight
+        this.globalXInterval = globalXInterval
+        this.paddingX = paddingX
+      },
+      /**
+       * 在视图中初始化svg
+       */
+      init () {
+        let width = $('#image-matrix-div').width()
+        let height = $('#image-matrix-div').height()
+        d3.select('#image-matrix-div')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .attr('id', 'image-matrix-svg')
+      },
       /**
        *  获取图片数据的对象数组
        *  每一个对象中包括原始的图片的名称(ImageData), 名称是由通道channel和日期组成
@@ -71,25 +116,27 @@
        *  在这个图片中检测得到的事件数组(EventsArray)
        */
       getImageOriginalData () {
-        let globalWidth = $('#image-matrix').width() / (79.2 / 100)
-        let padding = 0.2 / 100 * globalWidth
-        let originalImageWidth = 3 / 100 * globalWidth
-        let featureImageWidth = 0.8 / 100 * globalWidth
-        let imageHeight = originalImageWidth + padding
-        let globalXInterval = 6.25 / 100 * globalWidth
-        let paddingX = 4.2 / 100 * globalWidth
+        let globalWidth = this.globalWidth
+        let padding = this.padding
+        let paddingTop = this.paddingTop
+        let originalImageWidth = this.originalImageWidth
+        let featureImageWidth = this.featureImageWidth
+        let imageHeight = this.imageHeight
+        let globalXInterval = this.globalXInterval
+        let paddingX = this.paddingX
+        let paddingFeatureX = this.paddingFeatureX
         let channelArray = [ 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NDVI', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6' ]
         let dateArray = [ '2014_03_17', '2014_08_24', '2014_11_28', '2014_12_30',
           '2015_02_15', '2015_06_24', '2015_09_12', '2015_11_15',
           '2016_03_06', '2016_06_26', '2016_09_06', '2016_12_19' ]
         this.channelArray = channelArray
         this.dateArray = dateArray
-        let imageMatrixViewHeight = (imageHeight + padding) * channelArray.length
+        let imageMatrixViewHeight = imageHeight * channelArray.length + paddingTop
         $('#image-matrix-div').height(imageMatrixViewHeight)
         let imageObjArray2 = []
         for (let i = 0; i < channelArray.length; i++) {
           let imageObjArray = []
-          let locationY = i * (imageHeight + padding)
+          let locationY = i * (imageHeight + padding) + paddingTop
           let channelName = channelArray[ i ]
           for (let j = 0; j < dateArray.length; j++) {
             let imageObj = {}
@@ -106,63 +153,68 @@
             imageObj.locationX = locationX
             imageObj.locationY = locationY
             imageObj.padding = padding
+            imageObj.paddingFeatureX = paddingFeatureX
             imageObj.iIndex = i
             imageObj.jIndex = j
-            imageObj.featuresArray = [ {
-              featureName: 'a'//  ,
+            imageObj.featuresArray =
+              [
+                {
+                  featureName: 'a' //  ,
 //              eventObj: {
 //                eventCategory: 'flood',
 //                eventName: 'event-a1',
 //                eventType: 'start'
 //              }
-            }, {
-              featureName: 'b'//  ,
+                }, {
+                featureName: 'b'//  ,
 //              eventObj: {
 //                eventCategory: 'flood',
 //                eventName: 'event-b2',
 //                eventType: 'start'
 //              }
-            }, {
-              featureName: 'c'//  ,
+              }, {
+                featureName: 'c'//  ,
 //              eventObj: {
 //                eventCategory: 'flood',
 //                eventName: 'event-c3',
 //                eventType: 'start'
 //              }
-            }, {
-              featureName: 'e'//  ,
+              }, {
+                featureName: 'e'//  ,
 //              eventObj: {
 //                eventCategory: 'flood',
 //                eventName: 'event-e4',
 //                eventType: 'start'
 //              }
-            }, {
-              featureName: 'f'//  ,
+              }, {
+                featureName: 'f'//  ,
 //              eventObj: {
 //                eventCategory: 'flood',
 //                eventName: 'event-f5',
 //                eventType: 'end'
 //              }
-            } ]
-            imageObj.displayRange = [ 2, 4 ]
+              }, {
+                featureName: 'g'//  ,
+//              eventObj: {
+//                eventCategory: 'flood',
+//                eventName: 'event-f5',
+//                eventType: 'end'
+//              }
+              }, {
+                featureName: 'h'//  ,
+//              eventObj: {
+//                eventCategory: 'flood',
+//                eventName: 'event-f5',
+//                eventType: 'end'
+//              }
+              } ]
+            imageObj.displayRange = [ 0, 5 ]
             imageObj.eventsArray = []
             imageObjArray.push(imageObj)
           }
           imageObjArray2.push(imageObjArray)
           this.imageObjArray2 = imageObjArray2
         }
-      },
-      /**
-       * 在视图中初始化svg
-       */
-      init () {
-        let width = $('#image-matrix-div').width()
-        let height = $('#image-matrix-div').height()
-        d3.select('#image-matrix-div')
-          .append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .attr('id', 'image-matrix-svg')
       },
       /**
        * 渲染视图
@@ -258,7 +310,7 @@
               })
               .on('click', function (d, i) {
                 let imageNameId = d3.select(this).attr('id')
-                self.click_handler(imageNameId)
+//                self.click_handler(imageNameId)
               })
           }
         }
@@ -309,13 +361,48 @@
                 let imageNameId = d3.select(this).attr('id')
                 if (d3.select('.original-image-bg#' + imageName).classed('click-highlight')) {
                   d3.select('.original-image-bg#' + imageName).classed('click-highlight', false)
+                  imageMatrixSvg.selectAll('.edit-icon').remove()
                 } else {
                   d3.select('.original-image-bg#' + imageName).classed('click-highlight', true)
+                  self.renderEditIcon(imageName)
                 }
                 self.click_handler(imageNameId)
               })
           }
         }
+      },
+      /**
+       * 在这个位置增加edit图标
+       **/
+      renderEditIcon (imageName) {
+        var self = this
+        var imageMatrixSvg = d3.select('#image-matrix-svg')
+        imageMatrixSvg.selectAll('.edit-icon').remove()
+        imageMatrixSvg.selectAll('.edit-icon-bg').remove()
+        let imageRectWidth = +imageMatrixSvg.select('#' + imageName).select('.original-image-bg').attr('width')
+        let imageRectHeight = +imageMatrixSvg.select('#' + imageName).select('.original-image-bg').attr('height')
+        let imageRectX = +imageMatrixSvg.select('#' + imageName).select('.original-image-bg').attr('x')
+        let imageRectY = +imageMatrixSvg.select('#' + imageName).select('.original-image-bg').attr('y')
+        let imageTextX = imageRectX + imageRectWidth / 2
+        let imageTextY = imageRectY + imageRectHeight / 2
+        imageMatrixSvg.select('#' + imageName).append('rect')
+          .attr('id', 'edit-icon-bg-' + imageName)
+          .attr('class', 'edit-icon-bg')
+          .attr('x', imageRectX)
+          .attr('y', imageRectY)
+          .attr('width', imageRectWidth)
+          .attr('height', imageRectHeight)
+        imageMatrixSvg.select('#' + imageName).append('text')
+          .attr('x', imageTextX)
+          .attr('y', imageTextY)
+          .attr('class', 'edit-icon')
+          .attr('id', 'edit-icon-' + imageName)
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('font-family', 'FontAwesome')
+          .attr('cursor', 'pointer')
+          .text('\uf040')
+          .style('fill', 'black')
       },
       /**
        *  增加控制features的左右按键
@@ -325,33 +412,33 @@
         var self = this
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         var imageObjArray2 = this.imageObjArray2
+        var paddingFeatureX = this.paddingFeatureX
+        var featureImageEachInterval = this.featureImageEachInterval
+        let featureImageWidth = this.featureImageWidth
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
             let imageName = imageObjArray2[ iI ][ jI ].imageName
             let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
-            let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
-            var padding = imageObjArray2[ iI ][ jI ].padding
             imageMatrixSvg.select('#' + imageName)
               .append('g')
               .attr('class', 'feature-control')
               .attr('id', 'feature-control-' + imageName)
-              .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - 3 * featureImageWidth) + ')')
-              .style('visibility', 'hidden')
+              .attr('transform', 'translate(' + originalImageWidth + ',' + (originalImageWidth - featureImageEachInterval) + ')')
             imageMatrixSvg.select('#feature-control-' + imageName)
               .append('text')
               .attr('x', function (d, i) {
-                return padding + featureImageWidth / 2
+                return paddingFeatureX + featureImageWidth / 2
               })
               .attr('y', function (d, i) {
-                return featureImageWidth / 4
+                return featureImageWidth / 2
               })
               .attr('text-anchor', 'middle')
               .attr('dominant-baseline', 'middle')
               .attr('cursor', 'pointer')
               .attr('id', 'left-' + iI + '-' + jI)
-              .attr('class', 'left-control')
+              .attr('class', 'control left-control control-hidden')
               .attr('font-family', 'FontAwesome')
-              .text('\uf060')
+              .text('\uf053')
               .on('click', function (d, i) {
                 let imageId = d3.select(this).attr('id')
                 let imageIdArray = imageId.split('-')
@@ -379,18 +466,18 @@
             imageMatrixSvg.select('#feature-control-' + imageName)
               .append('text')
               .attr('x', function (d, i) {
-                return padding + (featureImageWidth + padding) * 2 + featureImageWidth / 2
+                return featureImageEachInterval * 7 + featureImageWidth / 2
               })
               .attr('y', function (d, i) {
-                return featureImageWidth / 4
+                return featureImageWidth / 2
               })
               .attr('text-anchor', 'middle')
               .attr('dominant-baseline', 'middle')
               .attr('cursor', 'pointer')
               .attr('id', 'right-' + iI + '-' + jI)
-              .attr('class', 'right-control')
+              .attr('class', 'control right-control control-hidden')
               .attr('font-family', 'FontAwesome')
-              .text('\uf061')
+              .text('\uf054')
               .on('click', function (d, i) {
                 let imageId = d3.select(this).attr('id')
                 let imageIdArray = imageId.split('-')
@@ -424,6 +511,7 @@
       featureLeftClickHandler (iI, jI) {
         var imageObjArray2 = this.imageObjArray2
         let displayRange = imageObjArray2[ iI ][ jI ].displayRange
+        let featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
         if (displayRange[ 0 ] > 0) {
           displayRange[ 0 ] = displayRange[ 0 ] - 1
           displayRange[ 1 ] = displayRange[ 1 ] - 1
@@ -431,6 +519,7 @@
         this.render_each_features_image(iI, jI)
         this.render_each_events(iI, jI)
         this.highlight_features_image()
+        this.render_each_component_belong_line(iI, jI)
       },
       /**
        *  点击向右的按键
@@ -446,6 +535,7 @@
         this.render_each_features_image(iI, jI)
         this.render_each_events(iI, jI)
         this.highlight_features_image()
+        this.render_each_component_belong_line(iI, jI)
       },
       /**
        *  向每一个components中增加features图片
@@ -455,6 +545,40 @@
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
             this.render_each_features_image(iI, jI)
+          }
+        }
+      },
+      /**
+       * 在components中的每一个feature上增加是否属于的下划线
+       **/
+      renderBelongLine () {
+        var imageObjArray2 = this.imageObjArray2
+        for (let iI = 0; iI < imageObjArray2.length; iI++) {
+          for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
+            let imageObj = imageObjArray2[ iI ][ jI ]
+            let featuresArray = imageObj.featuresArray
+            for (let fI = 0; fI < featuresArray.length; fI++) {
+              if (featuresArray[ fI ].belongThisImage) {
+                let featureName = featuresArray[ fI ].featureName
+                this.render_each_feature_belonged_line(iI, jI, featureName)
+              }
+            }
+          }
+        }
+      },
+      /**
+       * 在每一个components中渲染属于的下划线
+       **/
+      render_each_component_belong_line (iI, jI) {
+        let imageObjArray2 = this.imageObjArray2
+        let imageObj = imageObjArray2[ iI ][ jI ]
+        let featuresArray = imageObj.featuresArray
+        let imageName = imageObjArray2[ iI ][ jI ].imageName
+        d3.select('#' + imageName).selectAll('.belong-line').remove()
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          if (featuresArray[ fI ].belongThisImage) {
+            let featureName = featuresArray[ fI ].featureName
+            this.render_each_feature_belonged_line(iI, jI, featureName)
           }
         }
       },
@@ -476,9 +600,19 @@
           let featuresName = selectionFeaturesArray[ sI ]
           let featuresNameArray = featuresName.split('-')
           let imageName = featuresNameArray[ 0 ]
-          imageMatrixSvg.select('#feature-image-' + imageName)
-            .select('#' + featuresName)
-            .classed('click-selection', true)
+          if (sI === 0) {
+            imageMatrixSvg.selectAll('.first-click-selection')
+              .classed('first-click-selection', false)
+            imageMatrixSvg.select('#feature-image-' + imageName)
+              .select('#' + featuresName)
+              .classed('first-click-selection', true)
+          } else {
+            imageMatrixSvg.selectAll('.second-click-selection')
+              .classed('second-click-selection', false)
+            imageMatrixSvg.select('#feature-image-' + imageName)
+              .select('#' + featuresName)
+              .classed('second-click-selection', true)
+          }
         }
       },
       /**
@@ -487,6 +621,7 @@
       render_each_events (iI, jI) {
         var self = this
         var imageObjArray2 = this.imageObjArray2
+        let featureImageEachInterval = this.featureImageEachInterval
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         let imageName = imageObjArray2[ iI ][ jI ].imageName
         let featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
@@ -534,7 +669,7 @@
             }
           })
           .attr('x', function (d, i) {
-            return padding + (featureImageWidth + padding) * i + featureImageWidth / 2
+            return featureImageEachInterval + featureImageEachInterval * i + featureImageEachInterval / 2
           })
           .attr('y', featureImageWidth / 2)
           .attr('text-anchor', 'middle')
@@ -602,13 +737,47 @@
             return imageName + '-' + 'nonexist'
           }
         })
-          .transition()
-          .duration(1000)
+        //          .transition()
+        //          .duration(1000)
           .attr('x', function (d, i) {
-            return padding + (featureImageWidth + padding) * i + featureImageWidth / 2
+            return featureImageEachInterval + featureImageEachInterval * i + featureImageEachInterval / 2
           })
           .attr('y', featureImageWidth / 2)
         eventsObj.exit().remove()
+      },
+      render_each_feature_belonged_line (iI, jI, featureName) {
+        let imageObjArray2 = this.imageObjArray2
+        let imageMatrixSvg = d3.select('#image-matrix-svg')
+        let imageName = imageObjArray2[ iI ][ jI ].imageName
+        let imageObj = imageObjArray2[ iI ][ jI ]
+        let displayRange = imageObj.displayRange
+        let featuresArray = imageObj.featuresArray
+        let featureIndex = -1
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          if (featuresArray[ fI ].featureName === featureName) {
+            featureIndex = fI
+            break
+          }
+        }
+//        if ((featureIndex >= displayRange[ 0 ]) && (featureIndex <= displayRange[ 1 ])) {
+        if (!imageMatrixSvg.select('#' + imageName + '-' + featureName).empty()) {
+          let featuresObjX = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('x')
+          let featuresObjY = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('y')
+          let featuresObjHeight = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('height')
+          let featuresObjWidth = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('width')
+          let paddingY = 3
+          if (imageMatrixSvg.select('#feature-image-' + imageName).select('#belong-line-' + imageName + '-' + featureName).empty()) {
+            imageMatrixSvg.select('#feature-image-' + imageName)
+              .append('line')
+              .attr('class', 'belong-line')
+              .attr('id', 'belong-line-' + imageName + '-' + featureName)
+              .attr('x1', featuresObjX)
+              .attr('y1', featuresObjY + featuresObjHeight + paddingY)
+              .attr('x2', featuresObjX + featuresObjWidth)
+              .attr('y2', featuresObjY + featuresObjHeight + paddingY)
+          }
+        }
+//        }
       },
       /**
        *  更新单个component的feature图像的方法
@@ -616,13 +785,15 @@
       render_each_features_image (iI, jI) {
         var self = this
         var imageObjArray2 = this.imageObjArray2
+        let featureImageEachInterval = this.featureImageEachInterval
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         let imageName = imageObjArray2[ iI ][ jI ].imageName
         let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
         let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
         var featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
         var displayRange = imageObjArray2[ iI ][ jI ].displayRange
-        var padding = imageObjArray2[ iI ][ jI ].padding
+        var paddingFeatureX = imageObjArray2[ iI ][ jI ].paddingFeatureX
+        console.log('paddingFeatureX', paddingFeatureX)
         let selectionFeaturesArray = this.selectionFeaturesArray
         if (imageMatrixSvg.select('#' + imageName).select('#feature-image-' + imageName).empty()) {
           imageMatrixSvg.select('#' + imageName)
@@ -646,18 +817,23 @@
           })
           .attr('cursor', 'pointer')
           .attr('x', function (d, i) {
-            return padding + (featureImageWidth + padding) * i
+            return featureImageEachInterval + featureImageEachInterval * i
           })
           .attr('y', 0)
           .attr('width', featureImageWidth)
           .attr('height', featureImageWidth)
           .on('mouseover', function (d, i) {
-            d3.select(this).classed('feature-highlight', true)
+            if(self.featureSelectionIndex % 2 === 0){
+              d3.select(this).classed('first-hovering-selection', true)
+            }else{
+              d3.select(this).classed('second-hovering-selection', true)
+            }
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseover_handler(imageNameId)
           })
           .on('mouseout', function (d, i) {
-            d3.select(this).classed('feature-highlight', false)
+            d3.select(this).classed('first-hovering-selection', false)
+            d3.select(this).classed('second-hovering-selection', false)
             let imageNameId = d3.select(this).attr('id').split('-')[ 0 ]
             self.mouseout_handler(imageNameId)
           })
@@ -665,10 +841,11 @@
             let featureId = d3.select(this).attr('id')
             self.feature_click_handler(featureId)
           })
-        featuresObj.transition()
-          .duration(1000)
+        featuresObj
+        //          .transition()
+        //          .duration(1000)
           .attr('x', function (d, i) {
-            return padding + (featureImageWidth + padding) * i
+            return featureImageEachInterval + featureImageEachInterval * i
           })
           .attr('y', 0)
           .attr('width', featureImageWidth)
@@ -686,6 +863,8 @@
        **/
       feature_click_handler (featureId) {
         let selectionFeaturesArray = this.selectionFeaturesArray
+        let originalImageWidth = this.originalImageWidth + this.padding
+        let globalXInterval = this.globalXInterval - this.padding
         if (d3.select('#' + featureId).classed('click-selection')) {
           selectionFeaturesArray.splice(selectionFeaturesArray.indexOf(featureId), 1)
         } else {
@@ -702,14 +881,43 @@
           .classed('click-feature-highlight', false)
         let comparisonFeaturesArray = []
         for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
-          d3.select('#' + selectionFeaturesArray[ sI ])
-            .classed('click-selection', true)
+          if (sI === 0) {
+            d3.selectAll('.first-click-selection')
+              .classed('first-click-selection', false)
+            d3.select('#' + selectionFeaturesArray[ sI ])
+              .classed('first-click-selection', true)
+          } else {
+            d3.selectAll('.second-click-selection')
+              .classed('second-click-selection', false)
+            d3.select('#' + selectionFeaturesArray[ sI ])
+              .classed('second-click-selection', true)
+          }
           let featureId = selectionFeaturesArray[ sI ]
           let imageNameId = featureId.split('-')[ 0 ]
           comparisonFeaturesArray.push(featureId)
+//          d3.select('.image-components#' + imageNameId)
+//            .select('.background-image')
+//            .classed('click-feature-highlight', true)
+          if (sI === 0) {
+            d3.selectAll('.first-feature-selection-line')
+              .remove()
+          } else {
+            d3.selectAll('.second-feature-selection-line')
+              .remove()
+          }
           d3.select('.image-components#' + imageNameId)
-            .select('.background-image')
-            .classed('click-feature-highlight', true)
+            .append('line')
+            .attr('class', function (d, i) {
+              if (sI === 0) {
+                return 'feature-selection-line first-feature-selection-line'
+              } else {
+                return 'feature-selection-line second-feature-selection-line'
+              }
+            })
+            .attr('x1', originalImageWidth)
+            .attr('y1', 1.5)
+            .attr('x2', globalXInterval)
+            .attr('y2', 1.5)
         }
         this.update_comparison_features(comparisonFeaturesArray)
         //  对于features Image的高亮操作
@@ -733,32 +941,32 @@
         d3.select('#' + imageNameId)
           .select('.feature-control')
           .select('.right-control')
-          .style('visibility', 'visible')
+          .classed('control-hidden', false)
         d3.select('#' + imageNameId)
           .select('.feature-control')
           .select('.left-control')
-          .style('visibility', 'visible')
+          .classed('control-hidden', false)
         if (displayRange[ 0 ] === 0) {
           d3.select('#' + imageNameId)
             .select('.feature-control')
             .select('.right-control')
-            .style('visibility', 'hidden')
+            .classed('control-hidden', true)
         } else {
           d3.select('#' + imageNameId)
             .select('.feature-control')
             .select('.right-control')
-            .style('visibility', 'visible')
+            .classed('control-hidden', false)
         }
         if (displayRange[ 1 ] === (featuresArray.length - 1)) {
           d3.select('#' + imageNameId)
             .select('.feature-control')
             .select('.left-control')
-            .style('visibility', 'hidden')
+            .classed('control-hidden', true)
         } else {
           d3.select('#' + imageNameId)
             .select('.feature-control')
             .select('.left-control')
-            .style('visibility', 'visible')
+            .classed('control-hidden', false)
         }
       },
       /**
@@ -774,10 +982,10 @@
         }
         d3.selectAll('.feature-control')
           .select('.right-control')
-          .style('visibility', 'hidden')
+          .classed('control-hidden', true)
         d3.selectAll('.feature-control')
           .select('.left-control')
-          .style('visibility', 'hidden')
+          .classed('control-hidden', true)
       },
       /**
        * 鼠标点击component的事件
@@ -786,9 +994,9 @@
         if (!d3.select('.image-components#' + imageNameId).select('.background-image').classed('click-highlight')) {
           d3.selectAll('.background-image.click-highlight')
             .classed('click-highlight', false)
-          d3.select('.image-components#' + imageNameId)
-            .select('.background-image')
-            .classed('click-highlight', true)
+//          d3.select('.image-components#' + imageNameId)
+//            .select('.background-image')
+//            .classed('click-highlight', true)
           d3.selectAll('.original-image-bg.click-highlight')
             .classed('click-highlight', false)
           d3.select('.image-components#' + imageNameId)
@@ -863,6 +1071,40 @@
           this.addEventEnd(endObj, eventCategory, eventIndex, 'end')
         }
       },
+      handleWithFeatures () {
+        var addedFeatures = {}
+        for (var item in this.addedFeatures) {
+          addedFeatures[ item ] = this.addedFeatures[ item ]
+        }
+        let imageName = addedFeatures.imageName
+        let addedFeaturesArray = imageName.split('_')
+        let channelName = addedFeaturesArray[ 0 ]
+        let dateName = addedFeaturesArray[ 1 ] + '_' + addedFeaturesArray[ 2 ] + '_' + addedFeaturesArray[ 3 ]
+        let dateArray = this.dateArray
+        let channelArray = this.channelArray
+        let channelIndex = channelArray.indexOf(channelName)
+        let timeIndex = dateArray.indexOf(dateName)
+        var imageObjArray = this.imageObjArray2[ channelIndex ]
+        for (let iI = 0; iI < imageObjArray.length; iI++) {
+          var imageObj = imageObjArray[ iI ]
+          var featuresArray = imageObj.featuresArray
+          if (iI === timeIndex) {
+            console.log('same iI', iI)
+            addedFeatures.belongThisImage = true
+          } else {
+            addedFeatures.belongThisImage = false
+          }
+          featuresArray.push($.extend(true, {}, addedFeatures))
+          this.render_each_features_image(channelIndex, iI)
+          for (let fI = 0; fI < featuresArray.length; fI++) {
+            if (featuresArray[ fI ].belongThisImage) {
+              let featureName = featuresArray[ fI ].featureName
+              this.render_each_feature_belonged_line(channelIndex, iI, featureName)
+            }
+          }
+        }
+        console.log('imageObjArray2[ channelIndex ]', this.imageObjArray2[ channelIndex ])
+      },
       addEventStart (startObj, eventCategory, eventIndex, eventType) {
         let channel = startObj.channel
         let time = startObj.time
@@ -910,7 +1152,6 @@
       },
       //  传递点击的图片的数据
       sendSelectImage (imageNameId) {
-        console.log('imageNameId', imageNameId)
         if (typeof (imageNameId) !== 'undefined') {
           //  传递给imageTaggedView
           this.imageToTaggedView(imageNameId)
@@ -931,35 +1172,60 @@
   .background-image {
     fill: white;
   }
-  .feature-control[class~=hidden-control] {
-    visibility: hidden;
-  }
   .feature-image {
     fill: white;
     stroke: gray;
     stroke-width: 1px;
   }
-  .feature-image[class~=click-selection] {
-    stroke: #fc8d59;
+  .right-control[class~=control-hidden] {
+    visibility: hidden;
+  }
+  .left-control[class~=control-hidden] {
+    visibility: hidden;
+  }
+  .feature-image[class~=first-click-selection] {
+    stroke: #ff7f00;
+    stroke-width: 2px;
+  }
+  .feature-image[class~=second-click-selection] {
+    stroke: #1b9e77;
+    stroke-width: 2px;
+  }
+  .feature-image[class~=first-hovering-selection] {
+    stroke: #ff7f00;
+    stroke-width: 2px;
+  }
+  .feature-image[class~=second-hovering-selection] {
+    stroke: #1b9e77;
     stroke-width: 2px;
   }
   .image-components[class~=click-highlight] {
     opacity: 1 !important;
   }
   .background-image[class~=click-feature-highlight] {
-    fill: #bababa;
+    fill: #c7e6c0;
   }
   .image-components[class~=mouseover-unhighlight] {
     opacity: 0.3;
   }
   .background-image[class~=mouseover-highlight] {
-    fill: #bababa;
+    fill: #999999;
   }
   .background-image[class~=click-highlight] {
-    fill: #bababa;
+    fill: #999999;
+  }
+  .edit-icon-bg {
+    fill: white;
+    opacity: 0.7;
+  }
+  .edit-icon {
+    font-size: 1rem;
+  }
+  .control {
+    font-size: 0.6rem;
   }
   .original-image-bg[class~=mouseover-highlight] {
-    stroke: #2c7bb6;
+    stroke: white;
     stroke-width: 4px;
     animation-name: original-highlight-animation;
     animation-duration: 1s;
@@ -967,14 +1233,23 @@
     animation-iteration-count: infinite;
   }
   .original-image-bg[class~=click-highlight] {
-    stroke: #2c7bb6;
+    /*stroke: #2c7bb6;*/
+    stroke: white;
     stroke-width: 4px;
   }
+  .first-feature-selection-line {
+    stroke: #ff7f00;
+    stroke-width: 1px;
+  }
+  .second-feature-selection-line {
+    stroke: #1b9e77;
+    stroke-width: 1px;
+  }
   .feature-event {
-    font-size: 1.3rem;
+    font-size: 0.5rem;
   }
   .feature-event[class~=event-highlight] {
-    font-size: 1.6rem;
+    font-size: 0.7rem;
   }
   .feature-image[class~=feature-highlight] {
     stroke: #fc8d59;
@@ -986,6 +1261,10 @@
   }
   .channel-name {
     font-size: 0.7rem;
+  }
+  .belong-line {
+    stroke: gray;
+    stroke-width: 2px;
   }
   @keyframes original-highlight-animation {
     0% {}

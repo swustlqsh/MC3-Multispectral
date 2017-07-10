@@ -4,7 +4,7 @@
       <ul class="uk-list">
         <li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"
             v-on:click.stop.prevent="getMenuMsg(menu.index)">
-          <a href="#" ><i class="uk-icon-justify {{menu.icon}}"></i></a>
+          <a href="#"><i class="uk-icon-justify {{menu.icon}}"></i></a>
         </li>
       </ul>
     </div>
@@ -62,7 +62,7 @@
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: {pageSize, selectedImage},
+      getters: { pageSize, selectedImage },
       actions: {
         addFeatures, exportArea, createSelection
       }
@@ -74,7 +74,10 @@
         selectedChannels: '', // 单个通道 或者 有意义的组合
         renderIns: null,
         selectedId: 0,
+        imageIndex: 0,
+        imageName: null,
         willShow: false,
+        featureIndex: 0,
         imageMenu: [
           { name: '选择', icon: 'uk-icon-mouse-pointer', index: 0, image: '../../../assets/images/选择.png' },
           { name: '放大', icon: 'uk-icon-search-plus', index: 1, image: '../../../assets/images/放大.png' },
@@ -126,7 +129,8 @@
           } else {
             this.renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
-              image_real_height: Math.round($('#image-tagged').height())})
+              image_real_height: Math.round($('#image-tagged').height())
+            })
             this.renderIns.goUpdate()
           }
         },
@@ -266,9 +270,9 @@
       },
       addNewFeature () {
         console.log(this.featureName)
-        this.tableHeader.push({name: this.featureName})
+        this.tableHeader.push({ name: this.featureName })
         for (let i = 0; i < this.tableBody.length; i++) {
-          this.tableBody[i].push({value: ''})
+          this.tableBody[ i ].push({ value: '' })
         }
         console.log(this.tableBody)
         this.featureName = 'Add New'
