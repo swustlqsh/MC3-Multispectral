@@ -12,6 +12,8 @@ import {updatePageSize} from './vuex/actions'
 import {pageWidth} from './vuex/getters'
 import UTIF from './commons/utif'
 import config from './commons/config'
+// import Promise from 'bluebird'
+// var fs = Promise.promisifyAll(require('.／commons/fs.js'))
 export default {
   vuex: {
     actions: {updatePageSize},
@@ -40,6 +42,20 @@ export default {
         dataArr.push(response)
       })
     })
+//    Promise.map(date, function (dt, i) {
+//      let tag = '' + (i + 1)
+//      if (i + 1 < 10) tag = '0' + tag
+//      let fileName = '../data/tiffile/image' + tag + '_' + date[ i ] + '.tif'
+//      return fs.readFileAsync(fileName)
+//        .then(UTIF.decode)
+//        .catch(SyntaxError, function (e) {
+//          throw e
+//        })
+//    }, { concurrency: Infinity }).then(function (parsedUTF) {
+//      console.log(parsedUTF)
+//    }).catch(SyntaxError, function (e) {
+//      console.log('Invalid CSV in file ' + e.fileName + ': ' + e.message)
+//    })
 
     function dataLoad (i, done) {
       console.log(i)

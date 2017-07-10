@@ -5,7 +5,7 @@
 import * as types from '../mutations'
 
 export default {
-    [types.EXPORT_AREA] (state, rectArea) {
-        state.rectArea = rectArea
+    [types.EXPORT_AREA] (state, lassoArea) {
+        state.lassoArea = lassoArea
     }
 }

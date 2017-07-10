@@ -43,18 +43,20 @@
     </template>
     <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
   </div>
+  <div class="image-time">{{imageTime}}</div>
 </template>
 <script>
   import $ from 'jquery'
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
-  import {createSelection, addFeatures} from '../../vuex/actions'
+  import {createSelection, addFeatures, exportArea} from '../../vuex/actions'
   import config from '../../commons/config'
-
   export default {
     vuex: {
       getters: {pageSize, selectedImage},
-      actions: {createSelection, addFeatures}
+      actions: {
+        addFeatures, exportArea, createSelection
+      }
     },
     data () {
       return {
@@ -77,7 +79,8 @@
         $regions: {},
         tableIndex: [],
         featureName: 'Add New',
-        featuresObj: Object.keys(config.defaultFeaturesObj)
+        featuresObj: Object.keys(config.defaultFeaturesObj),
+        imageTime: ''
       }
     },
     watch: {
@@ -113,7 +116,6 @@
             this.renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())})
-
             this.renderIns.goUpdate()
           }
         },
@@ -123,7 +125,7 @@
         handler (curVal, oldVal) { // object
           //  接收到select image然后可以更新图片
           console.log('selectedImage', this.selectedImage)
-          this.selectedImage.split('_')[0]
+          this.imageTime = this.selectedImage.split('_').slice(1).join('_')
           let path = '../../../data/' + this.selectedImage.split('_')[0] + '/' + this.selectedImage + '.png'
           if (this.renderIns) {
             this.renderIns.loadStoreLocalImg(path, this.selectedImage)
@@ -198,6 +200,7 @@
         this.willShow = false
       },
       goSubmit () {
+        this.selectedId = 0
         let regionAttributes = {}
         let bodyNum = this.tableBody.length
         for (let j = 0; j < bodyNum; j++) {
@@ -214,15 +217,20 @@
           let typs = regionAttributes[key]
           this.$regions.regions[key].region_attributes = typs
         }
+        // 传递lasso区域，只支持一个区域
+        this.exportArea([ this.$regions.regions[ 0 ].shape_attributes.all_points_x, this.$regions.regions[ 0 ].shape_attributes.all_points_y ])
         this.createSelection('B1B5B6_2014_03_17', this.$regions)
         this.renderIns.resetMetaData()
         this.addFeatures('features')
+        console.log('click submit')
       },
       addNewFeature () {
+        console.log(this.featureName)
         this.tableHeader.push({name: this.featureName})
         for (let i = 0; i < this.tableBody.length; i++) {
           this.tableBody[i].push({value: ''})
         }
+        console.log(this.tableBody)
         this.featureName = 'Add New'
       }
     },
@@ -301,4 +309,11 @@
       margin: 0;
     }
   }
+  .image-time {
+    position: absolute;
+    width: 100%;
+    top: 96%;
+    text-align: center;
+  }
+
 </style>

@@ -23,7 +23,7 @@ const state = {
   event: {},
   comparedMessage: {},
   selections: {},
-  rectArea: {},
+  lassoArea: [],
   pageSize: {
     pageWidth: 0,
     pageHeight: 0
@@ -34,7 +34,7 @@ const state = {
 
 const mutations = Object.assign(
   {},
-  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, selectionMutations, imageToTaggedMutations, addFeaturesMutations, imageToTaggedMutations)
+  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations, imageToTaggedMutations, addFeaturesMutations, imageToTaggedMutations)
 
 export default new Vuex.Store({
   strict: true,

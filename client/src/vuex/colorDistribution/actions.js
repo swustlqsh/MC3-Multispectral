@@ -5,7 +5,7 @@
 import * as types from '../mutations'
 
 export default {
-  exportArea (store, rectArea) {
-    store.dispatch(types.EXPORT_AREA, rectArea)
+  exportArea (store, lassoArea) {
+    store.dispatch(types.EXPORT_AREA, lassoArea)
   }
 }

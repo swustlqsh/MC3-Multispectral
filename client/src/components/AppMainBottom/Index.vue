@@ -38,7 +38,7 @@
     computed: {
       mainBottomStyle () {
         let style = {}
-        let height = this.pageSize.pageWidth / 2 + 'px'
+        let height = this.pageSize.pageHeight + 'px'
         style.height = height
         return style
       },

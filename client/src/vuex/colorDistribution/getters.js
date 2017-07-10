@@ -3,6 +3,6 @@
  */
 
 export default {
-    rectArea: (state) => {return state.rectArea}
+    lassoArea: (state) => {return state.lassoArea}
 }
 

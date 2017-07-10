@@ -2,13 +2,13 @@
     <div id = 'imageCompare' style = 'padding-left: 0; padding-right: 0; padding-top: 0'>
         <div v-el:graph1 id="graph1">
             <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-            <canvas id="image_canvas1" class="image_canvas"></canvas>
-            <canvas id="region_canvas1" class="region_canvas"></canvas>
+            <!--<canvas id="image_canvas1" class="image_canvas"></canvas>-->
+            <!--<canvas id="region_canvas1" class="region_canvas"></canvas>-->
         </div>
         <div v-el:graph2 id="graph2">
             <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-            <canvas id="image_canvas2" class="image_canvas"></canvas>
-            <canvas id="region_canvas2" class="region_canvas"></canvas>
+            <!--<canvas id="image_canvas2" class="image_canvas"></canvas>-->
+            <!--<canvas id="region_canvas2" class="region_canvas"></canvas>-->
         </div>
     </div>
     <div id = 'statistics'>
@@ -38,13 +38,14 @@
 <script>
   import $ from 'jquery'
   import {pageSize, comparedMessage} from '../../vuex/getters'
-  import {eventSubmit, exportArea} from '../../vuex/actions'
+  import {eventSubmit} from '../../vuex/actions'
   import config from '../../commons/config'
-  import EG from 'ENGINES'
+  let d3 = require('../../../plugins/d3v3.min.js')
+//  import EG from 'ENGINES'
   export default {
     vuex: {
       actions: {
-        eventSubmit, exportArea
+        eventSubmit
       },
       getters: { pageSize, comparedMessage }
     },
@@ -163,17 +164,16 @@
           .text(channelTagNum[ channel ])
       },
       loadComparisonImages () {
-//        let imgObj1 = imgs[0]
-//        let imgObj2 = imgs[1]
-//        let d3 = window.d3
-//        let width = $('#imageCompare').width()
-//        let height = $('#imageCompare').height()
-//        let svg = d3.select('#imageCompare').append('svg').attr('width', width).attr('height', height)
-//        let g1 = svg.append('g')
-//        g1.append('image')
-//          .attr('xlink:href', '../../../resource/3B/B1B5B6_2014_03_17.png')
-//          .attr('width', width / 2)
-//          .attr('height', height)
+        let width = $('#graph1').width()
+        let height = $('#graph1').height()
+        let emSize = config.emSize
+        let padding = {left: 10, right: 10, top: 2, bottom: emSize}
+        let size = width - padding.left - padding.right
+        let toTop = padding.top + size + 4
+        $('#graph1').empty()
+        $('#graph2').empty()
+        let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
+        let svg2 = d3.select('#graph2').append('svg').attr('width', width).attr('height', height)
         let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03_06, ' +
           '2016_06_26, 2016_09_06, 2016_12_19'
         time = time.split(',')
@@ -188,14 +188,23 @@
             this.localComparedMessage = comparedMessage
             let img1Name = comparedMessage.img1.imgName
             if (img1Name !== null) {
-              this.renderIns1 = new EG.renders.GraphTag({ selector: this.$els.graph1 })
-              this.renderIns1.init({
-                image_canvas_id: 'image_canvas1',
-                region_canvas_id: 'region_canvas1'
-              })
               let prefix = img1Name.split('_')[ 0 ]
-              this.renderIns1.loadStoreLocalImg('../../../data/' + prefix + '/' + img1Name + '.png', img1Name)
-              this.renderIns1.showImage(0)
+              let path = '../../../data/' + prefix + '/' + img1Name + '.png'
+              let g = svg1.append('g')
+              let arr1 = this.comparedMessage.img1.imgName.split('_')
+              let date1 = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
+              g.append('image')
+                .attr('xlink:href', path)
+                .attr('width', size)
+                .attr('height', size)
+                .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+              svg1.append('text')
+                .attr('y', toTop)
+                .attr('x', width / 2)
+                .attr('alignment-baseline', 'hanging')
+                .attr('text-anchor', 'middle')
+                .text(date1)
+                .attr('font-size', emSize)
             }
             return
           }
@@ -210,33 +219,47 @@
             let mid = $.extend(true, {}, comparedMessage.img1)
             comparedMessage.img1 = $.extend(true, {}, comparedMessage.img2)
             comparedMessage.img2 = mid
+            date1 = this.time[index2]
+            date2 = this.time[index1]
           }
           this.localComparedMessage = comparedMessage
 //          no png
           let img1Name = comparedMessage.img1.imgName
           let img2Name = comparedMessage.img2.imgName
           if (img1Name !== null) {
-            this.renderIns1 = new EG.renders.GraphTag({ selector: this.$els.graph1 })
-            this.renderIns1.init({
-              image_canvas_id: 'image_canvas1',
-              region_canvas_id: 'region_canvas1'
-            })
             let prefix = img1Name.split('_')[ 0 ]
-            this.renderIns1.loadStoreLocalImg('../../../data/' + prefix + '/' + img1Name + '.png', img1Name)
-            this.renderIns1.showImage(0)
+            let path = '../../../data/' + prefix + '/' + img1Name + '.png'
+            let g = svg1.append('g')
+            g.append('image')
+              .attr('xlink:href', path)
+              .attr('width', size)
+              .attr('height', size)
+              .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+            svg1.append('text')
+              .attr('y', toTop)
+              .attr('x', width / 2)
+              .text(date1)
+              .attr('alignment-baseline', 'hanging')
+              .attr('text-anchor', 'middle')
+              .attr('font-size', emSize)
           }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
           if (img2Name !== null) {
-            this.renderIns2 = new EG.renders.GraphTag({ selector: this.$els.graph2 })
-            this.renderIns2.init({
-              image_canvas_id: 'image_canvas2',
-              region_canvas_id: 'region_canvas2'
-            })
             let prefix = img2Name.split('_')[ 0 ]
-            this.renderIns2.loadStoreLocalImg('../../../data/' + prefix + '/' + img2Name + '.png', img2Name)
-            this.renderIns2.showImage(0)
-          } else {
-            this.renderIns2.clearRegCanvas()
+            let path = '../../../data/' + prefix + '/' + img2Name + '.png'
+            let g = svg2.append('g')
+            g.append('image')
+              .attr('xlink:href', path)
+              .attr('width', size)
+              .attr('height', size)
+              .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+            svg2.append('text')
+              .attr('y', toTop)
+              .attr('x', width / 2)
+              .attr('alignment-baseline', 'hanging')
+              .attr('text-anchor', 'middle')
+              .text(date2)
+              .attr('font-size', emSize)
           }
         }
       },
