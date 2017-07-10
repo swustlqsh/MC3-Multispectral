@@ -1389,13 +1389,15 @@ class GraphTag extends Render {
     this._via_img_metadata[ this._via_image_id ].regions = []
     this.showImage(this._via_image_index)
   }
+  // 如果存在id, 则获取选中的id的 meta data
+
   getMetaData (id) {
-    //let _via_img_metadata_as_obj = {}
+    // let _via_img_metadata_as_obj = {}
     let scale = this._via_canvas_scale
     let image_data = {}
     for (let image_id in this._via_img_metadata) {
       image_data = {}
-      //image_data.fileref = _via_img_metadata[image_id].fileref;
+      // image_data.fileref = _via_img_metadata[image_id].fileref;
       image_data.fileref = ''
       image_data.size = this._via_img_metadata[ image_id ].size
       image_data.filename = this._via_img_metadata[ image_id ].filename
@@ -1410,13 +1412,14 @@ class GraphTag extends Render {
 
       // copy all region shape_attributes
       image_data.regions = {}
-      for (let i = 0; i < this._via_img_metadata[ image_id ].regions.length; ++i) {
+      if (id !== -1 && id < this._via_img_metadata[ this._via_image_id ].regions.length) {
+        let i = id
         image_data.regions[ i ] = {}
         image_data.regions[ i ].shape_attributes = {}
         image_data.regions[ i ].region_attributes = {}
         // copy region shape_attributes
-        for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
-          let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
+        for (let key of this._via_img_metadata[ this._via_image_id ].regions[ i ].shape_attributes.keys()) {
+          let value = this._via_img_metadata[ this._via_image_id ].regions[ i ].shape_attributes.get(key)
           if (Array.isArray(value)) {
             value = value.map(function (item) {
               return Math.round(item * scale)
@@ -1426,9 +1429,31 @@ class GraphTag extends Render {
           image_data.regions[ i ].shape_attributes[ key ] = value
         }
         // copy region_attributes
-        for (let key of this._via_img_metadata[ image_id ].regions[ i ].region_attributes.keys()) {
-          let value = this._via_img_metadata[ image_id ].regions[ i ].region_attributes.get(key)
+        for (let key of this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.keys()) {
+          let value = this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.get(key)
           image_data.regions[ i ].region_attributes[ key ] = value
+        }
+      } else {
+        for (let i = 0; i < this._via_img_metadata[ image_id ].regions.length; ++i) {
+          image_data.regions[ i ] = {}
+          image_data.regions[ i ].shape_attributes = {}
+          image_data.regions[ i ].region_attributes = {}
+          // copy region shape_attributes
+          for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
+            let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
+            if (Array.isArray(value)) {
+              value = value.map(function (item) {
+                return Math.round(item * scale)
+              })
+            }
+
+            image_data.regions[ i ].shape_attributes[ key ] = value
+          }
+          // copy region_attributes
+          for (let key of this._via_img_metadata[ image_id ].regions[ i ].region_attributes.keys()) {
+            let value = this._via_img_metadata[ image_id ].regions[ i ].region_attributes.get(key)
+            image_data.regions[ i ].region_attributes[ key ] = value
+          }
         }
       }
       //_via_img_metadata_as_obj[image_id] = image_data

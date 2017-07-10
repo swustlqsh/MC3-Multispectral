@@ -158,7 +158,11 @@
       chooseRegionType (attr) {
         let newAttr = JSON.parse(JSON.stringify(attr))
         let info = { 'type': newAttr, 'color': config.defaultFeaturesObj[newAttr] }
-        this.renderIns.updateCurrentSelectRegion(info)
+        if (this.selectRegionTableBody.length !== 0) {
+          this.$selectRegionsObs[this.selectRegionTableBody[0].value - 1] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
+          console.log('infoddd', info)
+          this.renderIns.updateCurrentSelectRegion(info)
+        }
       },
       getMenuMsg (index) {
         if (this.selectedId === index) {
@@ -175,15 +179,27 @@
         if (this.selectedId === 5) {
           this.willShow = true
 //          this.tableHeader = [{name: '#'}]
+          let isEx = this.tableBody.length
+          if (isEx > 0) {
+            return
+          }
           this.tableBody = []
 //          this.$regions = JSON.parse(this.renderIns.getMetaData())
 //          console.log('this.$regions', this.$regions)
+
           // 确保当前有选中的节点
           if (this.isShowSelectTable !== -1) {
 //            let regionAttributes = this.$regions.regions
-            this.selectRegionTableBody = []
-            this.selectRegionTableBody.push({ value: this.renderIns._via_user_sel_region_id + 1 })
-            this.selectRegionTableBody.push({ value: '' })
+            let id = this.renderIns._via_user_sel_region_id
+            console.log(id, this.$selectRegionsObs)
+            if (this.$selectRegionsObs !== undefined && id in this.$selectRegionsObs) {
+              this.selectRegionTableBody = this.$selectRegionsObs[id]
+            } else {
+              this.selectRegionTableBody = []
+              this.selectRegionTableBody.push({ value: id + 1 })
+              this.selectRegionTableBody.push({ value: '' })
+            }
+
 //            let features = Object.keys(regionAttributes)
 //            for (let i = 0; i < features.length; i++) {
 //              let tbody = []
@@ -223,27 +239,27 @@
       },
       goSubmit () {
         this.selectedId = 0
-        let regionAttributes = {}
-        let bodyNum = this.tableBody.length
-        for (let j = 0; j < bodyNum; j++) {
-          regionAttributes[j] = {}
-          let tempBox = {}
-          for (let i = 1; i < this.tableHeader.length; i++) {
-            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
-          }
-          regionAttributes[j] = tempBox
-        }
-
         this.willShow = false
-        for (let key in regionAttributes) {
-          let typs = regionAttributes[key]
-          this.$regions.regions[key].region_attributes = typs
-        }
-        this.$regions = JSON.parse(this.renderIns.getMetaData())
+//        let regionAttributes = {}
+//        let bodyNum = this.tableBody.length
+//        for (let j = 0; j < bodyNum; j++) {
+//          regionAttributes[j] = {}
+//          let tempBox = {}
+//          for (let i = 1; i < this.tableHeader.length; i++) {
+//            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
+//          }
+//          regionAttributes[j] = tempBox
+//        }
+//        for (let key in regionAttributes) {
+//          let typs = regionAttributes[key]
+//          this.$regions.regions[key].region_attributes = typs
+//        }
+        let selectId = this.selectRegionTableBody[0].value - 1
+        this.$regions = JSON.parse(this.renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
-        this.exportArea([ this.$regions.regions[this.renderIns._via_user_sel_region_id].shape_attributes.all_points_x, this.$regions.regions[ 0 ].shape_attributes.all_points_y ])
-        this.createSelection('B1B5B6_2014_03_17', this.$regions)
+        this.exportArea([ this.$regions.regions[selectId].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
+        this.createSelection(this.selectedImage, this.$regions)
 //        this.renderIns.resetMetaData()
         this.addFeatures('features')
         console.log('click submit')
@@ -259,6 +275,7 @@
       }
     },
     ready () {
+      this.$selectRegionsObs = {}
 //      this.init()
     }
   }
