@@ -978,7 +978,7 @@
             .select('.right-control')
             .classed('control-hidden', false)
         }
-        if (displayRange[ 1 ] === (featuresArray.length - 1)) {
+        if (displayRange[ 1 ] >= (featuresArray.length - 1)) {
           d3.select('#' + imageNameId)
             .select('.feature-control')
             .select('.left-control')
