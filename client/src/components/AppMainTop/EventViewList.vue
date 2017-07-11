@@ -137,6 +137,7 @@
   .event-view-main {
     /*border: 1px solid gray;*/
     padding: 2px 1px;
+
   }
   .listLine {
     stroke: gray;

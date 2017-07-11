@@ -88,18 +88,18 @@
         self.height = self.height - self.margin.top - self.margin.bottom
         self.xScale.range([0, self.w])
         self.yScale.range([self.height, 0])
-        /*self.xAxis = d3.svg.axis()
-          .scale(self.xScale)
-          .orient('bottom')
-          .tickFormat(function (d, i) {
-            return ''
-          })
-          .tickSize(0, 0)
-        self.yAxis = d3.svg.axis()
-          .scale(self.yScale)
-          .orient('left')
-          .tickSize(2, 5)
-          .ticks(2)*/
+//        self.xAxis = d3.svg.axis()
+//          .scale(self.xScale)
+//          .orient('bottom')
+//          .tickFormat(function (d, i) {
+//            return ''
+//          })
+//          .tickSize(0, 0)
+//        self.yAxis = d3.svg.axis()
+//          .scale(self.yScale)
+//          .orient('left')
+//          .tickSize(2, 5)
+//          .ticks(2)
 //        console.log(data)
         $(panelSelector).empty()
         self.svg = d3.select(panelSelector)
@@ -133,7 +133,7 @@
           .attr('height', function (d) { return self.height - self.yScale(self.barHeight(d.num)) })
           .style('fill', 'grey')
 
-        if ( index === 0) {
+        if (index === 0) {
           for (let i = 0; i < self.currentChannels.length; i++) {
             d3.select('#g' + i)
               .append('text')

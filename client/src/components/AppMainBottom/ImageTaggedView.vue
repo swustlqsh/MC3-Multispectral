@@ -90,8 +90,8 @@
         tableBody: [],
         $regions: {},
         tableIndex: [],
-        featureName: 'Add New',
         featuresObj: Object.keys(config.defaultFeaturesObj),
+        featureName: 'Add New',
         imageTime: '',
         selectRegionTableBody: [], // 当前选中的region
         $selectRegionsObs: {} // 不执行vue绑定操作
@@ -139,6 +139,12 @@
       selectedImage: {
         handler (curVal, oldVal) { // object
           //  接收到select image然后可以更新图片
+          // 更新option
+          let channels = this.selectedImage.split('_')[ 0 ]
+          if (channels.length > 2) {
+            this.featuresObj = Object.keys(config.featureColors[ channels ])
+          }
+          window.currentSelectionChannel = channels
           if ((typeof (this.selectedImage) !== 'undefined') && (this.selectedImage != null)) {
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
             let path = '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png'

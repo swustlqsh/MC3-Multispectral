@@ -8,11 +8,34 @@ let config = {
   burnt: '#ef8a62',
   flood: '#2b8cbe',
   defaultFeatures: [
+    ['Plant', 'green'],
     ['Moun', 'orange'],
-    ['Rode', '#D6E2D7'],
     ['Lake', 'blue'],
     ['City', 'gray']
   ],
+  featureColors: {
+    'B4B3B2': {
+      'Plant': 'red',
+      'City': 'gray',
+      'Water': 'black'
+    },
+    'B5B4B2': {
+      'Water': 'black',
+      'Soil': 'blue',
+      'Ground': 'pink',
+      'City': 'purple'
+    },
+    'B1B5B6': {
+      'Ice': 'red',
+      'Snow': 'Orange',
+      'Cloud': 'Pink'
+    },
+    'B3B2B1': {
+      'Plant': 'green',
+      'City': 'gray',
+      'Water': 'blue'
+    }
+  },
   date: [
     '2014_03_17',
     '2014_08_24',
