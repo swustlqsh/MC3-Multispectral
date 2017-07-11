@@ -48,5 +48,9 @@ export default {
       newMeta.regions = newRegions
     }
     state.selections.activeRegions = newMeta
+  },
+  [types.ACTIVE_REGION_SELECTION_IMAGES] (state, imgId, Images) {
+    state.selections.activeRegionsImages = {}
+    state.selections.activeRegionsImages[imgId] = Images
   }
 }

@@ -18,5 +18,8 @@ export default {
   },
   activeRegionSelectionIds (store, imgId, ids) {
     store.dispatch(types.ACTIVE_REGION_SELECTION, imgId, ids)
-  }
+  },
+  activeRegionSelectionImages (store, imgId, images) {
+    store.dispatch(types.ACTIVE_REGION_SELECTION_IMAGES, imgId, images)
+  },
 }

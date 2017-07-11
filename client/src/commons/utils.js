@@ -111,22 +111,34 @@ export const getColorRgb = (color, type = 0) => {
 // }
 
 export const transSelectRegionToBase64 = (metaData, area, color) => {
-  let color = getColorRgb(color)
   let width = metaData.width
   let height = metaData.height
 
   let marked = Array(height).fill([])
   for (let i = 0; i < height; i++) {
-    marked[i] = Array(height).fill(0)
+    marked[i] = Array(width).fill(0)
   }
   let points = getPointsOfArea(area)
+  // let points = []
+  // for (let i=0; i< 100; i++) {
+  //   points.push([i, i+1])
+  // }
+  // points.forEach(function(d) {
+  //   marked[d[0]][d[1]] = 1
+  // })
   points.forEach(function(d) {
-    marked[d[0]][d[1]] = 1
+    let tmpX = d[0]
+    let tmpY = d[1]
+    if(tmpX < 0 || tmpY < 0 || tmpX >= width || tmpY >= height) {
+
+    } else {
+      marked[tmpX][tmpY] = 1
+    }
   })
 
   for (let i = 0; i < height; i++ ) {
     for(let j = 0; j < width; j++) {
-      if(marked[i][j] == 1){
+      if(marked[i][j] === 1){
         let tmp = 4 * (i * width + j)
         metaData.data[tmp] = color[0]
         metaData.data[tmp+1] = color[1]
@@ -134,6 +146,7 @@ export const transSelectRegionToBase64 = (metaData, area, color) => {
       }
     }
   }
+  return metaData
 }
 
 export const getBoundary = (area) => {
@@ -166,5 +179,12 @@ export const getBoundary = (area) => {
   bbox[ 3 ] = maxy
 
   return bbox
+}
 
+export const getBoundaryToArray= (boundaryX, boundaryY) => {
+  let area = Array(boundaryX.length).fill([])
+  boundaryX.forEach((d, i) => {
+    area[i] = [d, boundaryY[i]]
+  })
+  return area
 }

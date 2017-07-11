@@ -3,6 +3,13 @@
         <app-header></app-header>
         <app-main></app-main>
     </div>
+    <canvas id="source-canvas" width="651" height="651" style="border:1px solid #d3d3d3; display: none">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
+
+    <canvas id="cut-canvas" style="border:1px solid #d3d3d3; display: none">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
 </template>
 <script>
 import {getPageSize} from './commons/utils'
