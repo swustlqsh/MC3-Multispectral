@@ -4,7 +4,7 @@
       <ul class="uk-list">
         <li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"
             v-on:click.stop.prevent="getMenuMsg(menu.index)">
-          <a href="#" ><i class="uk-icon-justify {{menu.icon}}"></i></a>
+          <a href="#"><i class="uk-icon-justify {{menu.icon}}"></i></a>
         </li>
       </ul>
     </div>
@@ -62,7 +62,7 @@
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: {pageSize, selectedImage},
+      getters: { pageSize, selectedImage },
       actions: {
         addFeatures, exportArea, createSelection
       }
@@ -72,9 +72,12 @@
         isShowSelect: true,
         selectedTime: '', // 选择的时间 2014 2015 2016
         selectedChannels: '', // 单个通道 或者 有意义的组合
-        renderIns: null,
+        $renderIns: null,
         selectedId: 0,
+        imageIndex: 0,
+        imageName: null,
         willShow: false,
+        featureIndex: 0,
         imageMenu: [
           { name: '选择', icon: 'uk-icon-mouse-pointer', index: 0, image: '../../../assets/images/选择.png' },
           { name: '放大', icon: 'uk-icon-search-plus', index: 1, image: '../../../assets/images/放大.png' },
@@ -98,36 +101,37 @@
       pageSize: {
         handler (curVal, oldVal) {
 //          this.init()
-//          this.renderIns.init({
+//          this.$renderIns.init({
 //            image_canvas_id: 'image_canvas',
 //            region_canvas_id: 'region_canvas',
 //            image_real_width: Math.round($('#image-tagged').width()),
 //            image_real_height: Math.round($('#image-tagged').height())
 //          })
-//          this.renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
-//          this.renderIns.on('dblclick', this.clickEvent)
-//          this.renderIns.regionBindAllEvent()
+//          this.$renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
+//          this.$renderIns.on('dblclick', this.clickEvent)
+//          this.$renderIns.regionBindAllEvent()
 
-          if (!this.renderIns) {
+          if (!this.$renderIns) {
             this.init()
-            this.renderIns.init({
+            this.$renderIns.init({
               image_canvas_id: 'image_canvas',
               region_canvas_id: 'region_canvas',
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-//            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-//            this.renderIns.showImage(0)
-//            this.renderIns.addEventListenerClick() // default
-            this.renderIns.addEventListenerMouseup()
-            this.renderIns.addEventListenerMousedown()
-            this.renderIns.addEventListenerMousemove()
-            this.renderIns.addEventListenerMouseover()
+//            this.$renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+//            this.$renderIns.showImage(0)
+//            this.$renderIns.addEventListenerClick() // default
+            this.$renderIns.addEventListenerMouseup()
+            this.$renderIns.addEventListenerMousedown()
+            this.$renderIns.addEventListenerMousemove()
+            this.$renderIns.addEventListenerMouseover()
           } else {
-            this.renderIns.updateDivContainer({
+            this.$renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
-              image_real_height: Math.round($('#image-tagged').height())})
-            this.renderIns.goUpdate()
+              image_real_height: Math.round($('#image-tagged').height())
+            })
+            this.$renderIns.goUpdate()
           }
         },
         deep: true
@@ -138,9 +142,9 @@
           console.log('selectedImage', this.selectedImage)
           this.imageTime = this.selectedImage.split('_').slice(1).join('_')
           let path = '../../../data/' + this.selectedImage.split('_')[0] + '/' + this.selectedImage + '.png'
-          if (this.renderIns) {
-            this.renderIns.loadStoreLocalImg(path, this.selectedImage)
-            this.renderIns.showImage(0)
+          if (this.$renderIns) {
+            this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
+            this.$renderIns.showImage(0)
           }
         },
         deep: true
@@ -151,7 +155,7 @@
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       },
       isShowSelectTable () {
-        return this.renderIns._via_user_sel_region_id === -1
+        return this.$renderIns._via_user_sel_region_id === -1
       }
     },
     methods: {
@@ -161,7 +165,7 @@
         if (this.selectRegionTableBody.length !== 0) {
           this.$selectRegionsObs[this.selectRegionTableBody[0].value - 1] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
           console.log('infoddd', info)
-          this.renderIns.updateCurrentSelectRegion(info)
+          this.$renderIns.updateCurrentSelectRegion(info)
         }
       },
       getMenuMsg (index) {
@@ -184,13 +188,13 @@
             return
           }
           this.tableBody = []
-//          this.$regions = JSON.parse(this.renderIns.getMetaData())
+//          this.$regions = JSON.parse(this.$renderIns.getMetaData())
 //          console.log('this.$regions', this.$regions)
 
           // 确保当前有选中的节点
           if (this.isShowSelectTable !== -1) {
 //            let regionAttributes = this.$regions.regions
-            let id = this.renderIns._via_user_sel_region_id
+            let id = this.$renderIns._via_user_sel_region_id
             console.log(id, this.$selectRegionsObs)
             if (this.$selectRegionsObs !== undefined && id in this.$selectRegionsObs) {
               this.selectRegionTableBody = this.$selectRegionsObs[id]
@@ -220,18 +224,18 @@
           return
         }
         if (this.selectedId === 1) {
-          this.renderIns && this.renderIns.zoom_in()
+          this.$renderIns && this.$renderIns.zoom_in()
           return
         }
         if (this.selectedId === 2) {
-          this.renderIns && this.renderIns.zoom_out()
+          this.$renderIns && this.$renderIns.zoom_out()
         }
       },
       // loadStart 读取相关的事件
       loadStart () {
       },
       init () {
-        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
+        this.$renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
       closeTag (e) {
         this.willShow = false
@@ -255,21 +259,26 @@
 //          this.$regions.regions[key].region_attributes = typs
 //        }
         let selectId = this.selectRegionTableBody[0].value - 1
-        this.$regions = JSON.parse(this.renderIns.getMetaData(selectId))
+          console.log('selectId', selectId)
+          console.log(selectId, 'selectId')
+          if (selectId < 0) {
+            return
+          }
+        this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
         window.currentSelectionChannel = this.$regions.filename.split('_')[ 0 ]
         this.exportArea([ this.$regions.regions[selectId].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         this.createSelection(this.selectedImage, this.$regions)
-//        this.renderIns.resetMetaData()
+//        this.$renderIns.resetMetaData()
         this.addFeatures('features')
         console.log('click submit')
       },
       addNewFeature () {
         console.log(this.featureName)
-        this.tableHeader.push({name: this.featureName})
+        this.tableHeader.push({ name: this.featureName })
         for (let i = 0; i < this.tableBody.length; i++) {
-          this.tableBody[i].push({value: ''})
+          this.tableBody[ i ].push({ value: '' })
         }
         console.log(this.tableBody)
         this.featureName = 'Add New'

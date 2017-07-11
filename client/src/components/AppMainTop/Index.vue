@@ -78,7 +78,7 @@
       top: 0;
       left: 20.8%;
       width: 79.2%;
-      height: 33.3%;
+      height: 100%;
       overflow-y: auto;
     }
   }

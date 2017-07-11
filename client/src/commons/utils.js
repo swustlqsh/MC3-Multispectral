@@ -72,6 +72,7 @@ export const getPointsOfArea = (oArea) => {
 }
 /**
  16进制颜色转为RGB格式
+ 十六进制格式（#000000-#FFFFFF) == 》 [(0-255),(0-255),(0-255)]
  */
 export const getColorRgb = (color, type = 0) => {
   let sColor = color.toLowerCase()
@@ -97,6 +98,78 @@ export const getColorRgb = (color, type = 0) => {
     return sColor
   }
 }
+
 /**
 将选中区域的颜色高亮
+ |----------|
+ |          |
+ |__________|
  */
+
+
+// colorSpace
+// metaData 结构:
+// metaData = {
+//   width: 4,
+//   height: 2,
+//   data: [0,0,0,0,0,0,0,0,0,0,0,0,200,200,200,1,200,200,200,0,200,200,200,1,200,200,200,1,200,200,200,1]
+// }
+
+export const transSelectRegionToBase64 = (metaData, area, color) => {
+  let color = getColorRgb(color)
+  let width = metaData.width
+  let height = metaData.height
+
+  let marked = Array(height).fill([])
+  for (let i = 0; i < height; i++) {
+    marked[i] = Array(height).fill(0)
+  }
+  let points = getPointsOfArea(area)
+  points.forEach(function(d) {
+    marked[d[0]][d[1]] = 1
+  })
+
+  for (let i = 0; i < height; i++ ) {
+    for(let j = 0; j < width; j++) {
+      if(marked[i][j] == 1){
+        let tmp = 4 * (i * width + j)
+        metaData.data[tmp] = color[0]
+        metaData.data[tmp+1] = color[1]
+        metaData.data[tmp+2] = color[2]
+      }
+    }
+  }
+}
+
+export const getBoundary = (area) => {
+  let bbox = new Array(4)
+
+  let minx = Number.MAX_SAFE_INTEGER
+  let miny = Number.MAX_SAFE_INTEGER
+  let maxx = 0
+  let maxy = 0
+
+  for (let i = 0; i < area.length; ++i) {
+    let nx = area[i][ 0 ]
+    let ny = area[i][ 1 ]
+    if (nx < minx) {
+      minx = nx
+    }
+    if (nx > maxx) {
+      maxx = nx
+    }
+    if (ny < miny) {
+      miny = ny
+    }
+    if (ny > maxy) {
+      maxy = ny
+    }
+  }
+  bbox[ 0 ] = minx
+  bbox[ 1 ] = miny
+  bbox[ 2 ] = maxx
+  bbox[ 3 ] = maxy
+
+  return bbox
+
+}
