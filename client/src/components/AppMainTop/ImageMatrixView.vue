@@ -96,6 +96,7 @@
         this.globalXInterval = globalXInterval
         this.globalYInterval = globalYInterval
         this.paddingX = paddingX
+        this.paddingY = paddingY
       },
       /**
        * 在视图中初始化svg
@@ -754,21 +755,22 @@
         let imageObjArray2 = this.imageObjArray2
         let imageMatrixSvg = d3.select('#image-matrix-svg')
         let imageName = imageObjArray2[ iI ][ jI ].imageName
+        let paddingY = this.paddingY
         if (!imageMatrixSvg.select('#' + imageName + '-' + featureName).empty()) {
           let featuresObjX = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('x')
           let featuresObjY = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('y')
           let featuresObjHeight = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('height')
           let featuresObjWidth = +imageMatrixSvg.select('#' + imageName + '-' + featureName).attr('width')
-          let paddingY = 2
+          let belongLinePaddingY = paddingY / 2
           if (imageMatrixSvg.select('#feature-image-' + imageName).select('#belong-line-' + imageName + '-' + featureName).empty()) {
             imageMatrixSvg.select('#feature-image-' + imageName)
               .append('line')
               .attr('class', 'belong-line')
               .attr('id', 'belong-line-' + imageName + '-' + featureName)
               .attr('x1', featuresObjX)
-              .attr('y1', featuresObjY + featuresObjHeight + paddingY)
+              .attr('y1', featuresObjY + featuresObjHeight + belongLinePaddingY)
               .attr('x2', featuresObjX + featuresObjWidth)
-              .attr('y2', featuresObjY + featuresObjHeight + paddingY)
+              .attr('y2', featuresObjY + featuresObjHeight + belongLinePaddingY)
           }
         }
       },
@@ -1235,11 +1237,11 @@
     fill: #999;
   }
   .channel-name[class~=mouseover-highlight] {
-    font-size: 0.9em;
+    font-size: 0.8em;
     fill: black !important;
   }
   .channel-name[class~=selection-highlight] {
-    font-size: 0.9em;
+    font-size: 0.8em;
     fill: black;
   }
   .channel-name[class~=selection-unhighlight] {
@@ -1260,7 +1262,7 @@
     font-size: 0.6em;
   }
   .original-image-bg[class~=mouseover-highlight] {
-    stroke: white;
+    stroke: #999;
     stroke-width: 4px;
     animation-name: original-highlight-animation;
     animation-duration: 1s;
