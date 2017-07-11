@@ -16,11 +16,11 @@
         <div id = 'submmit'>
             <div>
                 Type
-                <select style="margin-left: 20px" id = 'eventSelect'>
-                    <option value="Flood">Flood</option>
-                    <option value="Burnt">Burnt</option>
-                    <option value="Shrink">Shrink</option>
-                    <option value="Expand">Expand</option>
+                <select id = 'eventSelect'>
+                    <option value="Flood" class="option-text">Flood</option>
+                    <option value="Burnt" class="option-text">Burnt</option>
+                    <option value="Shrink" class="option-text">Shrink</option>
+                    <option value="Expand" class="option-text">Expand</option>
                 </select>
             </div>
             <div style="margin-top: 10px">
@@ -55,8 +55,8 @@
         load: false,
         currentChannel: 'B1',
         channelTagNum: {
-          'B3B2B1': 3,
-          'B5B4B2': 2,
+          'B3B2B1': 0,
+          'B5B4B2': 0,
           'B4B3B2': 0,
           'B1B5B6': 0,
           'NDVI': 0,
@@ -105,7 +105,8 @@
         this.channelSvg = svg
         let divH = (height - padding.top - padding.bottom) / channels.length
         let marginH = divH * 0.1
-        let cellWidth = width / 10
+        let textWidth = config.emSize * 6
+        let cellWidth = (width - textWidth) / 20
         let g = svg.selectAll('g')
           .data(channels)
           .enter()
@@ -116,7 +117,6 @@
           .attr('id', function (d, i) {
             return 'g' + d
           })
-        let textWidth = 60
         g.append('rect')
           .attr('x', textWidth)
           .attr('y', 0)
@@ -170,6 +170,7 @@
         let padding = {left: 10, right: 10, top: 2, bottom: emSize}
         let size = width - padding.left - padding.right
         let toTop = padding.top + size + 4
+        let lineToTop = toTop - 2
         $('#graph1').empty()
         $('#graph2').empty()
         let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
@@ -205,6 +206,13 @@
                 .attr('text-anchor', 'middle')
                 .text(date1)
                 .attr('font-size', emSize)
+              svg1.append('line')
+                .attr('y1', lineToTop)
+                .attr('x1', padding.left)
+                .attr('x2', width - padding.right)
+                .attr('y2', lineToTop)
+                .style('stroke', comparedMessage.img1.color)
+                .style('stroke-width', '1px')
             }
             return
           }
@@ -228,6 +236,7 @@
           let img2Name = comparedMessage.img2.imgName
           if (img1Name !== null) {
             let prefix = img1Name.split('_')[ 0 ]
+            this.currentChannel = prefix
             let path = '../../../data/' + prefix + '/' + img1Name + '.png'
             let g = svg1.append('g')
             g.append('image')
@@ -242,6 +251,13 @@
               .attr('alignment-baseline', 'hanging')
               .attr('text-anchor', 'middle')
               .attr('font-size', emSize)
+            svg1.append('line')
+              .attr('y1', lineToTop)
+              .attr('x1', padding.left)
+              .attr('x2', width - padding.right)
+              .attr('y2', lineToTop)
+              .style('stroke', comparedMessage.img1.color)
+              .style('stroke-width', '1px')
           }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
           if (img2Name !== null) {
@@ -260,6 +276,13 @@
               .attr('text-anchor', 'middle')
               .text(date2)
               .attr('font-size', emSize)
+            svg2.append('line')
+              .attr('y1', lineToTop)
+              .attr('x1', padding.left)
+              .attr('x2', width - padding.right)
+              .attr('y2', lineToTop)
+              .style('stroke', comparedMessage.img2.color)
+              .style('stroke-width', '1px')
           }
         }
       },
@@ -280,11 +303,11 @@
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
         this.eventSubmit(event)
-        this.updatePanel('B5')
+        this.updatePanel(this.currentChannel)
       }
     },
     ready () {
-//      this.init()
+
     }
   }
 </script>
@@ -333,6 +356,7 @@
     width: 100%;
     height: 50%;
     top: 50%;
+    font-size: 1em;
   }
   #submitButton {
     margin-top: 8%;
@@ -340,6 +364,9 @@
   textarea {
     width: 95%;
     height: 100%;
+  }
+  .option-text {
+    font-size: 1em;
   }
   textarea input[type=text] {
     -webkit-transition: all 0.3s ease-in-out;

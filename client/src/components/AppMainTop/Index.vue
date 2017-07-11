@@ -79,7 +79,7 @@
       left: 20.8%;
       width: 79.2%;
       height: 100%;
-      overflow-y: auto;
+      overflow-y: hidden;
     }
   }
 

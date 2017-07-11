@@ -33,12 +33,14 @@
   import $ from 'jquery'
   import {pageSize, lassoArea} from '../../vuex/getters'
   import {getPointsOfArea} from '../../commons/utils'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: {pageSize, lassoArea}
     },
     data () {
       return {
+        isNDVI: false
       }
     },
     watch: {
@@ -73,95 +75,169 @@
       }
     },
     methods: {
-      init (panelSelector, data) {
+      init (panelSelector, data, index) {
+//        console.log(data)
         let self = this
         let d3 = require('../../../plugins/d3v3.min.js')
         self.width = $(panelSelector).width()
         self.height = $(panelSelector).height()
-        self.margin = { 'left': 10, 'right': 10, 'top': 10, 'bottom': 10 }
-        self.width = self.width - self.margin.left - self.margin.right
+        let emSize = config.emSize
+        self.w = self.width / data.length
+        let W = self.width / data.length
+        self.margin = { 'left': 2, 'right': 2, 'top': 1, 'bottom': 3 }
+        self.w = self.w - self.margin.left - self.margin.right
         self.height = self.height - self.margin.top - self.margin.bottom
-        self.xScale = d3.scale.linear().range([0, self.width])
-        self.yScale = d3.scale.linear().range([self.height, 0])
-        self.xAxis = d3.svg.axis()
-                       .scale(self.xScale)
-                       .orient('bottom')
-                       .tickFormat(function (d, i) {
-                         return ''
-                       })
-        self.yAxis = d3.svg.axis()
-                       .scale(self.yScale)
-                       .orient('left')
-                       .tickFormat(function (d, i) {
-                         return ''
-                       })
-                       .ticks(2)
+        self.xScale.range([0, self.w])
+        self.yScale.range([self.height, 0])
+//        self.xAxis = d3.svg.axis()
+//          .scale(self.xScale)
+//          .orient('bottom')
+//          .tickFormat(function (d, i) {
+//            return ''
+//          })
+//          .tickSize(0, 0)
+//        self.yAxis = d3.svg.axis()
+//          .scale(self.yScale)
+//          .orient('left')
+//          .tickSize(2, 5)
+//          .ticks(2)
+//        console.log(data)
         $(panelSelector).empty()
         self.svg = d3.select(panelSelector)
-            .append('svg')
-            .attr('width', self.width + self.margin.left + self.margin.right)
-            .attr('height', self.height + self.margin.top + self.margin.bottom)
-            .append('g')
-            .attr('transform', 'translate(' + self.margin.left + ',' + self.margin.top + ')')
-        let timeMin = d3.min(data, function (d) { return d.time })
-        let timeMax = d3.max(data, function (d) { return d.time }) + 1
-        self.xScale.domain([timeMin, timeMax])
-        self.yScale.domain([0, d3.max(data, function (d) { return d.num })])
-        self.svg.append('g')
-          .attr('class', 'curveAxis')
-          .attr('transform', 'translate(0,' + self.height + ')')
-          .call(self.xAxis)
-        self.svg.append('g')
-          .attr('class', 'curveAxis')
-          .call(self.yAxis)
-          .append('text')
+          .append('svg')
+          .attr('width', self.width + self.margin.left + self.margin.right)
+          .attr('height', self.height + self.margin.top + self.margin.bottom)
+          .selectAll('g')
+          .data(data)
+          .enter()
+          .append('g')
+          .attr('transform', function (d, i) {
+            return 'translate(' + (self.margin.left + i * W) + ',' + self.margin.top + ')'
+          })
+          .attr('id', function (d, i) {
+            return 'g' + i
+          })
         d3.selectAll('.curveAxis')
           .style('fill', 'none')
           .style('stroke', 'black')
           .style('stroke-width', '0.5px')
-        self.barWidth = self.width / data.length
+        self.barWidth = self.w / data[0].length
         self.svg.selectAll('.arrbar')
-          .data(data)
+          .data(function (d) {
+            return d
+          })
           .enter().append('rect')
           .attr('class', 'arrbarbot')
           .attr('x', function (d) { return self.xScale(d.time) })
-          .attr('y', function (d) { return self.yScale(d.num) })
+          .attr('y', function (d) { return self.yScale(self.barHeight(d.num)) })
           .attr('width', self.barWidth * 0.95)
-          .attr('height', function (d) { return self.height - self.yScale(d.num) })
-          .style('fill', 'steelblue')
+          .attr('height', function (d) { return self.height - self.yScale(self.barHeight(d.num)) })
+          .style('fill', 'grey')
+
+        if (index === 0) {
+          for (let i = 0; i < self.currentChannels.length; i++) {
+            d3.select('#g' + i)
+              .append('text')
+              .attr('alignment-baseline', 'hanging')
+              .attr('text-anchor', 'left')
+              .text(self.currentChannels[ i ])
+              .attr('font-size', emSize * 0.8)
+          }
+        }
+//        self.svg.selectAll('.curveAxis')
+//          .selectAll('text')
+//          .style('font-size', '0.5em')
       },
       updateDistribution (points) {
+        let d3 = require('../../../plugins/d3v3.min.js')
+        let self = this
+        self.xScale = d3.scale.linear()
+        self.yScale = d3.scale.linear()
+        let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'NDVI']
         let dataArr = window.dataArr
-        let step = 255
-        let w = 255 / step
         let calNum = {}
-        for (let i = 0; i < step; i++) {
-          let p = i * w
-          calNum[ p ] = 0
+        let tmp = window.currentSelectionChannel
+        if (tmp === 'NDVI' && !self.NDVI) {
+          let max = -1
+          let min = 1000
+          self.NDVI = true
+          for (let i = 0; i < dataArr.length; i++) {
+            for (let r = 0; r < 651; r++) {
+              for (let c = 0; c < 651; c++) {
+                let b4 = dataArr[ i ][ r ][ c ][ 3 ]
+                let b3 = dataArr[ i ][ r ][ c ][ 2 ]
+                let v = 0
+                if (b4 + b3 !== 0) {
+                  v = (b4 - b3) / (b4 + b3)
+                }
+                dataArr[ i ][ r ][ c ].push(v)
+                max = Math.max(v, max)
+                min = Math.min(v, min)
+              }
+            }
+          }
+          console.log(max, min)
+          for (let i = 0; i < dataArr.length; i++) {
+            for (let r = 0; r < 651; r++) {
+              for (let c = 0; c < 651; c++) {
+                let v = dataArr[ i ][ r ][ c ][ 6 ]
+                dataArr[ i ][ r ][ c ][ 6 ] = parseInt((v - min) / (max - min) * 255)
+              }
+            }
+          }
         }
-        calNum[ 255 ] = 0
-        let channel = 0
+        let currentChannels = []
+        if (tmp.length === 6) {
+          currentChannels = [ tmp[ 0 ] + tmp[ 1 ], tmp[ 2 ] + tmp[ 3 ], tmp[ 4 ] + tmp[ 5 ] ]
+        } else {
+          currentChannels = [ tmp ]
+        }
+        let cIndex = []
+        for (let i = 0; i < currentChannels.length; i++) {
+          cIndex.push(channels.indexOf(currentChannels[ i ]))
+        }
+        self.currentChannels = currentChannels
         let pLen = points.length
+//        let cLen = cIndex.length
+        let allData = []
         for (let i = 0; i < 12; i++) {
-          for (let j = 0; j < step; j++) {
-            let p = j * w
-            calNum[ p ] = 0
-          }
-          calNum[ 255 ] = 0
-//          console.log(calNum)
-          for (let j = 0; j < pLen; j++) {
-            let value = dataArr[ i ][ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channel ]
-            let index = parseInt(value / w)
-            calNum[ index * w ] += 1
-          }
           let data = []
-          for (let k in calNum) {
-            data.push({ 'time': k, 'num': calNum[ k ] })
+          for (let c = 0; c < cIndex.length; c++) {
+            for (let p = 0; p < 256; p++) {
+              calNum[ p ] = 0
+            }
+            for (let j = 0; j < pLen; j++) {
+              let value = dataArr[ i ][ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ cIndex[ c ] ]
+              let index = value
+              calNum[ index ] += 1
+            }
+            let d = []
+            for (let k in calNum) {
+              d.push({ 'time': +k, 'num': calNum[ k ], 'channel': currentChannels })
+            }
+            data.push(d)
           }
-//          console.log(data)
-          this.init('#timeline' + (i + 1), data)
+
+          allData.push(data)
+        }
+//        console.log(allData)
+        self.xScale.domain([ 0, 255 ])
+        self.yScale.domain([ 0, d3.max(allData, function (data1) {
+          return d3.max(data1, function (data2) {
+            return d3.max(data2, function (d) {
+              return self.barHeight(d.num)
+            })
+          })
+        }) ])
+        console.log(self.xScale.domain())
+        console.log(self.yScale.domain())
+        for (let i = 0; i < allData.length; i++) {
+          self.init('#timeline' + (i + 1), allData[ i ], i)
         }
         this.updateLine('#timelineRight')
+      },
+      barHeight (num) {
+        return Math.sqrt(num)
       },
       updateLine (panelSelector) {
         let d3 = require('../../../plugins/d3v3.min.js')
@@ -241,6 +317,17 @@
           .attr('stroke-width', 1)
           .attr('stroke', 'black')
           .attr('fill', 'none')
+      },
+      calImageDifferenceByAbs (t1, t2, channelIndex, points) {
+        let diff = 0
+        let dataArr = window.dataArr
+        let pLen = points.length
+        for (let j = 0; j < pLen; j++) {
+          let dt1 = dataArr[ t1 ]
+          let dt2 = dataArr[ t2 ]
+          diff += Math.abs(dt1[ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channelIndex ] - dt2[ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channelIndex ])
+        }
+        return diff
       }
     },
     ready () {}

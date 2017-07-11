@@ -1,6 +1,6 @@
 <template>
     <div id="App">
-        <app-header></app-header>
+        <!--<app-header></app-header>-->
         <app-main></app-main>
     </div>
     <canvas id="source-canvas" width="651" height="651" style="border:1px solid #d3d3d3; display: none">
@@ -42,6 +42,20 @@ export default {
     let pageSize = getPageSize()
     pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
     that.updatePageSize(pageSize.width, pageSize.height)
+    window.onresize = () => {
+      return (() => {
+        if (!that.timer) {
+          that.timer = true
+          setTimeout(() => {
+            let pageSize = getPageSize()
+            pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
+            that.updatePageSize(pageSize.width, pageSize.height)
+            console.log(that.pageWidth, 'that')
+            that.timer = false
+          }, 400)
+        }
+      })()
+    }
     let date = config.date
     let dataArr = []
     date.forEach(function (d, i) {
@@ -85,7 +99,7 @@ export default {
         for (let y = 0; y < 651; y++) {
           for (let x = 0; x < 651; x++) {
             let index = (y * 651 + x) * 6
-            arr[ x ][ y ] = data.slice(index, index + 6)
+            arr[ x ][ y ] = [ data[ index ], data[ index + 1 ], data[ index + 2 ], data[ index + 3 ], data[ index + 4 ], data[ index + 5 ] ]
           }
         }
         return done(arr)
@@ -93,20 +107,6 @@ export default {
       xhr.send()
     }
     window.dataArr = dataArr
-    window.onresize = () => {
-      return (() => {
-        if (!that.timer) {
-          that.timer = true
-          setTimeout(() => {
-            let pageSize = getPageSize()
-            pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
-            that.updatePageSize(pageSize.width, pageSize.height)
-            console.log(that.pageWidth, 'that')
-            that.timer = false
-          }, 400)
-        }
-      })()
-    }
   }
 }
 </script>
