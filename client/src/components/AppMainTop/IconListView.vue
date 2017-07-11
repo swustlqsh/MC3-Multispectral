@@ -1,15 +1,14 @@
 <template>
-    <div class="list-view-main" id="iconList">
-    </div>
+  <div class="list-view-main" id="iconList">
+  </div>
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize, featureColors} from '../../vuex/getters'
+  import {pageSize, selectedImage} from '../../vuex/getters'
   import config from '../../commons/config'
-  let d3 = window.d3
   export default {
     vuex: {
-      getters: {pageSize, featureColors}
+      getters: { pageSize, selectedImage }
     },
     props: [ 'features' ],
     data () {
@@ -19,8 +18,8 @@
       iconUpdate () {
         let svg = this.svg
         this.features.forEach(function (d, i) {
-          svg.select('#' + d[0])
-            .style('fill', d[1])
+          svg.select('#' + d[ 0 ])
+            .style('fill', d[ 1 ])
         })
       },
       pageSize: {
@@ -29,9 +28,10 @@
         },
         deep: true
       },
-      featureColors: {
-        handler (curVal, oldVal) {
-          this.update(this.featureColors)
+      selectedImage: {
+        handler (curVal, oldVal) { // object
+          //  接收到select image提取通道然后更新icon List
+          console.log('iconListView selectedImage', this.selectedImage)
         },
         deep: true
       }
@@ -107,11 +107,8 @@
           })
           .attr('text-anchor', 'middle')
       },
-      update (featureColors) {
-        for (let feature in featureColors) {
-          d3.select('#' + feature)
-            .style('fill', featureColors[ feature ])
-        }
+      add () {
+        console.log('sxxx')
       }
     },
     ready () {

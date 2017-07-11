@@ -20,35 +20,35 @@
     </template>
     <template v-else>
       <table class="uk-table uk-table-hover uk-table-condensed">
-      <thead>
-      <tr>
-        <th v-for="head in tableHeader">
-          <input type="text" placeholder="head.name" class="uk-form-width-small"  v-model="head.name" disabled>
-        </th>
-       <!--<th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>-->
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td v-for="(i, attr) in selectRegionTableBody">
-          <input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>
-          <select v-else v-model="attr.value" @change="chooseRegionType(attr.value)">
-            <option v-for="opt in featuresObj">{{ opt }}</option>
-          </select>
-        </td>
-        <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
-      </tr>
-      <!--<tr v-for="tbody in tableBody">-->
+        <thead>
+        <tr>
+          <th v-for="head in tableHeader">
+            <input type="text" placeholder="head.name" class="uk-form-width-small" v-model="head.name" disabled>
+          </th>
+          <!--<th><input type="text" placeholder="Add New" class="uk-form-width-small" @keyup.enter="addNewFeature" v-model="featureName"></th>-->
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td v-for="(i, attr) in selectRegionTableBody">
+            <input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>
+            <select v-else v-model="attr.value" @change="chooseRegionType(attr.value)">
+              <option v-for="opt in featuresObj">{{ opt }}</option>
+            </select>
+          </td>
+          <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
+        </tr>
+        <!--<tr v-for="tbody in tableBody">-->
         <!--<td v-for="(i, attr) in tbody">-->
-          <!--<input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>-->
-          <!--<select v-else v-model="attr.value">-->
-               <!--<option v-for="opt in featuresObj">{{ opt }}</option>-->
-          <!--</select>-->
-          <!--&lt;!&ndash;<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">&ndash;&gt;-->
+        <!--<input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>-->
+        <!--<select v-else v-model="attr.value">-->
+        <!--<option v-for="opt in featuresObj">{{ opt }}</option>-->
+        <!--</select>-->
+        <!--&lt;!&ndash;<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">&ndash;&gt;-->
         <!--</td>-->
-      <!--</tr>-->
-      </tbody>
-    </table>
+        <!--</tr>-->
+        </tbody>
+      </table>
       <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
     </template>
   </div>
@@ -72,7 +72,7 @@
         isShowSelect: true,
         selectedTime: '', // 选择的时间 2014 2015 2016
         selectedChannels: '', // 单个通道 或者 有意义的组合
-        $renderIns: null,
+        renderIns: null,
         selectedId: 0,
         imageIndex: 0,
         imageName: null,
@@ -86,7 +86,7 @@
           { name: '套索', icon: 'uk-icon-object-ungroup', index: 4, image: '../../../assets/images/套索.png' },
           { name: '标记', icon: 'uk-icon-text-height', index: 5, image: '../../../assets/images/文字.png' }
         ],
-        tableHeader: [{name: '#'}, {name: 'Type'}],
+        tableHeader: [ { name: '#' }, { name: 'Type' } ],
         tableBody: [],
         $regions: {},
         tableIndex: [],
@@ -101,37 +101,37 @@
       pageSize: {
         handler (curVal, oldVal) {
 //          this.init()
-//          this.$renderIns.init({
+//          this.renderIns.init({
 //            image_canvas_id: 'image_canvas',
 //            region_canvas_id: 'region_canvas',
 //            image_real_width: Math.round($('#image-tagged').width()),
 //            image_real_height: Math.round($('#image-tagged').height())
 //          })
-//          this.$renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
-//          this.$renderIns.on('dblclick', this.clickEvent)
-//          this.$renderIns.regionBindAllEvent()
+//          this.renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
+//          this.renderIns.on('dblclick', this.clickEvent)
+//          this.renderIns.regionBindAllEvent()
 
-          if (!this.$renderIns) {
+          if (!this.renderIns) {
             this.init()
-            this.$renderIns.init({
+            this.renderIns.init({
               image_canvas_id: 'image_canvas',
               region_canvas_id: 'region_canvas',
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-//            this.$renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-//            this.$renderIns.showImage(0)
-//            this.$renderIns.addEventListenerClick() // default
-            this.$renderIns.addEventListenerMouseup()
-            this.$renderIns.addEventListenerMousedown()
-            this.$renderIns.addEventListenerMousemove()
-            this.$renderIns.addEventListenerMouseover()
+//            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
+//            this.renderIns.showImage(0)
+//            this.renderIns.addEventListenerClick() // default
+            this.renderIns.addEventListenerMouseup()
+            this.renderIns.addEventListenerMousedown()
+            this.renderIns.addEventListenerMousemove()
+            this.renderIns.addEventListenerMouseover()
           } else {
-            this.$renderIns.updateDivContainer({
+            this.renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.$renderIns.goUpdate()
+            this.renderIns.goUpdate()
           }
         },
         deep: true
@@ -139,12 +139,22 @@
       selectedImage: {
         handler (curVal, oldVal) { // object
           //  接收到select image然后可以更新图片
-          console.log('selectedImage', this.selectedImage)
-          this.imageTime = this.selectedImage.split('_').slice(1).join('_')
-          let path = '../../../data/' + this.selectedImage.split('_')[0] + '/' + this.selectedImage + '.png'
-          if (this.$renderIns) {
-            this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
-            this.$renderIns.showImage(0)
+          if ((typeof (this.selectedImage) !== 'undefined') && (this.selectedImage != null)) {
+            this.imageTime = this.selectedImage.split('_').slice(1).join('_')
+            let path = '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png'
+            if (this.renderIns) {
+              this.renderIns.loadStoreLocalImg(path, this.selectedImage)
+              this.renderIns.showImage(this.imageIndex)
+              this.imageName = this.selectedImage
+              this.imageIndex = this.imageIndex + 1
+              this.renderIns.updateDivContainer({
+                image_real_width: Math.round($('#image-tagged').width()),
+                image_real_height: Math.round($('#image-tagged').height())
+              })
+              this.renderIns.goUpdate()
+            }
+          } else {
+            //  清空所选择的图片
           }
         },
         deep: true
@@ -155,17 +165,17 @@
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       },
       isShowSelectTable () {
-        return this.$renderIns._via_user_sel_region_id === -1
+        return this.renderIns._via_user_sel_region_id === -1
       }
     },
     methods: {
       chooseRegionType (attr) {
         let newAttr = JSON.parse(JSON.stringify(attr))
-        let info = { 'type': newAttr, 'color': config.defaultFeaturesObj[newAttr] }
+        let info = { 'type': newAttr, 'color': config.defaultFeaturesObj[ newAttr ] }
         if (this.selectRegionTableBody.length !== 0) {
-          this.$selectRegionsObs[this.selectRegionTableBody[0].value - 1] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
+          this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
           console.log('infoddd', info)
-          this.$renderIns.updateCurrentSelectRegion(info)
+          this.renderIns.updateCurrentSelectRegion(info)
         }
       },
       getMenuMsg (index) {
@@ -188,16 +198,16 @@
             return
           }
           this.tableBody = []
-//          this.$regions = JSON.parse(this.$renderIns.getMetaData())
+//          this.$regions = JSON.parse(this.renderIns.getMetaData())
 //          console.log('this.$regions', this.$regions)
 
           // 确保当前有选中的节点
           if (this.isShowSelectTable !== -1) {
 //            let regionAttributes = this.$regions.regions
-            let id = this.$renderIns._via_user_sel_region_id
+            let id = this.renderIns._via_user_sel_region_id
             console.log(id, this.$selectRegionsObs)
             if (this.$selectRegionsObs !== undefined && id in this.$selectRegionsObs) {
-              this.selectRegionTableBody = this.$selectRegionsObs[id]
+              this.selectRegionTableBody = this.$selectRegionsObs[ id ]
             } else {
               this.selectRegionTableBody = []
               this.selectRegionTableBody.push({ value: id + 1 })
@@ -224,18 +234,18 @@
           return
         }
         if (this.selectedId === 1) {
-          this.$renderIns && this.$renderIns.zoom_in()
+          this.renderIns && this.renderIns.zoom_in()
           return
         }
         if (this.selectedId === 2) {
-          this.$renderIns && this.$renderIns.zoom_out()
+          this.renderIns && this.renderIns.zoom_out()
         }
       },
       // loadStart 读取相关的事件
       loadStart () {
       },
       init () {
-        this.$renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
+        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
       closeTag (e) {
         this.willShow = false
@@ -258,20 +268,15 @@
 //          let typs = regionAttributes[key]
 //          this.$regions.regions[key].region_attributes = typs
 //        }
-        let selectId = this.selectRegionTableBody[0].value - 1
-        console.log('selectId', selectId)
-        console.log(selectId, 'selectId')
-        if (selectId < 0) {
-          return
-        }
-        this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
+        let selectId = this.selectRegionTableBody[ 0 ].value - 1
+        this.$regions = JSON.parse(this.renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
-        window.currentSelectionChannel = this.$regions.filename.split('_')[ 0 ]
-        this.exportArea([ this.$regions.regions[selectId].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
+        this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         this.createSelection(this.selectedImage, this.$regions)
-//        this.$renderIns.resetMetaData()
-        this.addFeatures('features')
+//        this.renderIns.resetMetaData()
+        this.featureIndex = this.featureIndex + 1
+        this.addFeatures({ featureName: 'feature' + this.featureIndex, imageName: this.imageName })
         console.log('click submit')
       },
       addNewFeature () {
@@ -295,45 +300,45 @@
     border: 1px solid gray;
     box-sizing: border-box;
     padding: 0 8px;
-    .image-tagged-menu {
-      height: 30px;
-      margin: 0 auto;
-      line-height: 30px;
-      li {
-        list-style: none;
-        float: left;
-        width: 30px;
-        text-align: center;
-        i {
-          color: black;
-        }
-      }
-      li:hover {
-        background: #324057;
-      }
-      .active {
-        background: #324057;
-      }
-    }
-    .select-tagged-menu {
-      position: relative;
-    }
-    .selectedInform {
-      font-size: xx-small;
-    }
-    #image_canvas {
-      position: absolute;
-      left: 0;
-      z-index: 1;
-    }
-    #region_canvas {
-      position: absolute;
-      left: 0;
-      z-index: 2;
-    }
-    .del-padding {
-      padding: 0;
-    }
+  .image-tagged-menu {
+    height: 30px;
+    margin: 0 auto;
+    line-height: 30px;
+  li {
+    list-style: none;
+    float: left;
+    width: 30px;
+    text-align: center;
+  i {
+    color: black;
+  }
+  }
+  li:hover {
+    background: #324057;
+  }
+  .active {
+    background: #324057;
+  }
+  }
+  .select-tagged-menu {
+    position: relative;
+  }
+  .selectedInform {
+    font-size: xx-small;
+  }
+  #image_canvas {
+    position: absolute;
+    left: 0;
+    z-index: 1;
+  }
+  #region_canvas {
+    position: absolute;
+    left: 0;
+    z-index: 2;
+  }
+  .del-padding {
+    padding: 0;
+  }
   }
   #attributes-panel {
     position: absolute;
@@ -347,18 +352,18 @@
     padding-bottom: 2em;
     font-size: small;
     left: 100%;
-    .error-msg {
-      text-align: center;
-      width: 100%;
-    }
-    .close {
-      display: block;
-      height: 30px;
-      width: 100%;
-      position: relative;
-      padding: 0;
-      margin: 0;
-    }
+  .error-msg {
+    text-align: center;
+    width: 100%;
+  }
+  .close {
+    display: block;
+    height: 30px;
+    width: 100%;
+    position: relative;
+    padding: 0;
+    margin: 0;
+  }
   }
   .image-time {
     position: absolute;
