@@ -33,6 +33,7 @@
   import $ from 'jquery'
   import {pageSize, lassoArea} from '../../vuex/getters'
   import {getPointsOfArea} from '../../commons/utils'
+  import config from '../../commons/config'
   export default {
     vuex: {
       getters: {pageSize, lassoArea}
@@ -73,18 +74,21 @@
       }
     },
     methods: {
-      init (panelSelector, data) {
+      init (panelSelector, data, index) {
 //        console.log(data)
         let self = this
         let d3 = require('../../../plugins/d3v3.min.js')
         self.width = $(panelSelector).width()
         self.height = $(panelSelector).height()
-        self.margin = { 'left': 50, 'right': 10, 'top': 10, 'bottom': 10 }
-        self.width = self.width - self.margin.left - self.margin.right
+        let emSize = config.emSize
+        self.w = self.width / data.length
+        let W = self.width / data.length
+        self.margin = { 'left': 2, 'right': 2, 'top': 1, 'bottom': 3 }
+        self.w = self.w - self.margin.left - self.margin.right
         self.height = self.height - self.margin.top - self.margin.bottom
-        self.xScale = d3.scale.linear().range([0, self.width])
-        self.yScale = d3.scale.linear().range([self.height, 0])
-        self.xAxis = d3.svg.axis()
+        self.xScale.range([0, self.w])
+        self.yScale.range([self.height, 0])
+        /*self.xAxis = d3.svg.axis()
           .scale(self.xScale)
           .orient('bottom')
           .tickFormat(function (d, i) {
@@ -95,42 +99,59 @@
           .scale(self.yScale)
           .orient('left')
           .tickSize(2, 5)
-          .ticks(2)
+          .ticks(2)*/
+//        console.log(data)
         $(panelSelector).empty()
         self.svg = d3.select(panelSelector)
           .append('svg')
           .attr('width', self.width + self.margin.left + self.margin.right)
           .attr('height', self.height + self.margin.top + self.margin.bottom)
+          .selectAll('g')
+          .data(data)
+          .enter()
           .append('g')
-          .attr('transform', 'translate(' + self.margin.left + ',' + self.margin.top + ')')
-        let timeMin = d3.min(data, function (d) { return d.time })
-        let timeMax = d3.max(data, function (d) { return d.time }) + 1
-        self.xScale.domain([ timeMin, timeMax ])
-        self.yScale.domain([ 0, d3.max(data, function (d) { return d.num }) ])
-        self.svg.append('g')
-          .attr('class', 'curveAxis')
-          .attr('transform', 'translate(0,' + self.height + ')')
-          .call(self.xAxis)
-        self.svg.append('g')
-          .attr('class', 'curveAxis')
-          .call(self.yAxis)
-          .append('text')
+          .attr('transform', function (d, i) {
+            return 'translate(' + (self.margin.left + i * W) + ',' + self.margin.top + ')'
+          })
+          .attr('id', function (d, i) {
+            return 'g' + i
+          })
         d3.selectAll('.curveAxis')
           .style('fill', 'none')
           .style('stroke', 'black')
           .style('stroke-width', '0.5px')
-        self.barWidth = self.width / data.length
+        self.barWidth = self.w / data[0].length
         self.svg.selectAll('.arrbar')
-          .data(data)
+          .data(function (d) {
+            return d
+          })
           .enter().append('rect')
           .attr('class', 'arrbarbot')
           .attr('x', function (d) { return self.xScale(d.time) })
-          .attr('y', function (d) { return self.yScale(d.num) })
+          .attr('y', function (d) { return self.yScale(self.barHeight(d.num)) })
           .attr('width', self.barWidth * 0.95)
-          .attr('height', function (d) { return self.height - self.yScale(d.num) })
-          .style('fill', 'steelblue')
+          .attr('height', function (d) { return self.height - self.yScale(self.barHeight(d.num)) })
+          .style('fill', 'grey')
+
+        if ( index === 0) {
+          for (let i = 0; i < self.currentChannels.length; i++) {
+            d3.select('#g' + i)
+              .append('text')
+              .attr('alignment-baseline', 'hanging')
+              .attr('text-anchor', 'left')
+              .text(self.currentChannels[ i ])
+              .attr('font-size', emSize * 0.8)
+          }
+        }
+//        self.svg.selectAll('.curveAxis')
+//          .selectAll('text')
+//          .style('font-size', '0.5em')
       },
       updateDistribution (points) {
+        let d3 = require('../../../plugins/d3v3.min.js')
+        let self = this
+        self.xScale = d3.scale.linear()
+        self.yScale = d3.scale.linear()
         let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
         let dataArr = window.dataArr
         let calNum = {}
@@ -145,26 +166,48 @@
         for (let i = 0; i < currentChannels.length; i++) {
           cIndex.push(channels.indexOf(currentChannels[ i ]))
         }
+        self.currentChannels = currentChannels
         let pLen = points.length
-        let cLen = cIndex.length
+//        let cLen = cIndex.length
+        let allData = []
         for (let i = 0; i < 12; i++) {
           let data = []
-          for (let p = 0; p < 256 * cLen; p++) {
-            calNum[ p ] = 0
-          }
           for (let c = 0; c < cIndex.length; c++) {
+            for (let p = 0; p < 256; p++) {
+              calNum[ p ] = 0
+            }
             for (let j = 0; j < pLen; j++) {
               let value = dataArr[ i ][ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ cIndex[ c ] ]
-              let index = value * cLen + c // 相邻的三个bar rgb
+              let index = value
               calNum[ index ] += 1
             }
+            let d = []
+            for (let k in calNum) {
+              d.push({ 'time': +k, 'num': calNum[ k ], 'channel': currentChannels })
+            }
+            data.push(d)
           }
-          for (let k in calNum) {
-            data.push({ 'time': k, 'num': calNum[ k ], 'channel': currentChannels })
-          }
-          this.init('#timeline' + (i + 1), data)
+
+          allData.push(data)
+        }
+//        console.log(allData)
+        self.xScale.domain([ 0, 255 ])
+        self.yScale.domain([ 0, d3.max(allData, function (data1) {
+          return d3.max(data1, function (data2) {
+            return d3.max(data2, function (d) {
+              return self.barHeight(d.num)
+            })
+          })
+        }) ])
+        console.log(self.xScale.domain())
+        console.log(self.yScale.domain())
+        for (let i = 0; i < allData.length; i++) {
+          self.init('#timeline' + (i + 1), allData[ i ], i)
         }
         this.updateLine('#timelineRight')
+      },
+      barHeight (num) {
+        return Math.sqrt(num)
       },
       updateLine (panelSelector) {
         let d3 = require('../../../plugins/d3v3.min.js')

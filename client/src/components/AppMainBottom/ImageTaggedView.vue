@@ -259,11 +259,11 @@
 //          this.$regions.regions[key].region_attributes = typs
 //        }
         let selectId = this.selectRegionTableBody[0].value - 1
-          console.log('selectId', selectId)
-          console.log(selectId, 'selectId')
-          if (selectId < 0) {
-            return
-          }
+        console.log('selectId', selectId)
+        console.log(selectId, 'selectId')
+        if (selectId < 0) {
+          return
+        }
         this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域

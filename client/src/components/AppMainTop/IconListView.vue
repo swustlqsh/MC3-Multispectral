@@ -4,11 +4,12 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, featureColors} from '../../vuex/getters'
   import config from '../../commons/config'
+  let d3 = window.d3
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: {pageSize, featureColors}
     },
     props: [ 'features' ],
     data () {
@@ -25,6 +26,12 @@
       pageSize: {
         handler (curVal, oldVal) {
           this.init()
+        },
+        deep: true
+      },
+      featureColors: {
+        handler (curVal, oldVal) {
+          this.update(this.featureColors)
         },
         deep: true
       }
@@ -100,8 +107,11 @@
           })
           .attr('text-anchor', 'middle')
       },
-      add () {
-        console.log('sxxx')
+      update (featureColors) {
+        for (let feature in featureColors) {
+          d3.select('#' + feature)
+            .style('fill', featureColors[ feature ])
+        }
       }
     },
     ready () {
