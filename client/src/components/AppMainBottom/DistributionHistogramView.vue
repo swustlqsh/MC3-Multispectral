@@ -40,6 +40,7 @@
     },
     data () {
       return {
+        isNDVI: false
       }
     },
     watch: {
@@ -152,10 +153,22 @@
         let self = this
         self.xScale = d3.scale.linear()
         self.yScale = d3.scale.linear()
-        let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
+        let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'NDVI']
         let dataArr = window.dataArr
         let calNum = {}
         let tmp = window.currentSelectionChannel
+        if (tmp === 'NDVI') {
+          for (let i = 0; i < dataArr.length; i++) {
+            for (let r = 0; r < 651; r++) {
+              for (let c = 0; c < 651; c++) {
+                let b4 = dataArr[ i ][ r ][ c ][ 3 ]
+                let b3 = dataArr[ i ][ r ][ c ][ 2 ]
+//                console.log(dataArr[i][r][c])
+                dataArr[ i ][ r ][ c ].push((b4 - b3) / (b4 + b3))
+              }
+            }
+          }
+        }
         let currentChannels = []
         if (tmp.length === 6) {
           currentChannels = [ tmp[ 0 ] + tmp[ 1 ], tmp[ 2 ] + tmp[ 3 ], tmp[ 4 ] + tmp[ 5 ] ]

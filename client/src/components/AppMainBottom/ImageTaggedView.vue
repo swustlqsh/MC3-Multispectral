@@ -141,7 +141,7 @@
           //  接收到select image然后可以更新图片
           // 更新option
           let channels = this.selectedImage.split('_')[ 0 ]
-          if (channels.length > 2) {
+          if (channels.length > 5) {
             this.featuresObj = Object.keys(config.featureColors[ channels ])
           }
           window.currentSelectionChannel = channels

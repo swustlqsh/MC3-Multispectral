@@ -170,6 +170,7 @@
         let padding = {left: 10, right: 10, top: 2, bottom: emSize}
         let size = width - padding.left - padding.right
         let toTop = padding.top + size + 4
+        let lineToTop = toTop - 2
         $('#graph1').empty()
         $('#graph2').empty()
         let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
@@ -205,6 +206,13 @@
                 .attr('text-anchor', 'middle')
                 .text(date1)
                 .attr('font-size', emSize)
+              svg1.append('line')
+                .attr('y1', lineToTop)
+                .attr('x1', padding.left)
+                .attr('x2', width - padding.right)
+                .attr('y2', lineToTop)
+                .style('stroke', comparedMessage.img1.color)
+                .style('stroke-width', '1px')
             }
             return
           }
@@ -243,6 +251,13 @@
               .attr('alignment-baseline', 'hanging')
               .attr('text-anchor', 'middle')
               .attr('font-size', emSize)
+            svg1.append('line')
+              .attr('y1', lineToTop)
+              .attr('x1', padding.left)
+              .attr('x2', width - padding.right)
+              .attr('y2', lineToTop)
+              .style('stroke', comparedMessage.img1.color)
+              .style('stroke-width', '1px')
           }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
           if (img2Name !== null) {
@@ -261,6 +276,13 @@
               .attr('text-anchor', 'middle')
               .text(date2)
               .attr('font-size', emSize)
+            svg2.append('line')
+              .attr('y1', lineToTop)
+              .attr('x1', padding.left)
+              .attr('x2', width - padding.right)
+              .attr('y2', lineToTop)
+              .style('stroke', comparedMessage.img2.color)
+              .style('stroke-width', '1px')
           }
         }
       },

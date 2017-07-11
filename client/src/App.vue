@@ -92,7 +92,7 @@ export default {
         for (let y = 0; y < 651; y++) {
           for (let x = 0; x < 651; x++) {
             let index = (y * 651 + x) * 6
-            arr[ x ][ y ] = data.slice(index, index + 6)
+            arr[ x ][ y ] = [ data[ index ], data[ index + 1 ], data[ index + 2 ], data[ index + 3 ], data[ index + 4 ], data[ index + 5 ] ]
           }
         }
         return done(arr)
