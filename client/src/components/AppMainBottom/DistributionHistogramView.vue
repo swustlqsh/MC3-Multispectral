@@ -74,39 +74,39 @@
     },
     methods: {
       init (panelSelector, data) {
+//        console.log(data)
         let self = this
         let d3 = require('../../../plugins/d3v3.min.js')
         self.width = $(panelSelector).width()
         self.height = $(panelSelector).height()
-        self.margin = { 'left': 10, 'right': 10, 'top': 10, 'bottom': 10 }
+        self.margin = { 'left': 50, 'right': 10, 'top': 10, 'bottom': 10 }
         self.width = self.width - self.margin.left - self.margin.right
         self.height = self.height - self.margin.top - self.margin.bottom
         self.xScale = d3.scale.linear().range([0, self.width])
         self.yScale = d3.scale.linear().range([self.height, 0])
         self.xAxis = d3.svg.axis()
-                       .scale(self.xScale)
-                       .orient('bottom')
-                       .tickFormat(function (d, i) {
-                         return ''
-                       })
+          .scale(self.xScale)
+          .orient('bottom')
+          .tickFormat(function (d, i) {
+            return ''
+          })
+          .tickSize(0, 0)
         self.yAxis = d3.svg.axis()
-                       .scale(self.yScale)
-                       .orient('left')
-                       .tickFormat(function (d, i) {
-                         return ''
-                       })
-                       .ticks(2)
+          .scale(self.yScale)
+          .orient('left')
+          .tickSize(2, 5)
+          .ticks(2)
         $(panelSelector).empty()
         self.svg = d3.select(panelSelector)
-            .append('svg')
-            .attr('width', self.width + self.margin.left + self.margin.right)
-            .attr('height', self.height + self.margin.top + self.margin.bottom)
-            .append('g')
-            .attr('transform', 'translate(' + self.margin.left + ',' + self.margin.top + ')')
+          .append('svg')
+          .attr('width', self.width + self.margin.left + self.margin.right)
+          .attr('height', self.height + self.margin.top + self.margin.bottom)
+          .append('g')
+          .attr('transform', 'translate(' + self.margin.left + ',' + self.margin.top + ')')
         let timeMin = d3.min(data, function (d) { return d.time })
         let timeMax = d3.max(data, function (d) { return d.time }) + 1
-        self.xScale.domain([timeMin, timeMax])
-        self.yScale.domain([0, d3.max(data, function (d) { return d.num })])
+        self.xScale.domain([ timeMin, timeMax ])
+        self.yScale.domain([ 0, d3.max(data, function (d) { return d.num }) ])
         self.svg.append('g')
           .attr('class', 'curveAxis')
           .attr('transform', 'translate(0,' + self.height + ')')
@@ -131,34 +131,37 @@
           .style('fill', 'steelblue')
       },
       updateDistribution (points) {
+        let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']
         let dataArr = window.dataArr
-        let step = 255
-        let w = 255 / step
         let calNum = {}
-        for (let i = 0; i < step; i++) {
-          let p = i * w
-          calNum[ p ] = 0
+        let tmp = window.currentSelectionChannel
+        let currentChannels = []
+        if (tmp.length === 6) {
+          currentChannels = [ tmp[ 0 ] + tmp[ 1 ], tmp[ 2 ] + tmp[ 3 ], tmp[ 4 ] + tmp[ 5 ] ]
+        } else {
+          currentChannels = [ tmp ]
         }
-        calNum[ 255 ] = 0
-        let channel = 0
+        let cIndex = []
+        for (let i = 0; i < currentChannels.length; i++) {
+          cIndex.push(channels.indexOf(currentChannels[ i ]))
+        }
         let pLen = points.length
+        let cLen = cIndex.length
         for (let i = 0; i < 12; i++) {
-          for (let j = 0; j < step; j++) {
-            let p = j * w
+          let data = []
+          for (let p = 0; p < 256 * cLen; p++) {
             calNum[ p ] = 0
           }
-          calNum[ 255 ] = 0
-//          console.log(calNum)
-          for (let j = 0; j < pLen; j++) {
-            let value = dataArr[ i ][ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channel ]
-            let index = parseInt(value / w)
-            calNum[ index * w ] += 1
+          for (let c = 0; c < cIndex.length; c++) {
+            for (let j = 0; j < pLen; j++) {
+              let value = dataArr[ i ][ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ cIndex[ c ] ]
+              let index = value * cLen + c // 相邻的三个bar rgb
+              calNum[ index ] += 1
+            }
           }
-          let data = []
           for (let k in calNum) {
-            data.push({ 'time': k, 'num': calNum[ k ] })
+            data.push({ 'time': k, 'num': calNum[ k ], 'channel': currentChannels })
           }
-//          console.log(data)
           this.init('#timeline' + (i + 1), data)
         }
         this.updateLine('#timelineRight')
@@ -241,6 +244,17 @@
           .attr('stroke-width', 1)
           .attr('stroke', 'black')
           .attr('fill', 'none')
+      },
+      calImageDifferenceByAbs (t1, t2, channelIndex, points) {
+        let diff = 0
+        let dataArr = window.dataArr
+        let pLen = points.length
+        for (let j = 0; j < pLen; j++) {
+          let dt1 = dataArr[ t1 ]
+          let dt2 = dataArr[ t2 ]
+          diff += Math.abs(dt1[ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channelIndex ] - dt2[ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channelIndex ])
+        }
+        return diff
       }
     },
     ready () {}

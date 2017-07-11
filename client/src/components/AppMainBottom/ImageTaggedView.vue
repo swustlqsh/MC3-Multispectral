@@ -258,6 +258,7 @@
         this.$regions = JSON.parse(this.renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
+        window.currentSelectionChannel = this.$regions.filename.split('_')[ 0 ]
         this.exportArea([ this.$regions.regions[selectId].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         this.createSelection(this.selectedImage, this.$regions)
 //        this.renderIns.resetMetaData()
