@@ -55,8 +55,8 @@
         load: false,
         currentChannel: 'B1',
         channelTagNum: {
-          'B3B2B1': 3,
-          'B5B4B2': 2,
+          'B3B2B1': 0,
+          'B5B4B2': 0,
           'B4B3B2': 0,
           'B1B5B6': 0,
           'NDVI': 0,

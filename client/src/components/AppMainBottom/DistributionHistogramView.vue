@@ -157,14 +157,31 @@
         let dataArr = window.dataArr
         let calNum = {}
         let tmp = window.currentSelectionChannel
-        if (tmp === 'NDVI') {
+        if (tmp === 'NDVI' && !self.NDVI) {
+          let max = -1
+          let min = 1000
+          self.NDVI = true
           for (let i = 0; i < dataArr.length; i++) {
             for (let r = 0; r < 651; r++) {
               for (let c = 0; c < 651; c++) {
                 let b4 = dataArr[ i ][ r ][ c ][ 3 ]
                 let b3 = dataArr[ i ][ r ][ c ][ 2 ]
-//                console.log(dataArr[i][r][c])
-                dataArr[ i ][ r ][ c ].push((b4 - b3) / (b4 + b3))
+                let v = 0
+                if (b4 + b3 !== 0) {
+                  v = (b4 - b3) / (b4 + b3)
+                }
+                dataArr[ i ][ r ][ c ].push(v)
+                max = Math.max(v, max)
+                min = Math.min(v, min)
+              }
+            }
+          }
+          console.log(max, min)
+          for (let i = 0; i < dataArr.length; i++) {
+            for (let r = 0; r < 651; r++) {
+              for (let c = 0; c < 651; c++) {
+                let v = dataArr[ i ][ r ][ c ][ 6 ]
+                dataArr[ i ][ r ][ c ][ 6 ] = parseInt((v - min) / (max - min) * 255)
               }
             }
           }
