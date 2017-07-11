@@ -1330,7 +1330,7 @@
     animation-iteration-count: infinite;
   }
   .channel-name {
-    font-size: 0.7rem;
+    font-size: 0.7em;
   }
   .belong-line {
     stroke: gray;

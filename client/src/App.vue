@@ -35,6 +35,20 @@ export default {
     let pageSize = getPageSize()
     pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
     that.updatePageSize(pageSize.width, pageSize.height)
+    window.onresize = () => {
+      return (() => {
+        if (!that.timer) {
+          that.timer = true
+          setTimeout(() => {
+            let pageSize = getPageSize()
+            pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
+            that.updatePageSize(pageSize.width, pageSize.height)
+            console.log(that.pageWidth, 'that')
+            that.timer = false
+          }, 400)
+        }
+      })()
+    }
     let date = config.date
     let dataArr = []
     date.forEach(function (d, i) {
@@ -86,20 +100,6 @@ export default {
       xhr.send()
     }
     window.dataArr = dataArr
-    window.onresize = () => {
-      return (() => {
-        if (!that.timer) {
-          that.timer = true
-          setTimeout(() => {
-            let pageSize = getPageSize()
-            pageSize.height = 1080 * 3 / 1920 / 4 * pageSize.width
-            that.updatePageSize(pageSize.width, pageSize.height)
-            console.log(that.pageWidth, 'that')
-            that.timer = false
-          }, 400)
-        }
-      })()
-    }
   }
 }
 </script>

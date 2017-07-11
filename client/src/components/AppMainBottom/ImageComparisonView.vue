@@ -16,11 +16,11 @@
         <div id = 'submmit'>
             <div>
                 Type
-                <select style="margin-left: 20px" id = 'eventSelect'>
-                    <option value="Flood">Flood</option>
-                    <option value="Burnt">Burnt</option>
-                    <option value="Shrink">Shrink</option>
-                    <option value="Expand">Expand</option>
+                <select id = 'eventSelect'>
+                    <option value="Flood" class="option-text">Flood</option>
+                    <option value="Burnt" class="option-text">Burnt</option>
+                    <option value="Shrink" class="option-text">Shrink</option>
+                    <option value="Expand" class="option-text">Expand</option>
                 </select>
             </div>
             <div style="margin-top: 10px">
@@ -105,7 +105,8 @@
         this.channelSvg = svg
         let divH = (height - padding.top - padding.bottom) / channels.length
         let marginH = divH * 0.1
-        let cellWidth = width / 10
+        let textWidth = config.emSize * 6
+        let cellWidth = (width - textWidth) / 20
         let g = svg.selectAll('g')
           .data(channels)
           .enter()
@@ -116,7 +117,6 @@
           .attr('id', function (d, i) {
             return 'g' + d
           })
-        let textWidth = 60
         g.append('rect')
           .attr('x', textWidth)
           .attr('y', 0)
@@ -285,7 +285,7 @@
       }
     },
     ready () {
-//      this.init()
+
     }
   }
 </script>
@@ -334,6 +334,7 @@
     width: 100%;
     height: 50%;
     top: 50%;
+    font-size: 1em;
   }
   #submitButton {
     margin-top: 8%;
@@ -341,6 +342,9 @@
   textarea {
     width: 95%;
     height: 100%;
+  }
+  .option-text {
+    font-size: 1em;
   }
   textarea input[type=text] {
     -webkit-transition: all 0.3s ease-in-out;

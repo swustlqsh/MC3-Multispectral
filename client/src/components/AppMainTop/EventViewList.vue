@@ -42,9 +42,9 @@
         let height = $('#event-list').height()
         let d3 = window.d3
         let ratio = 1
-        let padding = { top: 20, left: 20, right: 5, bottom: 2 }
-        padding.top = config.emSize + 10
+        let padding = { top: 5, left: 20, right: 5, bottom: 2 }
         this.eventNum = 0
+        padding.left = config.emSize * 1.2
         d3.select('#eventList').html('')
         let svgL = d3.select('#eventList').append('svg').attr('width', width * ratio).attr('height', height)
           .attr('id', 'eSvg')
@@ -66,14 +66,15 @@
           .attr('x', function (d, i) {
             return padding.left + rectValue * 2 + i * 4 * rectValue
           })
-          .attr('y', padding.top / 2)
+          .attr('y', padding.top)
           .attr('font-size', config.emSize)
           .attr('text-anchor', 'middle')
+          .attr('alignment-baseline', 'hanging')
         this.svgL.append('line')
           .attr('x1', padding.left)
-          .attr('y1', padding.top)
+          .attr('y1', padding.top + config.emSize)
           .attr('x2', this.svgLWidth - padding.right)
-          .attr('y2', padding.top)
+          .attr('y2', padding.top + config.emSize)
           .style('stroke', 'grey')
           .attr('class', 'listLine')
           .attr('stroke-width', '1px')
@@ -87,31 +88,33 @@
         let padding = this.padding
         let svg = this.svgL
         let height = this.height
+        let top = padding.top + config.emSize
         if (eventNum * rectValue > height - padding.top * 2) {
           let height = $('#eSvg').height()
           d3.select('#eSvg').attr('height', height + rectValue)
         }
         svg.append('line')
           .attr('x1', padding.left)
-          .attr('y1', (eventNum + 1) * rectValue + padding.top)
+          .attr('y1', (eventNum + 1) * rectValue + top)
           .attr('x2', this.svgLWidth - padding.right)
-          .attr('y2', (eventNum + 1) * rectValue + padding.top)
+          .attr('y2', (eventNum + 1) * rectValue + top)
           .attr('class', 'listLine')
           .style('stroke', 'grey')
           .attr('stroke-width', '1px')
         svg.append('text')
           .text(this.eventNum + 1)
-          .attr('x', padding.left / 2)
-          .attr('y', padding.top + eventNum * rectValue + rectValue / 2 + config.emSize / 2)
-          .attr('text-anchor', 'middle')
+          .attr('x', padding.left - 2)
+          .attr('y', top + eventNum * rectValue + rectValue / 2)
+          .attr('alignment-baseline', 'middle')
+          .attr('text-anchor', 'end')
           .attr('font-size', config.emSize)
 //          .attr('alignment-baseline', 'middle')
         for (let i = 0; i < 13; i++) {
           svg.append('line')
             .attr('x1', i * rectValue + padding.left)
             .attr('x2', i * rectValue + padding.left)
-            .attr('y1', eventNum * rectValue + padding.top)
-            .attr('y2', (eventNum + 1) * rectValue + padding.top)
+            .attr('y1', eventNum * rectValue + top)
+            .attr('y2', (eventNum + 1) * rectValue + top)
             .style('stroke', 'grey')
             .attr('stroke-width', '1px')
         }
@@ -120,7 +123,7 @@
         let colors = this.colors
         svg.append('rect')
           .attr('x', startT * rectValue + padding.left)
-          .attr('y', eventNum * rectValue + padding.top)
+          .attr('y', eventNum * rectValue + top)
           .attr('width', rectValue * (endT - startT))
           .attr('height', rectValue)
           .style('fill', colors[ event.type ])
