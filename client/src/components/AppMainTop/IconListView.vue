@@ -1,14 +1,14 @@
 <template>
-    <div class="list-view-main" id="iconList">
-    </div>
+  <div class="list-view-main" id="iconList">
+  </div>
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize} from '../../vuex/getters'
+  import {pageSize, selectedImage} from '../../vuex/getters'
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: {pageSize}
+      getters: { pageSize, selectedImage }
     },
     props: [ 'features' ],
     data () {
@@ -18,13 +18,20 @@
       iconUpdate () {
         let svg = this.svg
         this.features.forEach(function (d, i) {
-          svg.select('#' + d[0])
-            .style('fill', d[1])
+          svg.select('#' + d[ 0 ])
+            .style('fill', d[ 1 ])
         })
       },
       pageSize: {
         handler (curVal, oldVal) {
           this.init()
+        },
+        deep: true
+      },
+      selectedImage: {
+        handler (curVal, oldVal) { // object
+          //  接收到select image提取通道然后更新icon List
+          console.log('iconListView selectedImage', this.selectedImage)
         },
         deep: true
       }
@@ -81,10 +88,10 @@
           })
           .attr('r', r)
           .style('fill', function (d, i) {
-            return d[1]
+            return d[ 1 ]
           })
           .attr('id', function (d, i) {
-            return d[0]
+            return d[ 0 ]
           })
         g.selectAll('text')
           .data(features)
@@ -96,7 +103,7 @@
           })
           .attr('font-size', config.emSize * 0.8)
           .text(function (d, i) {
-            return d[0]
+            return d[ 0 ]
           })
           .attr('text-anchor', 'middle')
       },

@@ -110,8 +110,8 @@ export const getColorRgb = (color, type = 0) => {
 //   data: [0,0,0,0,0,0,0,0,0,0,0,0,200,200,200,1,200,200,200,0,200,200,200,1,200,200,200,1,200,200,200,1]
 // }
 
-export const transSelectRegionToBase64 = (metaData, area, color) => {
-  let color = getColorRgb(color)
+export const transSelectRegionToBase64 = (metaData, area, color2) => {
+  let color = getColorRgb(color2)
   let width = metaData.width
   let height = metaData.height
 
