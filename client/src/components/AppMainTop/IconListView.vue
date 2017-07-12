@@ -164,6 +164,6 @@
     color: gray;
   }
   .feature-name {
-      font-size: 0.7em
+    font-size: 0.7em;
   }
 </style>

@@ -29,7 +29,7 @@
         <div id='timelineRight' style='text-align: center;'>
         </div>
     </div>
-    <div id = 'pannel'>
+    <div id = 'pannel' style = 'text-align: center'>
         <select id = 'compareSelect'>
             <option value="Near" class="option-text">Near</option>
             <option value="Year" class="option-text">Year</option>
@@ -171,9 +171,11 @@
       updateDistribution (points) {
         let d3 = require('../../../plugins/d3v3.min.js')
         let self = this
+        self.points = points
         self.xScale = d3.scale.linear()
         self.yScale = d3.scale.linear()
         let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'NDVI']
+        this.allChannels = channels
         let dataArr = window.dataArr
         let calNum = {}
         let tmp = window.currentSelectionChannel
@@ -265,18 +267,48 @@
         let allData = this.allData
         let diffs = []
         let len = allData.length
+//        if (type === 'Near') {
+//          for (let i = 0; i < len - 1; i++) {
+//            diffs.push({ 'start': i, 'end': i + 1, 'value': this.calDiff(allData[ i ], allData[ i + 1 ]) })
+//          }
+//        } else if (type === 'Year') {
+//          for (let i = 0; i + 4 < len; i++) {
+//            diffs.push({ 'start': i, 'end': i + 4, 'value': this.calDiff(allData[ i ], allData[ i + 4 ]) })
+//          }
+//        } else if (type === 'Random') {
+//          for (let i = 0; i < len; i++) {
+//            for (let j = i + 1; j < len; j++) {
+//              diffs.push({ 'start': i, 'end': j, 'value': this.calDiff(allData[ i ], allData[ j ]) })
+//            }
+//          }
+//        }
+        let channels = this.currentChannels
+        let allChannels = this.allChannels
+        let points = this.points
         if (type === 'Near') {
           for (let i = 0; i < len - 1; i++) {
-            diffs.push({ 'start': i, 'end': i + 1, 'value': this.calDiff(allData[ i ], allData[ i + 1 ]) })
+            let v = 0
+            for (let k = 0; k < channels.length; k++) {
+              v += this.calImageDifferenceByAbs(i, i + 1, allChannels.indexOf(channels[ k ]), points)
+            }
+            diffs.push({ 'start': i, 'end': i + 1, 'value': v })
           }
         } else if (type === 'Year') {
           for (let i = 0; i + 4 < len; i++) {
-            diffs.push({ 'start': i, 'end': i + 4, 'value': this.calDiff(allData[ i ], allData[ i + 4 ]) })
+            let v = 0
+            for (let k = 0; k < channels.length; k++) {
+              v += this.calImageDifferenceByAbs(i, i + 4, allChannels.indexOf(channels[ k ]), points)
+            }
+            diffs.push({ 'start': i, 'end': i + 4, 'value': v })
           }
         } else if (type === 'Random') {
           for (let i = 0; i < len; i++) {
             for (let j = i + 1; j < len; j++) {
-              diffs.push({ 'start': i, 'end': j, 'value': this.calDiff(allData[ i ], allData[ j ]) })
+              let v = 0
+              for (let k = 0; k < channels.length; k++) {
+                v += this.calImageDifferenceByAbs(i, j, allChannels.indexOf(channels[ k ]), points)
+              }
+              diffs.push({ 'start': i, 'end': j, 'value': v })
             }
           }
         }
@@ -439,7 +471,7 @@
           let dt2 = dataArr[ t2 ]
           diff += Math.abs(dt1[ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channelIndex ] - dt2[ points[ j ][ 0 ] ][ points[ j ][ 1 ] ][ channelIndex ])
         }
-        return diff
+        return diff / pLen
       }
     },
     ready () {
@@ -472,14 +504,14 @@
     left: 0;
     top: 0;
     width: 100%;
-    height: 90%;
+    height: 92%;
   }
   #pannel {
     position: absolute;
-    top: 92%;
+    bottom: 1%;
     height: 20px;
     left: 0;
-    width: 100%;
+    width: 70%;
   }
   #timelineLeft {
     position: absolute;
@@ -534,7 +566,6 @@
     }
     #timeline12 {
       height: 8.1%;
-      /*border-bottom: 1px solid grey;*/
     }
   }
   #timelineRight {

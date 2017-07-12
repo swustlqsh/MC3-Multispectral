@@ -29,7 +29,7 @@
             <div style="height: 50%">
                 <textarea id = 'commentsText' name = 'textarea'></textarea>
             </div>
-            <div style="text-align: center;" id="submitButton">
+            <div style="text-align: center" id="submitButton">
                 <button type="button" id="sbutton"> Submit </button>
             </div>
         </div>
@@ -53,7 +53,7 @@
       return {
         divName: 'image-comparison',
         load: false,
-        currentChannel: 'B1',
+        currentChannel: null,
         channelTagNum: {
           'B3B2B1': 0,
           'B5B4B2': 0,
@@ -302,8 +302,10 @@
         event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
-        this.eventSubmit(event)
-        this.updatePanel(this.currentChannel)
+        if (this.currentChannel !== null) {
+          this.eventSubmit(event)
+          this.updatePanel(this.currentChannel)
+        }
       }
     },
     ready () {
@@ -359,7 +361,10 @@
     font-size: 1em;
   }
   #submitButton {
-    margin-top: 8%;
+    position: absolute;
+    bottom: 2%;
+    width: 100%;
+    /*margin-top: 8%;*/
   }
   textarea {
     width: 95%;
