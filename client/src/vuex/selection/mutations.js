@@ -9,12 +9,15 @@ export default {
       state.selections.regions = {}
     }
     if (state.selections.regions.hasOwnProperty(imgId)) {
-      let data = state.selections.regions[imgId]
-      let currentIndex = Object.keys(data.regions).length
-      for (let tag in data.regions) {
-        let newIndex = currentIndex + parseInt(tag)
-        state.selections.regions[imgId].regions[newIndex] = data.regions[tag]
+      let sData = state.selections.regions[imgId]
+      // let currentIndex = Object.keys(data.regions).length
+      for (let k in data.regions) {
+        sData.regions[k] = data.regions[k]
       }
+      // for (let tag in data.regions) {
+      //   let newIndex = currentIndex + parseInt(tag)
+      //   state.selections.regions[imgId].regions[newIndex] = data.regions[tag]
+      // }
     } else {
       state.selections.regions[imgId] = data
     }
