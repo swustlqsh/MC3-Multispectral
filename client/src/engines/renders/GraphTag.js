@@ -156,6 +156,7 @@ class GraphTag extends Render {
       zoomOn: false,
       zoomIn: false,
       move: false,
+      move: false,
       polygon: false
     }
     return this
@@ -592,8 +593,6 @@ class GraphTag extends Render {
       // 图片实际的大小
       this._via_current_image_width = this._via_current_image.naturalWidth
       this._via_current_image_height = this._via_current_image.naturalHeight
-      console.log('this._via_div_real_width', this._via_div_real_width)
-      console.log('this._via_div_real_height', this._via_div_real_height)
       // update canvas      this._via_canvas_width = this._via_current_image_width
       this._via_canvas_width = this._via_current_image_width
       this._via_canvas_height = this._via_current_image_height
@@ -613,7 +612,6 @@ class GraphTag extends Render {
       }
       this._via_canvas_width = Math.round(this._via_canvas_width)
       this._via_canvas_height = Math.round(this._via_canvas_height)
-      console.log('this._via_current_image.naturalWidth', this._via_current_image.naturalWidth)
       this._via_canvas_scale = this._via_current_image.naturalWidth / this._via_canvas_width
 
       this._via_canvas_width_scale = this._via_current_image.naturalWidth / this._via_canvas_width
@@ -750,7 +748,6 @@ class GraphTag extends Render {
     this._via_click_x0 = e.offsetX
     this._via_click_y0 = e.offsetY
     let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
-    console.log('region_id', region_id)
     if (region_id !== -1) {
       // 显示region属性列表
     }
@@ -760,7 +757,6 @@ class GraphTag extends Render {
     this._via_click_x0 = e.offsetX
     this._via_click_y0 = e.offsetY
     let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
-    // console.log('region_id', region_id)
     if (region_id !== -1) {
       // 显示region属性列表
     }
@@ -1368,7 +1364,7 @@ class GraphTag extends Render {
   }
 
   goUpdate () {
-    if (!this._via_is_window_resized && this._via_current_image_loaded) {
+    if (!this._via_is_window_resized) {
       this._via_is_window_resized = true
       this.showImage(this._via_image_index)
       if (this._via_is_canvas_zoomed) {
@@ -1378,13 +1374,11 @@ class GraphTag extends Render {
   }
   setMetaData (data) {
     let img_metadata = this._via_img_metadata[this._via_image_id ]
-    // console.log('img_metadata', img_metadata)
     for (let key in data) {
       img_metadata[key].regions.region_attributes = data[key]
     }
   }
   resetMetaData () {
-    console.log('this._via_img_metadata', this._via_img_metadata)
     this._via_img_metadata[ this._via_image_id ].regions = []
     this.showImage(this._via_image_index)
   }
@@ -1457,7 +1451,6 @@ class GraphTag extends Render {
       }
       //_via_img_metadata_as_obj[image_id] = image_data
     }
-    console.log('image_data', image_data)
     return [ JSON.stringify(image_data) ]
   }
   updateCurrentSelectRegion (values) {

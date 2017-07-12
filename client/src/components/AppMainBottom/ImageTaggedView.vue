@@ -127,6 +127,7 @@
             this.$renderIns.addEventListenerMousemove()
             this.$renderIns.addEventListenerMouseover()
           } else {
+            console.log('updateDivContainer')
             this.$renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
@@ -273,7 +274,7 @@
 //          let typs = regionAttributes[key]
 //          this.$regions.regions[key].region_attributes = typs
 //        }
-        let selectId = this.selectRegionTableBody[0].value - 1
+        let selectId = this.selectRegionTableBody[ 0 ].value - 1
         if (selectId < 0) {
           return
         }
@@ -296,42 +297,40 @@
         this.featureName = 'Add New'
       },
       getSelectedRegionImagesURL () {
-        let selectId = this.selectRegionTableBody[0].value - 1
+        let selectId = this.selectRegionTableBody[ 0 ].value - 1
         if (selectId < 0) {
           return
         }
-        console.log('selectId', selectId)
         // 获取特定组合下12张图片路径
         let date = config.date
         let selectedImageSplit = this.selectedImage.split('_')
-//       let curDate = selectedImageSplit.slice(1).join('_')
-        let basePath = config.baseDataPath + selectedImageSplit[0] + '/'
+        // let curDate = selectedImageSplit.slice(1).join('_')
+        let basePath = config.baseDataPath + selectedImageSplit[ 0 ] + '/'
         let imagePaths = date.map(function (d) {
-          return basePath + selectedImageSplit[0] + '_' + d + '.png'
+          return basePath + selectedImageSplit[ 0 ] + '_' + d + '.png'
         })
 
-        let area = getBoundaryToArray(this.$regions.regions[selectId].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y)
+        let area = getBoundaryToArray(this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y)
 
         // let color = config.defaultFeaturesObj[this.selectRegionTableBody[1].value]
         let color = '#D6E2D7'
-        let virtual = new VirtulDomOpt()
-        virtual.init({ bbox: getBoundary(area) })
-        virtual.getAllCanvas()
-        virtual.setColor(color)
         let requests = []
-
         imagePaths.forEach(function (d) {
+          let virtual = new VirtulDomOpt()
+          virtual.init({ bbox: getBoundary(area) })
+          virtual.getAllCanvas()
+          virtual.setColor(color)
           requests.push(virtual.updateSourceImageAndCutImage(d, area))
         })
         let selectedRegions = {}
-        selectedRegions[selectId] = {}
+        selectedRegions[ selectId ] = {}
         let urls = {}
         Promise.all(requests).then(function (res) {
           res.forEach(function (d, i) {
-            let img = selectedImageSplit[0] + '_' + date[i]
-            urls[img] = d
+            let img = selectedImageSplit[ 0 ] + '_' + date[ i ]
+            urls[ img ] = d
           })
-          selectedRegions[selectId] = urls
+          selectedRegions[ selectId ] = urls
           this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
         }.bind(this))
       }
@@ -346,46 +345,47 @@
     border: 1px solid gray;
     box-sizing: border-box;
     padding: 0 8px;
-  .image-tagged-menu {
-    height: 30px;
-    margin: 0 auto;
-    line-height: 30px;
-    li {
+    .image-tagged-menu {
+      height: 30px;
+      margin: 0 auto;
+      line-height: 30px;
+      li {
         list-style: none;
         float: left;
         width: 30px;
         text-align: center;
-      i {
-        color: black;
+        i {
+          color: black;
+        }
+      }
+      li:hover {
+        background: #324057;
+      }
+      .active {
+        background: #324057;
       }
     }
-    li:hover {
-      background: #324057;
+    .select-tagged-menu {
+      position: relative;
     }
-    .active {
-      background: #324057;
+    .selectedInform {
+      font-size: xx-small;
+    }
+    #image_canvas {
+      position: absolute;
+      left: 0;
+      z-index: 1;
+    }
+    #region_canvas {
+      position: absolute;
+      left: 0;
+      z-index: 2;
+    }
+    .del-padding {
+      padding: 0;
     }
   }
-  .select-tagged-menu {
-    position: relative;
-  }
-  .selectedInform {
-    font-size: xx-small;
-  }
-  #image_canvas {
-    position: absolute;
-    left: 0;
-    z-index: 1;
-  }
-  #region_canvas {
-    position: absolute;
-    left: 0;
-    z-index: 2;
-  }
-  .del-padding {
-    padding: 0;
-  }
-  }
+
   #attributes-panel {
     position: absolute;
     z-index: 10;
@@ -398,19 +398,20 @@
     padding-bottom: 2em;
     font-size: small;
     left: 100%;
-  .error-msg {
-    text-align: center;
-    width: 100%;
+    .error-msg {
+      text-align: center;
+      width: 100%;
+    }
+    .close {
+      display: block;
+      height: 30px;
+      width: 100%;
+      position: relative;
+      padding: 0;
+      margin: 0;
+    }
   }
-  .close {
-    display: block;
-    height: 30px;
-    width: 100%;
-    position: relative;
-    padding: 0;
-    margin: 0;
-  }
-  }
+
   .image-time {
     position: absolute;
     width: 100%;

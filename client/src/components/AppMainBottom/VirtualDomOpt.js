@@ -7,7 +7,7 @@ import Promise from 'bluebird'
 import {transSelectRegionToBase64, getColorRgb} from '../../commons/utils'
 
 class VirtulCanvas {
-  constructor() {
+  constructor () {
     // 原始图片信息
     this.selectImage = null
     this.imgWidth = 651
@@ -41,15 +41,13 @@ class VirtulCanvas {
     this.sourceImgCtx = this.sourceImgCanvas.getContext('2d')
 
     this.cutImgCanvas = document.getElementById('cut-canvas')
-    this.cutImgCtx =  this.cutImgCanvas.getContext('2d')
+    this.cutImgCtx = this.cutImgCanvas.getContext('2d')
   }
 
   setCutImage () {
     let bbox = this.options.bbox
     this.cutImgWidth = bbox[2] - bbox[0]
     this.cutImgHeight = bbox[3] - bbox[1]
-
-
     this.cutImgCanvas = document.createElement('canvas')
     this.cutImgCanvas.width = this.cutImgWidth
     this.cutImgCanvas.height = this.cutImgHeight
@@ -75,7 +73,7 @@ class VirtulCanvas {
   }
   // Promise 解决同步问题
   updateSourceImageAndCutImage (src, area) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       this.selectImage = new Image()
       this.selectImage.src = src
       this.selectImage.onload = function () {
@@ -94,13 +92,9 @@ class VirtulCanvas {
         transSelectRegionToBase64(data, area, this.color)
         this.cutImgCtx.clearRect(0, 0, this.cutImgWidth, this.cutImgHeight)
         this.cutImgCtx.putImageData(data, 0, 0)
-        // console.log(this.cutImgCanvas.toDataURL())
-        // return this.cutImgCanvas.toDataURL()
         resolve(this.cutImgCanvas.toDataURL())
       }.bind(this)
     }.bind(this))
-    // return this.cutImgCanvas.toDataURL()
   }
 }
-
 export default VirtulCanvas
