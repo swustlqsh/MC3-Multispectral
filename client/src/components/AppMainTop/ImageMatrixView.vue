@@ -1193,7 +1193,7 @@
         let startObj = this.event.start
         let eventCategory = this.event.type
         eventArray.push(this.event)
-        let eventIndex = eventArray.length - 1
+        let eventIndex = eventArray.length
         if (typeof (startObj) !== 'undefined') {
           this.addEventStart(startObj, eventCategory, eventIndex, 'start')
         }
