@@ -1,39 +1,39 @@
 <template>
-    <div id = 'imageCompare' style = 'padding-left: 0; padding-right: 0; padding-top: 0'>
-        <div v-el:graph1 id="graph1">
-            <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-            <!--<canvas id="image_canvas1" class="image_canvas"></canvas>-->
-            <!--<canvas id="region_canvas1" class="region_canvas"></canvas>-->
-        </div>
-        <div v-el:graph2 id="graph2">
-            <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-            <!--<canvas id="image_canvas2" class="image_canvas"></canvas>-->
-            <!--<canvas id="region_canvas2" class="region_canvas"></canvas>-->
-        </div>
+  <div id='imageCompare' style='padding-left: 0; padding-right: 0; padding-top: 0'>
+    <div v-el:graph1 id="graph1">
+      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+      <!--<canvas id="image_canvas1" class="image_canvas"></canvas>-->
+      <!--<canvas id="region_canvas1" class="region_canvas"></canvas>-->
     </div>
-    <div id = 'statistics'>
-        <div id = 'tagChannel'></div>
-        <div id = 'submmit'>
-            <div>
-                Type
-                <select id = 'eventSelect'>
-                    <option value="Flood" class="option-text">Flood</option>
-                    <option value="Burnt" class="option-text">Burnt</option>
-                    <option value="Shrink" class="option-text">Shrink</option>
-                    <option value="Expand" class="option-text">Expand</option>
-                </select>
-            </div>
-            <div style="margin-top: 10px">
-                Description
-            </div>
-            <div style="height: 50%">
-                <textarea id = 'commentsText' name = 'textarea'></textarea>
-            </div>
-            <div style="text-align: center;" id="submitButton">
-                <button type="button" id="sbutton"> Submit </button>
-            </div>
-        </div>
+    <div v-el:graph2 id="graph2">
+      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
+      <!--<canvas id="image_canvas2" class="image_canvas"></canvas>-->
+      <!--<canvas id="region_canvas2" class="region_canvas"></canvas>-->
     </div>
+  </div>
+  <div id='statistics'>
+    <div id='tagChannel'></div>
+    <div id='submmit'>
+      <div>
+        Type
+        <select id='eventSelect'>
+          <option value="Flood" class="option-text">Flood</option>
+          <option value="Burnt" class="option-text">Burnt</option>
+          <option value="Shrink" class="option-text">Shrink</option>
+          <option value="Expand" class="option-text">Expand</option>
+        </select>
+      </div>
+      <div style="margin-top: 10px">
+        Description
+      </div>
+      <div style="height: 50%">
+        <textarea id='commentsText' name='textarea'></textarea>
+      </div>
+      <div style="text-align: center;" id="submitButton">
+        <button type="button" id="sbutton"> Submit</button>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
   import $ from 'jquery'
@@ -41,7 +41,7 @@
   import {eventSubmit} from '../../vuex/actions'
   import config from '../../commons/config'
   let d3 = require('../../../plugins/d3v3.min.js')
-//  import EG from 'ENGINES'
+  //  import EG from 'ENGINES'
   export default {
     vuex: {
       actions: {
@@ -167,10 +167,10 @@
         let width = $('#graph1').width()
         let height = $('#graph1').height()
         let emSize = config.emSize
-        let padding = {left: 10, right: 10, top: 2, bottom: emSize}
+        let padding = { left: 10, right: 10, top: 2, bottom: emSize }
         let size = width - padding.left - padding.right
-        let toTop = padding.top + size + 4
-        let lineToTop = toTop - 2
+        let toTop = padding.top + size + 10
+        let lineToTop = toTop - 5
         $('#graph1').empty()
         $('#graph2').empty()
         let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
@@ -183,6 +183,7 @@
         })
         this.currentChannel = this.comparedMessage.img1.feature.name
         this.time = time
+        let belongedLineWidth = height / 200
         if (this.comparedMessage.type === 'originalImgs') {
           if (this.comparedMessage.img2 === null) {
             let comparedMessage = $.extend(true, {}, this.comparedMessage)
@@ -212,7 +213,7 @@
                 .attr('x2', width - padding.right)
                 .attr('y2', lineToTop)
                 .style('stroke', comparedMessage.img1.color)
-                .style('stroke-width', '1px')
+                .style('stroke-width', belongedLineWidth + 'px')
             }
             return
           }
@@ -227,8 +228,8 @@
             let mid = $.extend(true, {}, comparedMessage.img1)
             comparedMessage.img1 = $.extend(true, {}, comparedMessage.img2)
             comparedMessage.img2 = mid
-            date1 = this.time[index2]
-            date2 = this.time[index1]
+            date1 = this.time[ index2 ]
+            date2 = this.time[ index1 ]
           }
           this.localComparedMessage = comparedMessage
 //          no png
@@ -257,7 +258,7 @@
               .attr('x2', width - padding.right)
               .attr('y2', lineToTop)
               .style('stroke', comparedMessage.img1.color)
-              .style('stroke-width', '1px')
+              .style('stroke-width', belongedLineWidth + 'px')
           }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
           if (img2Name !== null) {
@@ -282,7 +283,7 @@
               .attr('x2', width - padding.right)
               .attr('y2', lineToTop)
               .style('stroke', comparedMessage.img2.color)
-              .style('stroke-width', '1px')
+              .style('stroke-width', belongedLineWidth + 'px')
           }
         }
       },

@@ -15,7 +15,7 @@
   </div>
   <div id="attributes-panel" v-if="willShow">
     <div class="uk-animation-slide-bottom close" @click="closeTag()"><i class="uk-icon-justify uk-icon-close"></i></div>
-    <template v-if="selectIndex==-1">
+    <template v-if="isShowSelectTable">
       <div class="error-msg">No selected feature</div>
     </template>
     <template v-else>
@@ -96,14 +96,24 @@
         featuresObj: Object.keys(config.defaultFeaturesObj),
         featureName: 'Add New',
         imageTime: '',
-        selectRegionTableBody: [], // 当前选中的region 开始从meta data中获取
-        $selectRegionsObs: {}, // 不执行vue绑定操作
-        selectIndex: -1
+        selectRegionTableBody: [], // 当前选中的region
+        $selectRegionsObs: {} // 不执行vue绑定操作
       }
     },
     watch: {
       pageSize: {
         handler (curVal, oldVal) {
+//          this.init()
+//          this.$renderIns.init({
+//            image_canvas_id: 'image_canvas',
+//            region_canvas_id: 'region_canvas',
+//            image_real_width: Math.round($('#image-tagged').width()),
+//            image_real_height: Math.round($('#image-tagged').height())
+//          })
+//          this.$renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
+//          this.$renderIns.on('dblclick', this.clickEvent)
+//          this.$renderIns.regionBindAllEvent()
+
           if (!this.$renderIns) {
             this.init()
             this.$renderIns.init({
@@ -117,6 +127,7 @@
             this.$renderIns.addEventListenerMousemove()
             this.$renderIns.addEventListenerMouseover()
           } else {
+            console.log('updateDivContainer')
             this.$renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
@@ -128,7 +139,8 @@
       },
       selectedImage: {
         handler (curVal, oldVal) { // object
-          //  接收到select image然后可以更新图片 更新option
+          //  接收到select image然后可以更新图片
+          // 更新option
           let channels = this.selectedImage.split('_')[ 0 ]
           if (channels.length > 5) {
             this.featuresObj = Object.keys(config.featureColors[ channels ])
@@ -138,18 +150,15 @@
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
             let path = '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png'
             if (this.$renderIns) {
-              let imgIndex = this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
-              console.log('imgIndex', imgIndex)
-              console.log('this._via_img_metadata', this.$renderIns._via_img_metadata[this.selectedImage])
-              this.imageIndex = imgIndex
+              this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
-              // this.imageIndex = this.imageIndex + 1
-//              this.$renderIns.updateDivContainer({
-//                image_real_width: Math.round($('#image-tagged').width()),
-//                image_real_height: Math.round($('#image-tagged').height())
-//              })
-//              this.$renderIns.goUpdate()
+              this.imageIndex = this.imageIndex + 1
+              this.$renderIns.updateDivContainer({
+                image_real_width: Math.round($('#image-tagged').width()),
+                image_real_height: Math.round($('#image-tagged').height())
+              })
+              this.$renderIns.goUpdate()
             }
           } else {
             //  清空所选择的图片
@@ -163,28 +172,24 @@
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       },
       isShowSelectTable () {
-        console.log('this.$renderIns._via_user_sel_region_id', this.$renderIns._via_user_sel_region_id)
         return this.$renderIns._via_user_sel_region_id === -1
       }
     },
     methods: {
       chooseRegionType (attr) {
         let newAttr = JSON.parse(JSON.stringify(attr))
-        let channels = this.selectedImage.split('_')[ 0 ]
-        let info = { 'type': newAttr, 'color': config.featureColors[channels][newAttr] }
+        let info = { 'type': newAttr, 'color': config.defaultFeaturesObj[ newAttr ] }
         if (this.selectRegionTableBody.length !== 0) {
-          // this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
+          this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
+          console.log('infoddd', info)
           this.$renderIns.updateCurrentSelectRegion(info)
-          // 传递lasso区域，只支持一个区域
-          let selectId = this.selectIndex
-          this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
-          this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         }
       },
       getMenuMsg (index) {
         if (this.selectedId === index) {
           return
         }
+
         this.selectedId = index
         if (this.selectedId === 0) {
           return
@@ -193,14 +198,47 @@
           return
         }
         if (this.selectedId === 5) {
-          this.selectIndex = this.$renderIns._via_user_sel_region_id
           this.willShow = true
+//          this.tableHeader = [{name: '#'}]
+//          let isEx = this.tableBody.length
+//          if (isEx > 0) {
+//            return
+//          }
+          this.tableBody = []
+//          this.$regions = JSON.parse(this.$renderIns.getMetaData())
+//          console.log('this.$regions', this.$regions)
+
           // 确保当前有选中的节点
-          if (this.selectIndex !== -1) {
-            this.selectRegionTableBody = []
-            this.selectRegionTableBody.push({ value: this.selectIndex + 1 })
-            this.selectRegionTableBody.push({ value: this.$renderIns.getSelectRegionValue() })
+          if (this.isShowSelectTable !== -1) {
+//            let regionAttributes = this.$regions.regions
+            let id = this.$renderIns._via_user_sel_region_id
+            console.log(id, this.$selectRegionsObs)
+            if (this.$selectRegionsObs !== undefined && id in this.$selectRegionsObs) {
+              this.selectRegionTableBody = this.$selectRegionsObs[ id ]
+            } else {
+              this.selectRegionTableBody = []
+              this.selectRegionTableBody.push({ value: id + 1 })
+              this.selectRegionTableBody.push({ value: '' })
+            }
+
+//            let features = Object.keys(regionAttributes)
+//            for (let i = 0; i < features.length; i++) {
+//              let tbody = []
+//              tbody.push({value: i})
+//              tbody.push({value: ''})
+//              let attributes = features[i].region_attributes
+//              for (let attr in attributes) {
+//                tbody.push({value: attributes[attr]})
+//              }
+//              this.tableBody.push(tbody)
+//              if (i === 0) {
+//                attributes && Object.keys(attributes).forEach(function (d) {
+//                  this.tableHeader.push({name: d})
+//                }.bind(this))
+//              }
+//            }
           }
+          return
         }
         if (this.selectedId === 1) {
           this.$renderIns && this.$renderIns.zoom_in()
@@ -215,28 +253,45 @@
       init () {
         this.$renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
-      closeTag () {
+      closeTag (e) {
         this.willShow = false
         this.selectedId = 0
       },
       goSubmit () {
         this.selectedId = 0
         this.willShow = false
-        let selectId = this.selectIndex
+//        let regionAttributes = {}
+//        let bodyNum = this.tableBody.length
+//        for (let j = 0; j < bodyNum; j++) {
+//          regionAttributes[j] = {}
+//          let tempBox = {}
+//          for (let i = 1; i < this.tableHeader.length; i++) {
+//            tempBox[this.tableHeader[i].name] = this.tableBody[j][i].value
+//          }
+//          regionAttributes[j] = tempBox
+//        }
+//        for (let key in regionAttributes) {
+//          let typs = regionAttributes[key]
+//          this.$regions.regions[key].region_attributes = typs
+//        }
+        let selectId = this.selectRegionTableBody[ 0 ].value - 1
+        if (selectId < 0) {
+          return
+        }
         this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
-        // this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
+        this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         this.createSelection(this.selectedImage, this.$regions)
-        // this.featureIndex = this.featureIndex + 1
-        this.addFeatures({ featureName: selectId, imageName: this.imageName })
         this.getSelectedRegionImagesURL()
+        console.log('click submit')
       },
       addNewFeature () {
         this.tableHeader.push({ name: this.featureName })
         for (let i = 0; i < this.tableBody.length; i++) {
           this.tableBody[ i ].push({ value: '' })
         }
+        console.log(this.tableBody)
         this.featureName = 'Add New'
       },
       getSelectedRegionImagesURL () {
@@ -247,6 +302,7 @@
         // 获取特定组合下12张图片路径
         let date = config.date
         let selectedImageSplit = this.selectedImage.split('_')
+        // let curDate = selectedImageSplit.slice(1).join('_')
         let basePath = config.baseDataPath + selectedImageSplit[ 0 ] + '/'
         let imagePaths = date.map(function (d) {
           return basePath + selectedImageSplit[ 0 ] + '_' + d + '.png'
@@ -274,6 +330,10 @@
           })
           selectedRegions[ selectId ] = urls
           this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
+          this.featureIndex = this.featureIndex + 1
+          console.log('urls', urls)
+          console.log('selectedRegions', selectedRegions)
+          this.addFeatures({ featureName: 'feature' + this.featureIndex, imageName: this.selectedImage, imageUrl: urls, selectedRegions: selectedRegions })
         }.bind(this))
       }
     },
