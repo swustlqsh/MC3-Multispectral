@@ -10,6 +10,7 @@ import colorDistributionGetters from './colorDistribution/getters'
 import selectionGetters from './selection/getters'
 import imageToTaggedViewGetters from './imageToTaggedView/getters'
 import addFeaturesGetters from './addFeatures/getters'
+import transFeaturesGetters from './transFeatures/getters'
 import changeIconListGetters from './changeIconList/getters'
 /**
  * |————————————————————————————————|
@@ -30,5 +31,6 @@ export const activeRegions = selectionGetters.activeRegions
 export const activeRegionsImages = selectionGetters.activeRegionsImages
 
 export const addedFeatures = addFeaturesGetters.addedFeatures
+export const transedFeatures = transFeaturesGetters.transedFeatures
 export const featureColors = changeIconListGetters.featureColors
 

@@ -76,16 +76,18 @@
             .attr('text-anchor', 'middle')
         })
         let date = config.date
+        let month = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ]
         let rectW = $('#image-matrix-div').height() / 11 * 0.9
         date.forEach(function (d, i) {
           let txt = d.split('_')
           txt = +txt[ 1 ]
+          let mon = month[txt - 1]
           svg.append('text')
             .attr('y', 2)
             .attr('x', width / 12 * i + rectW / 2)
             .attr('alignment-baseline', 'hanging')
             .attr('text-anchor', 'middle')
-            .text(txt)
+            .text(mon)
             .attr('font-size', '0.7em')
         })
         this.width = width

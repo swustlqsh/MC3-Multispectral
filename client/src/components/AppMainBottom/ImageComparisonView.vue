@@ -37,7 +37,7 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize, comparedMessage} from '../../vuex/getters'
+  import {pageSize, comparedMessage, addedFeatures} from '../../vuex/getters'
   import {eventSubmit} from '../../vuex/actions'
   import config from '../../commons/config'
   let d3 = require('../../../plugins/d3v3.min.js')
@@ -47,7 +47,7 @@
       actions: {
         eventSubmit
       },
-      getters: { pageSize, comparedMessage }
+      getters: { pageSize, comparedMessage, addedFeatures }
     },
     data () {
       return {
@@ -82,6 +82,14 @@
       comparedMessage: {
         handler (curVal, oldVal) {
           this.loadComparisonImages()
+        },
+        deep: true
+      },
+      addedFeatures: {
+        handler (curVal, oldVal) {
+//          console.log(this.addedFeatures)
+          let imageName = this.addedFeatures.imageName
+          this.updatePanel(imageName.split('_')[0])
         },
         deep: true
       }
@@ -302,10 +310,10 @@
         event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
-        if (this.currentChannel !== null) {
-          this.eventSubmit(event)
-          this.updatePanel(this.currentChannel)
-        }
+//        if (this.currentChannel !== null) {
+//          this.eventSubmit(event)
+//          this.updatePanel(this.currentChannel)
+//        }
       }
     },
     ready () {

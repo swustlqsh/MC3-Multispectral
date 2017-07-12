@@ -39,12 +39,14 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize, lassoArea} from '../../vuex/getters'
+  import {pageSize, lassoArea, addedFeatures} from '../../vuex/getters'
+  import {transFeatures} from '../../vuex/actions'
   import {getPointsOfArea} from '../../commons/utils'
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: {pageSize, lassoArea}
+      getters: {pageSize, lassoArea, addedFeatures},
+      actions: {transFeatures}
     },
     data () {
       return {
@@ -79,6 +81,15 @@
 //          console.log(area)
 //          console.log(getPointsOfArea)
           this.updateDistribution(getPointsOfArea(area))
+        },
+        deep: true
+      },
+      addedFeatures: {
+        handler (curVal, oldVal) {
+          this.features = {}
+          this.features[ 'featureName' ] = this.addedFeatures[ 'featureName' ]
+          let imgName = this.addedFeatures[ 'imageName' ]
+          this.features[ 'featureChannel' ] = imgName.split('_')[ 0 ]
         },
         deep: true
       }
@@ -319,6 +330,7 @@
         this.updateLink(diffs, panelSelector)
       },
       updateLink (diffs, panelSelector) {
+        let self = this
         $(panelSelector).empty()
         let d3 = require('../../../plugins/d3v3.min.js')
         let width = $(panelSelector).width()
@@ -397,6 +409,16 @@
               $('#pathd' + id).css('display', 'block')
             })
             .style('stroke', 'gray')
+            .on('click', function () {
+              let id = +$(this).attr('id').split('ect')[ 1 ]
+              let start = diffs[ id ].start
+              let end = diffs[ id ].end
+              let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
+              let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+              self.transFeatures({
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2
+              })
+            })
           svg.append('rect')
             .attr('x', xc - barW / 2)
             .attr('width', barW)
@@ -411,6 +433,16 @@
               $('#pathd' + id).css('display', 'block')
             })
             .style('stroke', 'gray')
+            .on('click', function () {
+              let id = +$(this).attr('id').split('ect')[ 1 ]
+              let start = diffs[ id ].start
+              let end = diffs[ id ].end
+              let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
+              let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+              self.transFeatures({
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2
+              })
+            })
           let start = +diffs[ i ].start
           let points = []
           let x0 = 0
