@@ -68,7 +68,7 @@
           .text('Burnt')
           .attr('x', width * leftR)
           .attr('class', 'feature-name')
-          .attr('y', height * vRatio + config.emSize * 1.2)
+          .attr('y', height * vRatio + config.emSize * 1.5)
           .attr('text-anchor', 'middle')
         svg.append('circle')
           .attr('cx', width * leftR)
@@ -79,7 +79,7 @@
           .text('Flood')
           .attr('x', width * leftR)
           .attr('class', 'feature-name')
-          .attr('y', height * vRatio * 3 + config.emSize * 1.2)
+          .attr('y', height * vRatio * 3 + config.emSize * 1.5)
           .attr('text-anchor', 'middle')
         let g = svg.append('g').attr('id', 'featureList')
         let features = config.defaultFeatures
@@ -106,7 +106,7 @@
           .append('text')
           .attr('x', width * leftR2)
           .attr('y', function (d, i) {
-            return height * vRatio * (i * 2 + 1) + config.emSize * 1.2
+            return height * vRatio * (i * 2 + 1) + config.emSize * 1.5
           })
           .attr('class', 'feature-name')
           .text(function (d, i) {
@@ -145,7 +145,7 @@
           .append('text')
           .attr('x', width * leftR2)
           .attr('y', function (d, i) {
-            return height * vRatio * (i * 2 + 1) + config.emSize * 1.2
+            return height * vRatio * (i * 2 + 1) + config.emSize * 1.5
           })
           .attr('class', 'feature-name')
           .text(function (d, i) {

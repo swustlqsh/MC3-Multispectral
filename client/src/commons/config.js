@@ -93,5 +93,4 @@ if (winWidth < 2000) {
   emSize = 50
 }
 config.emSize = emSize
-
 export default config
