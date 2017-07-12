@@ -215,26 +215,35 @@
             })
           imageComponentsObj.exit().remove()
           //  在components中增加每个图片的名称标记
-          d3.select('#image-matrix-svg')
-            .select('#' + channelName)
-            .append('text')
-            .attr('class', 'channel-name')
-            .attr('id', channelName)
-            .text(function (d, i) {
-              return channelName
-            })
-            .attr('transform', function (d, i) {
-              return 'translate(' + paddingX * 3 / 4 + ',' + (originalImageWidth / 2) + ')'
-            })
-            .attr('text-anchor', 'end')
-            .attr('cursor', 'pointer')
-            .attr('dominant-baseline', 'middle')
-            .on('mouseover', function (d, i) {
-              d3.select(this).classed('mouseover-highlight', true)
-            })
-            .on('mouseout', function (d, i) {
-              d3.select(this).classed('mouseover-highlight', false)
-            })
+          if (d3.select('#image-matrix-svg').select('#' + channelName).select('#text-' + channelName).empty()) {
+            d3.select('#image-matrix-svg')
+              .select('#' + channelName)
+              .append('text')
+              .attr('class', 'channel-name')
+              .attr('id', 'text-' + channelName)
+              .text(function (d, i) {
+                return channelName
+              })
+              .attr('transform', function (d, i) {
+                return 'translate(' + paddingX * 3 / 4 + ',' + (originalImageWidth / 2) + ')'
+              })
+              .attr('text-anchor', 'end')
+              .attr('cursor', 'pointer')
+              .attr('dominant-baseline', 'middle')
+              .on('mouseover', function (d, i) {
+                d3.select(this).classed('mouseover-highlight', true)
+              })
+              .on('mouseout', function (d, i) {
+                d3.select(this).classed('mouseover-highlight', false)
+              })
+          } else {
+            d3.select('#image-matrix-svg')
+              .select('#' + channelName)
+              .select('#text-' + channelName)
+              .attr('transform', function (d, i) {
+                return 'translate(' + paddingX * 3 / 4 + ',' + (originalImageWidth / 2) + ')'
+              })
+          }
         }
 //        var imageName = imageMatrixSvg.selectAll('.image-name')
 //          .data(imageObjArray2)
@@ -1276,6 +1285,11 @@
           //  传递空图片
           this.imageToTaggedView(null)
         }
+      },
+      //  接收选择不同的事件, 更新feature
+      updateSelectedFeaturesHandler (featuresArray) {
+        //  接收的是选择的feature, 得到featureArray
+        this.update_comparison_features(featuresArray)
       }
     }
   }
@@ -1386,7 +1400,6 @@
   .belong-line {
     stroke: gray;
   }
-
   @keyframes original-highlight-animation {
     0% {
     }
@@ -1396,7 +1409,6 @@
     100% {
     }
   }
-
   @keyframes feature-highlight-animation {
     0% {
     }

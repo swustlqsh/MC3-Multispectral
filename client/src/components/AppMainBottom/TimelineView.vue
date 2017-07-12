@@ -1,5 +1,5 @@
 <template>
-    <div id = 'timeLine'></div>
+  <div id='timeLine'></div>
 </template>
 <script>
   import $ from 'jquery'
@@ -7,7 +7,7 @@
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: {pageSize, comparedMessage}
+      getters: { pageSize, comparedMessage }
     },
     data () {
       return {
@@ -41,8 +41,22 @@
         let width = $('#timeLine').width()
         let height = $('#timeLine').height()
         let svg = d3.select('#timeLine').append('svg').attr('width', width).attr('height', height)
-        let padding = {left: 2, right: 20, top: 2, bottom: 2}
+        let padding = { left: 2, right: 20, top: 2, bottom: 2 }
         let defs = svg.append('defs')
+        let MonthLabel = {
+          '1': 'Jan',
+          '2': 'Febr',
+          '3': 'Mar',
+          '4': 'Apr',
+          '5': 'May',
+          '6': 'Jun',
+          '7': 'Jul',
+          '8': 'Aug',
+          '9': 'Sept',
+          '10': 'Oct',
+          '11': 'Nov',
+          '12': 'Dec'
+        }
         let arrowMarker = defs.append('marker')
           .attr('id', 'arrow')
           .attr('markerUnits', 'strokeWidth')
@@ -64,7 +78,7 @@
           .style('stroke', 'grey')
           .style('stroke-width', '2px')
           .attr('marker-end', 'url(#arrow)')
-        let years = [2014, 2015, 2016]
+        let years = [ 2014, 2015, 2016 ]
         let sw = (width - padding.left - padding.right) / 3
         years.forEach(function (d, i) {
           svg.append('text')
@@ -85,7 +99,7 @@
             .attr('x', width / 12 * i + rectW / 2)
             .attr('alignment-baseline', 'hanging')
             .attr('text-anchor', 'middle')
-            .text(txt)
+            .text(MonthLabel[ txt ])
             .attr('font-size', '0.7em')
         })
         this.width = width
