@@ -1,9 +1,9 @@
 /**
  * Created by liqiusheng@b.360.cn on 2017/7/7.
  */
+import _ from 'lodash'
 import Render from './Render'
 
-let VIA_SHORT_NAME = 'VIA'
 let VIA_REGION_SHAPE = {
   RECT: 'rect',
   CIRCLE: 'circle',
@@ -60,7 +60,7 @@ function ImageRegion () {
   this.shape_attributes = new Map() // region shape attributes
   this.region_attributes = new Map() // region attributes
 }
-
+//  改变的 image data 中的数据
 class GraphTag extends Render {
   constructor (opts) {
     super(opts)
@@ -145,17 +145,16 @@ class GraphTag extends Render {
     this._via_is_save_ongoing = false
 
     // image list
-    this._via_reload_img_table = true
-    this._via_loaded_img_fn_list = []
-    this._via_loaded_img_region_attr_miss_count = []
-    this._via_loaded_img_file_attr_miss_count = []
-    this._via_loaded_img_table_html = []
+    // this._via_reload_img_table = true
+    // this._via_loaded_img_fn_list = []
+    // this._via_loaded_img_region_attr_miss_count = []
+    // this._via_loaded_img_file_attr_miss_count = []
+    // this._via_loaded_img_table_html = []
     // 交互功能
     this.interaction = {
       select: true,
       zoomOn: false,
       zoomIn: false,
-      move: false,
       move: false,
       polygon: false
     }
@@ -185,9 +184,15 @@ class GraphTag extends Render {
 
   loadStoreLocalImg (fileRef, fileName, size) {
     let imgId = this.getImageId(fileName, size)
-    this._via_img_metadata[ imgId ] = new ImageMetadata(fileRef, fileName, size)
-    this._via_image_id_list.push(imgId)
-    this._via_img_count = this._via_img_count + 1
+    let imgIndex = this.getImageIdToIndex(imgId)
+    if (imgIndex !== -1) {
+      return imgIndex
+    } else {
+      this._via_img_metadata[ imgId ] = new ImageMetadata(fileRef, fileName, size)
+      this._via_image_id_list.push(imgId)
+      this._via_img_count = this._via_img_count + 1
+      return this._via_image_id_list.length - 1
+    }
   }
 
   setAllCanvasSize (w, h) {
@@ -197,12 +202,20 @@ class GraphTag extends Render {
     this._via_reg_canvas.width = w
   }
 
+  // image to canvas space transform：（从原始图到 canvas space 空间转换）
   loadCanvasRegions () {
     let regions = this._via_img_metadata[ this._via_image_id ].regions
     this._via_canvas_regions = []
-    let canvasScale = this._via_canvas_scale
+    // let canvasScale = this._via_canvas_scale
+    let canvasScale = 1
     for (let i = 0; i < regions.length; i++) {
       let regioni = new ImageRegion()
+      regioni.is_user_tagged = regions[ i ].is_user_tagged
+      // region_attributes
+      for (let key of regions[ i ].region_attributes.keys()) {
+        let value = regions[ i ].region_attributes.get(key)
+        regioni.region_attributes.set(key, value)
+      }
       for (let key of regions[ i ].shape_attributes.keys()) {
         let value = regions[ i ].shape_attributes.get(key)
         regioni.shape_attributes.set(key, value)
@@ -257,7 +270,7 @@ class GraphTag extends Render {
       this._via_reg_ctx.fillStyle = VIA_THEME_SEL_REGION_FILL_COLOR
       this._via_reg_ctx.globalAlpha = VIA_THEME_SEL_REGION_OPACITY
       this._via_reg_ctx.fillStyle = 'red'
-      this._via_reg_ctx.fillStyle = region_attributes.get('color')
+      this._via_reg_ctx.fillStyle = region_attributes.get('color') || 'blue'
       this._via_reg_ctx.fill()
       this._via_reg_ctx.globalAlpha = 1.0
     }
@@ -415,7 +428,7 @@ class GraphTag extends Render {
       let attr = this._via_canvas_regions[ i ].shape_attributes
       let is_selected = this._via_canvas_regions[ i ].is_user_selected
       let is_tagged = this._via_canvas_regions[ i ].is_user_tagged
-      let region_attributes =  this._via_canvas_regions[ i ].region_attributes
+      let region_attributes = this._via_canvas_regions[ i ].region_attributes
       switch (attr.get('name')) {
         case VIA_REGION_SHAPE.POLYGON:
           this._viaDrawPolygonRegion(attr.get('all_points_x'), attr.get('all_points_y'), is_selected, is_tagged, region_attributes)
@@ -622,7 +635,7 @@ class GraphTag extends Render {
       // image canvas
       this._via_img_ctx.clearRect(0, 0, this._via_canvas_width, this._via_canvas_height)
       this._via_img_ctx.drawImage(this._via_current_image, 0, 0, this._via_canvas_width, this._via_canvas_height)
-      // this._via_img_ctx.scale(this.canvasWidthScale, this.canvasWidthScale)
+      // this._via_img_ctx.scale(this._via_canvas_scale, this._via_canvas_scale)
       // region canvas
       // this.loadCanvasRegions()
       // this.redrawRegCanvas()
@@ -761,6 +774,7 @@ class GraphTag extends Render {
       // 显示region属性列表
     }
   }
+
   eventMousedown (e) {
     this._via_click_x0 = e.offsetX
     this._via_click_y0 = e.offsetY
@@ -811,6 +825,7 @@ class GraphTag extends Render {
     }
     e.preventDefault()
   }
+
   eventMouseup (e) {
     this._via_click_x1 = e.offsetX
     this._via_click_y1 = e.offsetY
@@ -906,8 +921,6 @@ class GraphTag extends Render {
           image_attr.get('all_points_y')[ moved_vertex_id ] = Math.round(this._via_current_y * this._via_canvas_scale)
 
           if (moved_vertex_id === 0) {
-            // move both first and last vertex because we
-            // the initial point at the end to close path
             let n = canvas_attr.get('all_points_x').length
             canvas_attr.get('all_points_x')[ n - 1 ] = Math.round(this._via_current_x)
             canvas_attr.get('all_points_y')[ n - 1 ] = Math.round(this._via_current_y)
@@ -994,7 +1007,6 @@ class GraphTag extends Render {
               case VIA_REGION_SHAPE.POLYGON:
                 // user has clicked on the first point in a new polygon
                 this._via_is_user_drawing_polygon = true
-
                 let canvas_polygon_region = new ImageRegion()
                 canvas_polygon_region.region_attributes.set('type', '')
                 canvas_polygon_region.region_attributes.set('color', VIA_THEME_SEL_REGION_FILL_COLOR)
@@ -1079,10 +1091,12 @@ class GraphTag extends Render {
       return
     }
   }
+
   eventMouseOver (e) {
     this._viaRedrawRegCanvas()
     this._via_reg_canvas.focus()
   }
+
   eventMouseMove (e) {
     if (!this._via_current_image_loaded) {
       return
@@ -1252,38 +1266,38 @@ class GraphTag extends Render {
       let line_y = [ all_points_y.slice(npts - 1), this._via_current_y ]
       this._viaDrawPolygonRegion(line_x, line_y, false)
     }
+  }
 
-  }
   addEventListenerClick () {
-    this._via_reg_canvas.addEventListener('click',this.eventClick.bind(this), false)
+    this._via_reg_canvas.addEventListener('click', this.eventClick.bind(this), false)
   }
+
   addEventListenerDBClick () {
-    this._via_reg_canvas.addEventListener('dblclick',this.eventClick.bind(this), false)
+    this._via_reg_canvas.addEventListener('dblclick', this.eventClick.bind(this), false)
     return this
   }
 
   addEventListenerMousedown () {
-    this._via_reg_canvas.addEventListener('mousedown',this.eventMousedown.bind(this), false)
+    this._via_reg_canvas.addEventListener('mousedown', this.eventMousedown.bind(this), false)
     return this
   }
 
   addEventListenerMouseup () {
-    this._via_reg_canvas.addEventListener('mouseup',this.eventMouseup.bind(this), false)
+    this._via_reg_canvas.addEventListener('mouseup', this.eventMouseup.bind(this), false)
     return this
   }
 
   addEventListenerMouseover () {
-    this._via_reg_canvas.addEventListener('mouseover',this.eventMouseOver.bind(this), false)
+    this._via_reg_canvas.addEventListener('mouseover', this.eventMouseOver.bind(this), false)
     return this
   }
 
   addEventListenerMousemove () {
-    this._via_reg_canvas.addEventListener('mousemove',this.eventMouseMove.bind(this), false)
+    this._via_reg_canvas.addEventListener('mousemove', this.eventMouseMove.bind(this), false)
     return this
   }
+
   removeEventListener (eventName) {
-    // window.removeEventListener('mouseup', this.eventMouseup.bind(this))
-    // window.removeEventListener('mousemove', this.eventMouseMove.bind(this))
     this._via_reg_canvas.addEventListener(eventName, null, false)
   }
 
@@ -1372,47 +1386,70 @@ class GraphTag extends Render {
       }
     }
   }
+
   setMetaData (data) {
-    let img_metadata = this._via_img_metadata[this._via_image_id ]
+    let img_metadata = this._via_img_metadata[ this._via_image_id ]
     for (let key in data) {
-      img_metadata[key].regions.region_attributes = data[key]
+      img_metadata[ key ].regions.region_attributes = data[ key ]
     }
   }
+
   resetMetaData () {
     this._via_img_metadata[ this._via_image_id ].regions = []
     this.showImage(this._via_image_index)
   }
+
   // 如果存在id, 则获取选中的id的 meta data
 
   getMetaData (id) {
     // let _via_img_metadata_as_obj = {}
     let scale = this._via_canvas_scale
     let image_data = {}
-    for (let image_id in this._via_img_metadata) {
-      image_data = {}
-      // image_data.fileref = _via_img_metadata[image_id].fileref;
-      image_data.fileref = ''
-      image_data.size = this._via_img_metadata[ image_id ].size
-      image_data.filename = this._via_img_metadata[ image_id ].filename
-      image_data.base64_img_data = ''
+    let image_id = this._via_image_id
+    // image_data.fileref = _via_img_metadata[image_id].fileref;
+    image_data.fileref = ''
+    image_data.size = this._via_img_metadata[ image_id ].size
+    image_data.filename = this._via_img_metadata[ image_id ].filename
+    image_data.base64_img_data = ''
 
-      // copy file attributes
-      image_data.file_attributes = {}
-      for (let key of this._via_img_metadata[ image_id ].file_attributes.keys()) {
-        let value = this._via_img_metadata[ image_id ].file_attributes.get(key)
-        image_data.file_attributes[ key ] = value
+    // copy file attributes
+    image_data.file_attributes = {}
+    for (let key of this._via_img_metadata[ image_id ].file_attributes.keys()) {
+      let value = this._via_img_metadata[ image_id ].file_attributes.get(key)
+      image_data.file_attributes[ key ] = value
+    }
+
+    // copy all region shape_attributes
+    image_data.regions = {}
+    if (id !== -1 && id < this._via_img_metadata[ image_id ].regions.length) {
+      let i = id
+      image_data.regions[ i ] = {}
+      image_data.regions[ i ].shape_attributes = {}
+      image_data.regions[ i ].region_attributes = {}
+      // copy region shape_attributes
+      for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
+        let value = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
+        if (Array.isArray(value)) {
+          value = value.map(function (item) {
+            return Math.round(item * scale)
+          })
+        }
+
+        image_data.regions[ i ].shape_attributes[ key ] = value
       }
-
-      // copy all region shape_attributes
-      image_data.regions = {}
-      if (id !== -1 && id < this._via_img_metadata[ this._via_image_id ].regions.length) {
-        let i = id
+      // copy region_attributes
+      for (let key of this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.keys()) {
+        let value = this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.get(key)
+        image_data.regions[ i ].region_attributes[ key ] = value
+      }
+    } else {
+      for (let i = 0; i < this._via_img_metadata[ image_id ].regions.length; ++i) {
         image_data.regions[ i ] = {}
         image_data.regions[ i ].shape_attributes = {}
         image_data.regions[ i ].region_attributes = {}
         // copy region shape_attributes
-        for (let key of this._via_img_metadata[ this._via_image_id ].regions[ i ].shape_attributes.keys()) {
-          let value = this._via_img_metadata[ this._via_image_id ].regions[ i ].shape_attributes.get(key)
+        for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
+          let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
           if (Array.isArray(value)) {
             value = value.map(function (item) {
               return Math.round(item * scale)
@@ -1422,53 +1459,78 @@ class GraphTag extends Render {
           image_data.regions[ i ].shape_attributes[ key ] = value
         }
         // copy region_attributes
-        for (let key of this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.keys()) {
-          let value = this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.get(key)
+        for (let key of this._via_img_metadata[ image_id ].regions[ i ].region_attributes.keys()) {
+          let value = this._via_img_metadata[ image_id ].regions[ i ].region_attributes.get(key)
           image_data.regions[ i ].region_attributes[ key ] = value
         }
-      } else {
-        for (let i = 0; i < this._via_img_metadata[ image_id ].regions.length; ++i) {
-          image_data.regions[ i ] = {}
-          image_data.regions[ i ].shape_attributes = {}
-          image_data.regions[ i ].region_attributes = {}
-          // copy region shape_attributes
-          for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
-            let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
-            if (Array.isArray(value)) {
-              value = value.map(function (item) {
-                return Math.round(item * scale)
-              })
-            }
-
-            image_data.regions[ i ].shape_attributes[ key ] = value
-          }
-          // copy region_attributes
-          for (let key of this._via_img_metadata[ image_id ].regions[ i ].region_attributes.keys()) {
-            let value = this._via_img_metadata[ image_id ].regions[ i ].region_attributes.get(key)
-            image_data.regions[ i ].region_attributes[ key ] = value
-          }
-        }
       }
-      //_via_img_metadata_as_obj[image_id] = image_data
     }
+    //_via_img_metadata_as_obj[image_id] = image_data
     return [ JSON.stringify(image_data) ]
   }
+
   updateCurrentSelectRegion (values) {
     let user_select_id = this._via_user_sel_region_id
-    let img_metadata = this._via_img_metadata[this._via_image_id ]
-    let img_attributes = img_metadata.regions[user_select_id].region_attributes
-    for(let k in values) {
-      img_attributes.set(k, values[k])
+    let img_metadata = this._via_img_metadata[ this._via_image_id ]
+    let img_attributes = img_metadata.regions[ user_select_id ].region_attributes
+    for (let k in values) {
+      img_attributes.set(k, values[ k ])
     }
-    let region_attributes = this._via_canvas_regions[user_select_id].region_attributes
+    img_metadata.regions[ user_select_id ].is_user_tagged = true
+    let region_attributes = this._via_canvas_regions[ user_select_id ].region_attributes
     region_attributes.set('type', values.type)
     region_attributes.set('color', values.color)
-    this._via_canvas_regions[user_select_id].is_user_tagged = true
+    this._via_canvas_regions[ user_select_id ].is_user_tagged = true
     this._viaRedrawRegCanvas()
     // 改变背景色
   }
-  importAnnotationsFromJson (metaData) {
 
+  // 加载当前的region数据
+  importAnnotationsFromJson (data) {
+    if (data === '' || typeof (data) === 'undefined') {
+      return
+    }
+    let d = JSON.parse(data)
+    for (let image_id in d) {
+      if (this._via_img_metadata.hasOwnProperty(image_id)) {
+        // 复制 file_attributes
+        // 复制 regions
+        let regions = d[ image_id ].regions
+        for (let i in regions) {
+          let regioni = new ImageRegion()
+          // shape_attributes
+          for (let key in regions[ i ].shape_attributes) {
+            regioni.shape_attributes.set(key, regions[ i ].shape_attributes[ key ])
+          }
+          // region_attributes
+          for (let key in regions[ i ].region_attributes) {
+            regioni.region_attributes.set(key, regions[ i ].region_attributes[ key ])
+
+            if (!this._via_region_attributes.has(key)) {
+              this._via_region_attributes.add(key)
+            }
+          }
+          // 只有存在是才添加到区域中
+          if (regioni.shape_attributes.size > 0 || regioni.region_attributes.size > 0) {
+            this._via_img_metadata[ image_id ].regions.push(regioni)
+          }
+        }
+      }
+    }
+  }
+
+  getImageIdToIndex (imgId) {
+    return this._via_image_id_list.findIndex(function (img) {
+      return img === imgId
+    })
+  }
+
+  getSelectRegionValue () {
+    if (this._via_user_sel_region_id === -1) {
+      return ''
+    } else {
+      return this._via_canvas_regions[ this._via_user_sel_region_id ].region_attributes.get('type')
+    }
   }
 }
 export default GraphTag
