@@ -51,7 +51,7 @@ class VirtulCanvas {
     this.cutImgCanvas = document.createElement('canvas')
     this.cutImgCanvas.width = this.cutImgWidth
     this.cutImgCanvas.height = this.cutImgHeight
-    // this.cutImgCanvas.style.display = 'none'
+    this.cutImgCanvas.style.display = 'none'
     this.cutImgCanvas.id = 'new_cut_canvas'
 
     this.cutImgCtx = this.cutImgCanvas.getContext('2d')
@@ -63,7 +63,7 @@ class VirtulCanvas {
     this.sourceImgCanvas = document.createElement('canvas')
     this.sourceImgCanvas.width = this.imgWidth
     this.sourceImgCanvas.height = this.imgHeight
-    // this.sourceImgCanvas.style.display = 'none'
+    this.sourceImgCanvas.style.display = 'none'
     this.sourceImgCanvas.id = 'new_img_canvas'
 
     this.sourceImgCtx = this.sourceImgCanvas.getContext('2d')

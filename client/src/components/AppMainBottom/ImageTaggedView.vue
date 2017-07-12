@@ -417,6 +417,7 @@
     width: 100%;
     top: 96%;
     text-align: center;
+    font-size: 12px;
   }
 
 </style>

@@ -4,14 +4,16 @@
 export const getPageSize = () => {
   let winWidth = 0
   let winHeight = 0
-  if (window.innerWidth)
+  if (window.innerWidth) {
     winWidth = window.innerWidth
-  else if ((document.body) && (document.body.clientWidth))
+  } else if ((document.body) && (document.body.clientWidth)) {
     winWidth = document.body.clientWidth
-  if (window.innerHeight)
+  }
+  if (window.innerHeight) {
     winHeight = window.innerHeight
-  else if ((document.body) && (document.body.clientHeight))
+  } else if ((document.body) && (document.body.clientHeight)) {
     winHeight = document.body.clientHeight
+  }
   if (document.documentElement && document.documentElement.clientHeight && document.documentElement.clientWidth) {
     winHeight = document.documentElement.clientHeight
     winWidth = document.documentElement.clientWidth
@@ -26,7 +28,7 @@ export const getPointsOfArea = (oArea) => {
   for (let i = 0; i < num; i++) {
     area.push([ oArea[ 0 ][ i ], oArea[ 1 ][ i ] ])
   }
-  //[[2,3], [3,4]]
+  // [[2,3], [3,4]]
   let minX = 100000
   let maxX = -1
   let minY = 100000
@@ -100,12 +102,11 @@ export const getColorRgb = (color, type = 0) => {
 }
 
 /**
-将选中区域的颜色高亮
+ 将选中区域的颜色高亮
  |----------|
  |          |
  |__________|
  */
-
 
 // colorSpace
 // metaData 结构:
@@ -122,7 +123,7 @@ export const transSelectRegionToBase64 = (metaData, area, color) => {
 
   let marked = Array(height).fill([])
   for (let i = 0; i < height; i++) {
-    marked[i] = Array(width).fill(0)
+    marked[ i ] = Array(width).fill(0)
   }
   let points = getPointsOfArea(area)
   // let points = []
@@ -132,23 +133,23 @@ export const transSelectRegionToBase64 = (metaData, area, color) => {
   // points.forEach(function(d) {
   //   marked[d[0]][d[1]] = 1
   // })
-  points.forEach(function(d) {
-    let tmpX = d[0]
-    let tmpY = d[1]
-    if(tmpX < 0 || tmpY < 0 || tmpX >= width || tmpY >= height) {
+  points.forEach(function (d) {
+    let tmpX = d[ 0 ]
+    let tmpY = d[ 1 ]
+    if (tmpX < 0 || tmpY < 0 || tmpX >= width || tmpY >= height) {
 
     } else {
-      marked[tmpX][tmpY] = 1
+      marked[ tmpX ][ tmpY ] = 1
     }
   })
 
-  for (let i = 0; i < height; i++ ) {
-    for(let j = 0; j < width; j++) {
-      if(marked[i][j] === 1){
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      if (marked[ i ][ j ] === 1) {
         let tmp = 4 * (i * width + j)
-        metaData.data[tmp] = color[0]
-        metaData.data[tmp+1] = color[1]
-        metaData.data[tmp+2] = color[2]
+        metaData.data[ tmp ] = color[ 0 ]
+        metaData.data[ tmp + 1 ] = color[ 1 ]
+        metaData.data[ tmp + 2 ] = color[ 2 ]
       }
     }
   }
@@ -164,8 +165,8 @@ export const getBoundary = (area) => {
   let maxy = 0
 
   for (let i = 0; i < area.length; ++i) {
-    let nx = area[i][ 0 ]
-    let ny = area[i][ 1 ]
+    let nx = area[ i ][ 0 ]
+    let ny = area[ i ][ 1 ]
     if (nx < minx) {
       minx = nx
     }
@@ -187,10 +188,10 @@ export const getBoundary = (area) => {
   return bbox
 }
 
-export const getBoundaryToArray= (boundaryX, boundaryY) => {
+export const getBoundaryToArray = (boundaryX, boundaryY) => {
   let area = Array(boundaryX.length).fill([])
   boundaryX.forEach((d, i) => {
-    area[i] = [d, boundaryY[i]]
+    area[ i ] = [ d, boundaryY[ i ] ]
   })
   return area
 }
