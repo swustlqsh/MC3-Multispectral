@@ -140,7 +140,7 @@
             if (this.$renderIns) {
               let imgIndex = this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
               console.log('imgIndex', imgIndex)
-              console.log('this._via_img_metadata', this.$renderIns._via_img_metadata[this.selectedImage])
+              console.log('this._via_img_metadata', this.$renderIns._via_img_metadata[ this.selectedImage ])
               this.imageIndex = imgIndex
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
@@ -171,7 +171,7 @@
       chooseRegionType (attr) {
         let newAttr = JSON.parse(JSON.stringify(attr))
         let channels = this.selectedImage.split('_')[ 0 ]
-        let info = { 'type': newAttr, 'color': config.featureColors[channels][newAttr] }
+        let info = { 'type': newAttr, 'color': config.featureColors[ channels ][ newAttr ] }
         if (this.selectRegionTableBody.length !== 0) {
           // this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
           this.$renderIns.updateCurrentSelectRegion(info)
@@ -228,8 +228,6 @@
         // 传递lasso区域，只支持一个区域
         this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         this.createSelection(this.selectedImage, this.$regions)
-        // this.featureIndex = this.featureIndex + 1
-        this.addFeatures({ featureName: selectId, imageName: this.imageName })
         this.getSelectedRegionImagesURL()
       },
       addNewFeature () {
@@ -274,6 +272,13 @@
           })
           selectedRegions[ selectId ] = urls
           this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
+          this.featureIndex = this.featureIndex + 1
+          this.addFeatures({
+            featureName: 'feature' + this.featureIndex,
+            imageName: this.selectedImage,
+            imageUrl: urls,
+            selectedRegions: selectedRegions
+          })
         }.bind(this))
       }
     },
