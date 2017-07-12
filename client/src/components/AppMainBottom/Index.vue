@@ -79,6 +79,7 @@
   .main-bottom {
     position: relative;
     width: 100%;
+    visibility: hidden;
     #timeline {
       position: absolute;
       left: 25%;

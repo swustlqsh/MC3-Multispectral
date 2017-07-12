@@ -68,10 +68,25 @@
         let sw = (width - padding.left - padding.right) / 3
         years.forEach(function (d, i) {
           svg.append('text')
-            .attr('y', padding.top + height / 3 + height / 2.2)
+            .attr('y', padding.top + height / 3 + height * 0.1)
             .attr('x', sw * i + sw / 2 + padding.left)
             .text(d)
             .attr('font-size', config.emSize)
+            .attr('alignment-baseline', 'hanging')
+            .attr('text-anchor', 'middle')
+        })
+        let date = config.date
+        let rectW = $('#image-matrix-div').height() / 11 * 0.9
+        date.forEach(function (d, i) {
+          let txt = d.split('_')
+          txt = +txt[ 1 ]
+          svg.append('text')
+            .attr('y', 2)
+            .attr('x', width / 12 * i + rectW / 2)
+            .attr('alignment-baseline', 'hanging')
+            .attr('text-anchor', 'middle')
+            .text(txt)
+            .attr('font-size', '0.7em')
         })
         this.width = width
         this.padding = padding
