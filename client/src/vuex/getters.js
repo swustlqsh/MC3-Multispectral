@@ -26,7 +26,9 @@ export const lassoArea = colorDistributionGetters.lassoArea
 export const selectedImage = imageToTaggedViewGetters.selectedImage
 export const activeRegion = selectionGetters.activeRegion
 export const activeImages = selectionGetters.activeImages
-export const allRegions = selectionGetters.allRegions
+export const activeRegions = selectionGetters.activeRegions
+export const activeRegionsImages = selectionGetters.activeRegionsImages
+
 export const addedFeatures = addFeaturesGetters.addedFeatures
 export const featureColors = changeIconListGetters.featureColors
 

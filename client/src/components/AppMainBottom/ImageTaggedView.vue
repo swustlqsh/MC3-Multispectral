@@ -56,15 +56,18 @@
 </template>
 <script>
   import $ from 'jquery'
+  import Promise from 'bluebird'
   import EG from 'ENGINES'
   import {pageSize, selectedImage} from '../../vuex/getters'
-  import {createSelection, addFeatures, exportArea} from '../../vuex/actions'
+  import {createSelection, addFeatures, exportArea, activeRegionSelectionImages} from '../../vuex/actions'
   import config from '../../commons/config'
+  import {getBoundaryToArray, getBoundary} from '../../commons/utils'
+  import VirtulDomOpt from './VirtualDomOpt'
   export default {
     vuex: {
       getters: { pageSize, selectedImage },
       actions: {
-        addFeatures, exportArea, createSelection
+        addFeatures, exportArea, createSelection, activeRegionSelectionImages
       }
     },
     data () {
@@ -72,7 +75,7 @@
         isShowSelect: true,
         selectedTime: '', // 选择的时间 2014 2015 2016
         selectedChannels: '', // 单个通道 或者 有意义的组合
-        renderIns: null,
+        $$renderIns: null,
         selectedId: 0,
         imageIndex: 0,
         imageName: null,
@@ -101,37 +104,35 @@
       pageSize: {
         handler (curVal, oldVal) {
 //          this.init()
-//          this.renderIns.init({
+//          this.$renderIns.init({
 //            image_canvas_id: 'image_canvas',
 //            region_canvas_id: 'region_canvas',
 //            image_real_width: Math.round($('#image-tagged').width()),
 //            image_real_height: Math.round($('#image-tagged').height())
 //          })
-//          this.renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
-//          this.renderIns.on('dblclick', this.clickEvent)
-//          this.renderIns.regionBindAllEvent()
+//          this.$renderIns.setShowImage('../../../resource/3B/B1B5B6_2014_03_17.png')
+//          this.$renderIns.on('dblclick', this.clickEvent)
+//          this.$renderIns.regionBindAllEvent()
 
-          if (!this.renderIns) {
+          if (!this.$renderIns) {
             this.init()
-            this.renderIns.init({
+            this.$renderIns.init({
               image_canvas_id: 'image_canvas',
               region_canvas_id: 'region_canvas',
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-//            this.renderIns.loadStoreLocalImg('../../../data/B1B5B6/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
-//            this.renderIns.showImage(0)
-//            this.renderIns.addEventListenerClick() // default
-            this.renderIns.addEventListenerMouseup()
-            this.renderIns.addEventListenerMousedown()
-            this.renderIns.addEventListenerMousemove()
-            this.renderIns.addEventListenerMouseover()
+            this.$renderIns.addEventListenerMouseup()
+            this.$renderIns.addEventListenerMousedown()
+            this.$renderIns.addEventListenerMousemove()
+            this.$renderIns.addEventListenerMouseover()
           } else {
-            this.renderIns.updateDivContainer({
+            console.log('updateDivContainer')
+            this.$renderIns.updateDivContainer({
               image_real_width: Math.round($('#image-tagged').width()),
               image_real_height: Math.round($('#image-tagged').height())
             })
-            this.renderIns.goUpdate()
+            this.$renderIns.goUpdate()
           }
         },
         deep: true
@@ -148,16 +149,16 @@
           if ((typeof (this.selectedImage) !== 'undefined') && (this.selectedImage != null)) {
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
             let path = '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png'
-            if (this.renderIns) {
-              this.renderIns.loadStoreLocalImg(path, this.selectedImage)
-              this.renderIns.showImage(this.imageIndex)
+            if (this.$renderIns) {
+              this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
+              this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
               this.imageIndex = this.imageIndex + 1
-              this.renderIns.updateDivContainer({
+              this.$renderIns.updateDivContainer({
                 image_real_width: Math.round($('#image-tagged').width()),
                 image_real_height: Math.round($('#image-tagged').height())
               })
-              this.renderIns.goUpdate()
+              this.$renderIns.goUpdate()
             }
           } else {
             //  清空所选择的图片
@@ -171,7 +172,7 @@
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       },
       isShowSelectTable () {
-        return this.renderIns._via_user_sel_region_id === -1
+        return this.$renderIns._via_user_sel_region_id === -1
       }
     },
     methods: {
@@ -181,7 +182,7 @@
         if (this.selectRegionTableBody.length !== 0) {
           this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
           console.log('infoddd', info)
-          this.renderIns.updateCurrentSelectRegion(info)
+          this.$renderIns.updateCurrentSelectRegion(info)
         }
       },
       getMenuMsg (index) {
@@ -199,18 +200,18 @@
         if (this.selectedId === 5) {
           this.willShow = true
 //          this.tableHeader = [{name: '#'}]
-          let isEx = this.tableBody.length
-          if (isEx > 0) {
-            return
-          }
+//          let isEx = this.tableBody.length
+//          if (isEx > 0) {
+//            return
+//          }
           this.tableBody = []
-//          this.$regions = JSON.parse(this.renderIns.getMetaData())
+//          this.$regions = JSON.parse(this.$renderIns.getMetaData())
 //          console.log('this.$regions', this.$regions)
 
           // 确保当前有选中的节点
           if (this.isShowSelectTable !== -1) {
 //            let regionAttributes = this.$regions.regions
-            let id = this.renderIns._via_user_sel_region_id
+            let id = this.$renderIns._via_user_sel_region_id
             console.log(id, this.$selectRegionsObs)
             if (this.$selectRegionsObs !== undefined && id in this.$selectRegionsObs) {
               this.selectRegionTableBody = this.$selectRegionsObs[ id ]
@@ -240,18 +241,17 @@
           return
         }
         if (this.selectedId === 1) {
-          this.renderIns && this.renderIns.zoom_in()
+          this.$renderIns && this.$renderIns.zoom_in()
           return
         }
         if (this.selectedId === 2) {
-          this.renderIns && this.renderIns.zoom_out()
+          this.$renderIns && this.$renderIns.zoom_out()
         }
       },
-      // loadStart 读取相关的事件
       loadStart () {
       },
       init () {
-        this.renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
+        this.$renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
       closeTag (e) {
         this.willShow = false
@@ -275,29 +275,68 @@
 //          this.$regions.regions[key].region_attributes = typs
 //        }
         let selectId = this.selectRegionTableBody[ 0 ].value - 1
-        this.$regions = JSON.parse(this.renderIns.getMetaData(selectId))
+        if (selectId < 0) {
+          return
+        }
+        this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
         console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
         this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         this.createSelection(this.selectedImage, this.$regions)
-//        this.renderIns.resetMetaData()
         this.featureIndex = this.featureIndex + 1
         this.addFeatures({ featureName: 'feature' + this.featureIndex, imageName: this.imageName })
+        this.getSelectedRegionImagesURL()
         console.log('click submit')
       },
       addNewFeature () {
-        console.log(this.featureName)
         this.tableHeader.push({ name: this.featureName })
         for (let i = 0; i < this.tableBody.length; i++) {
           this.tableBody[ i ].push({ value: '' })
         }
         console.log(this.tableBody)
         this.featureName = 'Add New'
+      },
+      getSelectedRegionImagesURL () {
+        let selectId = this.selectRegionTableBody[ 0 ].value - 1
+        if (selectId < 0) {
+          return
+        }
+        // 获取特定组合下12张图片路径
+        let date = config.date
+        let selectedImageSplit = this.selectedImage.split('_')
+        // let curDate = selectedImageSplit.slice(1).join('_')
+        let basePath = config.baseDataPath + selectedImageSplit[ 0 ] + '/'
+        let imagePaths = date.map(function (d) {
+          return basePath + selectedImageSplit[ 0 ] + '_' + d + '.png'
+        })
+
+        let area = getBoundaryToArray(this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y)
+
+        // let color = config.defaultFeaturesObj[this.selectRegionTableBody[1].value]
+        let color = '#D6E2D7'
+        let requests = []
+        imagePaths.forEach(function (d) {
+          let virtual = new VirtulDomOpt()
+          virtual.init({ bbox: getBoundary(area) })
+          virtual.getAllCanvas()
+          virtual.setColor(color)
+          requests.push(virtual.updateSourceImageAndCutImage(d, area))
+        })
+        let selectedRegions = {}
+        selectedRegions[ selectId ] = {}
+        let urls = {}
+        Promise.all(requests).then(function (res) {
+          res.forEach(function (d, i) {
+            let img = selectedImageSplit[ 0 ] + '_' + date[ i ]
+            urls[ img ] = d
+          })
+          selectedRegions[ selectId ] = urls
+          this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
+        }.bind(this))
       }
     },
     ready () {
       this.$selectRegionsObs = {}
-//      this.init()
     }
   }
 </script>
@@ -306,46 +345,47 @@
     border: 1px solid gray;
     box-sizing: border-box;
     padding: 0 8px;
-  .image-tagged-menu {
-    height: 30px;
-    margin: 0 auto;
-    line-height: 30px;
-  li {
-    list-style: none;
-    float: left;
-    width: 30px;
-    text-align: center;
-  i {
-    color: black;
+    .image-tagged-menu {
+      height: 30px;
+      margin: 0 auto;
+      line-height: 30px;
+      li {
+        list-style: none;
+        float: left;
+        width: 30px;
+        text-align: center;
+        i {
+          color: black;
+        }
+      }
+      li:hover {
+        background: #324057;
+      }
+      .active {
+        background: #324057;
+      }
+    }
+    .select-tagged-menu {
+      position: relative;
+    }
+    .selectedInform {
+      font-size: xx-small;
+    }
+    #image_canvas {
+      position: absolute;
+      left: 0;
+      z-index: 1;
+    }
+    #region_canvas {
+      position: absolute;
+      left: 0;
+      z-index: 2;
+    }
+    .del-padding {
+      padding: 0;
+    }
   }
-  }
-  li:hover {
-    background: #324057;
-  }
-  .active {
-    background: #324057;
-  }
-  }
-  .select-tagged-menu {
-    position: relative;
-  }
-  .selectedInform {
-    font-size: xx-small;
-  }
-  #image_canvas {
-    position: absolute;
-    left: 0;
-    z-index: 1;
-  }
-  #region_canvas {
-    position: absolute;
-    left: 0;
-    z-index: 2;
-  }
-  .del-padding {
-    padding: 0;
-  }
-  }
+
   #attributes-panel {
     position: absolute;
     z-index: 10;
@@ -358,24 +398,26 @@
     padding-bottom: 2em;
     font-size: small;
     left: 100%;
-  .error-msg {
-    text-align: center;
-    width: 100%;
+    .error-msg {
+      text-align: center;
+      width: 100%;
+    }
+    .close {
+      display: block;
+      height: 30px;
+      width: 100%;
+      position: relative;
+      padding: 0;
+      margin: 0;
+    }
   }
-  .close {
-    display: block;
-    height: 30px;
-    width: 100%;
-    position: relative;
-    padding: 0;
-    margin: 0;
-  }
-  }
+
   .image-time {
     position: absolute;
     width: 100%;
     top: 96%;
     text-align: center;
+    font-size: 12px;
   }
 
 </style>

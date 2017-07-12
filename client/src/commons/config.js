@@ -57,7 +57,8 @@ let config = {
     City: 'gray',
     Flood: '#2b8cbe',
     Burnt: 'red'
-  }
+  },
+  baseDataPath: '../../../data/'
 }
 let winWidth = 0
 let winHeight = 0
