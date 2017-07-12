@@ -19,6 +19,7 @@ import {updatePageSize} from './vuex/actions'
 import {pageWidth} from './vuex/getters'
 import UTIF from './commons/utif'
 import config from './commons/config'
+import $ from 'jquery'
 // import Promise from 'bluebird'
 // var fs = Promise.promisifyAll(require('.／commons/fs.js'))
 export default {
@@ -58,6 +59,7 @@ export default {
     }
     let date = config.date
     let dataArr = []
+    let num = 0
     date.forEach(function (d, i) {
       dataLoad(i, function (response) {
         dataArr.push(response)
@@ -101,6 +103,12 @@ export default {
             let index = (y * 651 + x) * 6
             arr[ x ][ y ] = [ data[ index ], data[ index + 1 ], data[ index + 2 ], data[ index + 3 ], data[ index + 4 ], data[ index + 5 ] ]
           }
+        }
+        num += 1
+        if (num === 12) {
+          $('.loading').hide()
+          $('.main-top').css('visibility', 'visible')
+          $('.main-bottom').css('visibility', 'visible')
         }
         return done(arr)
       }

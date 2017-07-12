@@ -57,6 +57,7 @@
   .main-top {
     position: relative;
     width: 100%;
+    visibility: hidden;
     #event-list {
       position: absolute;
       left: 0;
