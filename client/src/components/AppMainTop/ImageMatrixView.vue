@@ -9,6 +9,7 @@
   import {imgCompare, imageToTaggedView} from '../../vuex/actions'
   import {pageSize, event, addedFeatures, transedFeatures} from '../../vuex/getters'
   import config from '../../commons/config'
+  import DATA from '../../../data/index'
   export default {
     vuex: {
       getters: { pageSize, event, addedFeatures, transedFeatures },
@@ -328,7 +329,9 @@
               .append('svg:image')
               .attr('class', 'original-image')
               .attr('id', imageName)
-              .attr('xlink:href', '../../../data/' + channelName + '/' + imageName + '.png')
+              .attr('xlink:href', function (d, i) {
+                return DATA[imageName]
+              })
               .attr('cursor', 'pointer')
               .attr('width', function (d, i) {
                 return originalImageWidth
@@ -1312,11 +1315,11 @@
     visibility: hidden;
   }
   .feature-image[class~=click-selection] {
-    stroke: #ef8a62 !important;
+    stroke: black !important;
     stroke-width: 2px;
   }
   .feature-image[class~=hovering-selection] {
-    stroke: #ef8a62;
+    stroke: black;
     stroke-width: 2px;
   }
   .image-components[class~=click-highlight] {
