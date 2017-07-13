@@ -40,8 +40,11 @@
   import {pageSize, comparedMessage, addedFeatures, activeRegionByIds, allRegions} from '../../vuex/getters'
   import {eventSubmit, activeRegionSelectionIds} from '../../vuex/actions'
   import config from '../../commons/config'
+  import DATA from '../../../data/index'
   let d3 = require('../../../plugins/d3v3.min.js')
   import EG from 'ENGINES'
+
+  console.log('DATA', DATA)
 
   export default {
     vuex: {
@@ -265,7 +268,6 @@
           let img1Name = comparedMessage.img1.imgName
           let img2Name = comparedMessage.img2.imgName
           if (img1Name !== null) {
-            console.log('img1Name-----', img1Name)
             let prefix = img1Name.split('_')[ 0 ]
             this.currentChannel = prefix
             let path = '../../../data/' + prefix + '/' + img1Name + '.png'
