@@ -104,25 +104,36 @@
     watch: {
       pageSize: {
         handler (curVal, oldVal) {
-          if (!this.$renderIns) {
-            this.init()
-            this.$renderIns.init({
-              image_canvas_id: 'image_canvas',
-              region_canvas_id: 'region_canvas',
-              image_real_width: Math.round($('#image-tagged').width()),
-              image_real_height: Math.round($('#image-tagged').height())
-            })
-            this.$renderIns.addEventListenerMouseup()
-            this.$renderIns.addEventListenerMousedown()
-            this.$renderIns.addEventListenerMousemove()
-            this.$renderIns.addEventListenerMouseover()
-          } else {
-            this.$renderIns.updateDivContainer({
-              image_real_width: Math.round($('#image-tagged').width()),
-              image_real_height: Math.round($('#image-tagged').height())
-            })
-            this.$renderIns.goUpdate()
-          }
+          this.init()
+          this.$renderIns.init({
+            image_canvas_id: 'image_canvas',
+            region_canvas_id: 'region_canvas',
+            image_real_width: Math.round($('#image-tagged').width()),
+            image_real_height: Math.round($('#image-tagged').height())
+          })
+          this.$renderIns.addEventListenerMouseup()
+          this.$renderIns.addEventListenerMousedown()
+          this.$renderIns.addEventListenerMousemove()
+          this.$renderIns.addEventListenerMouseover()
+//          if (!this.$renderIns) {
+//            this.init()
+//            this.$renderIns.init({
+//              image_canvas_id: 'image_canvas',
+//              region_canvas_id: 'region_canvas',
+//              image_real_width: Math.round($('#image-tagged').width()),
+//              image_real_height: Math.round($('#image-tagged').height())
+//            })
+//            this.$renderIns.addEventListenerMouseup()
+//            this.$renderIns.addEventListenerMousedown()
+//            this.$renderIns.addEventListenerMousemove()
+//            this.$renderIns.addEventListenerMouseover()
+//          } else {
+//            this.$renderIns.updateDivContainer({
+//              image_real_width: Math.round($('#image-tagged').width()),
+//              image_real_height: Math.round($('#image-tagged').height())
+//            })
+//            this.$renderIns.goUpdate()
+//          }
         },
         deep: true
       },
@@ -265,7 +276,6 @@
           selectedRegions[ selectId ] = urls
           this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
           this.featureIndex = this.featureIndex + 1
-          console.log('selectedRegions', selectedRegions)
           this.addFeatures({
             featureName: 'feature' + this.featureIndex,
             imageName: this.selectedImage,

@@ -85,28 +85,28 @@
       left: 25%;
       width: 75%;
       height: 10%;
-      border: 1px solid rebeccapurple;
+      border: 1px solid gray;
     }
     #image-tagged {
       position: absolute;
       left: 0;
       width: 25%;
       height: 66.7%;
-      border: 1px solid rebeccapurple;
+      border: 1px solid gray;
     }
     #image-comparison {
       position: absolute;
       left: 25%;
       width: 62.5%;
       height: 66.7%;
-      border: 1px solid rebeccapurple;
+      border: 1px solid gray;
     }
     #distribution-histogram {
       position: absolute;
       left: 87.5%;
       width: 12.5%;
       height: 66.6%;
-      border: 1px solid rebeccapurple;
+      border: 1px solid gray;
     }
   }
 </style>
