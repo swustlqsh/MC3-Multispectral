@@ -203,7 +203,6 @@ class GraphTag extends Render {
     this._via_is_current_cmp = true
     let imgId = this.getImageId(fileName, size)
     let imgIndex = this.getImageIdToIndex(imgId)
-    console.log(imgId, imgIndex)
     if (imgIndex !== -1) {
       if (this._via_img_metadata[ imgId ].fileref !== fileRef) {
         this._via_img_metadata[ imgId ].fileref = fileRef
@@ -231,10 +230,8 @@ class GraphTag extends Render {
   // image to canvas space transform：（从原始图到 canvas space 空间转换）
   loadCanvasRegions () {
     let regions = this._via_img_metadata[ this._via_image_id ].regions
-    console.log('regions', regions)
     this._via_canvas_regions = []
     let canvasScale = this._via_canvas_scale
-    console.log('canvasScale', canvasScale)
     for (let i = 0; i < regions.length; i++) {
       let regioni = new ImageRegion()
       regioni.is_user_tagged = regions[ i ].is_user_tagged
@@ -990,13 +987,21 @@ class GraphTag extends Render {
           all_points_y.push(all_points_y[ 0 ])
           canvas_all_points_x.push(canvas_all_points_x[ 0 ])
           canvas_all_points_y.push(canvas_all_points_y[ 0 ])
+
+          let points_str = ''
+          for (let i = 0; i < all_points_x.length; ++i) {
+            all_points_x[ i ] = Math.round(all_points_x[ i ] * this._via_canvas_scale)
+            all_points_y[ i ] = Math.round(all_points_y[ i ] * this._via_canvas_scale)
+
+            points_str += all_points_x[ i ] + ' ' + all_points_y[ i ] + ','
+          }
+          points_str = points_str.substring(0, points_str.length - 1)
           let polygon_region = new ImageRegion()
           polygon_region.shape_attributes.set('name', 'polygon')
           polygon_region.shape_attributes.set('all_points_x', all_points_x)
           polygon_region.shape_attributes.set('all_points_y', all_points_y)
           this._via_current_polygon_region_id = this._via_img_metadata[ this._via_image_id ].regions.length
           this._via_img_metadata[ this._via_image_id ].regions.push(polygon_region)
-
           // newly drawn region is automatically selected
           this.selectOnlyRegion(this._via_current_polygon_region_id)
 
@@ -1457,11 +1462,11 @@ class GraphTag extends Render {
       // copy region shape_attributes
       for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
         let value = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
-        if (Array.isArray(value)) {
-          value = value.map(function (item) {
-            return Math.round(item * scale)
-          })
-        }
+        // if (Array.isArray(value)) {
+        //   value = value.map(function (item) {
+        //     return Math.round(item * scale)
+        //   })
+        // }
 
         image_data.regions[ i ].shape_attributes[ key ] = value
       }
@@ -1480,11 +1485,11 @@ class GraphTag extends Render {
         // copy region shape_attributes
         for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
           let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
-          if (Array.isArray(value)) {
-            value = value.map(function (item) {
-              return Math.round(item * scale)
-            })
-          }
+          // if (Array.isArray(value)) {
+          //   value = value.map(function (item) {
+          //     return Math.round(item * scale)
+          //   })
+          // }
 
           image_data.regions[ i ].shape_attributes[ key ] = value
         }
@@ -1528,9 +1533,10 @@ class GraphTag extends Render {
         // 复制 regions
         let regions = d[ image_id ].regions
         for (let i in regions) {
-          if (this._via_img_metadata[ image_id ].regions.hasOwnProperty(i)) {
-            return
-          }
+          // if (this._via_img_metadata[ image_id ].regions.hasOwnProperty(i)) {
+          //   return
+          // }
+          this._via_img_metadata[image_id].regions = []
           let regioni = new ImageRegion()
           // shape_attributes
           for (let key in regions[ i ].shape_attributes) {
@@ -1540,7 +1546,6 @@ class GraphTag extends Render {
             //     return Math.round(item / scale)
             //   })
             // }
-            console.log('value', value)
             regioni.shape_attributes.set(key, value)
           }
           // region_attributes
@@ -1554,7 +1559,6 @@ class GraphTag extends Render {
           regioni.is_user_tagged = true
           regioni.is_user_selected = false
           // 只有存在是才添加到区域中
-          console.log('regioni', regioni)
           if (regioni.shape_attributes.size > 0 || regioni.region_attributes.size > 0) {
             this._via_img_metadata[ image_id ].regions.push(regioni)
           }

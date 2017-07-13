@@ -175,7 +175,7 @@
       chooseRegionType (attr) {
         let newAttr = JSON.parse(JSON.stringify(attr))
         let channels = this.selectedImage.split('_')[ 0 ]
-        let info = { 'type': newAttr, 'color': config.featureColors[ channels ][ newAttr ] }
+        let info = { 'type': newAttr, 'color': config.featureColors[ channels ] && config.featureColors[ channels ][ newAttr ] || config.defaultFeaturesObj[newAttr] }
         if (this.selectRegionTableBody.length !== 0) {
           // this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
           this.$renderIns.updateCurrentSelectRegion(info)
@@ -231,13 +231,6 @@
         this.createSelection(this.getChannel, this.$regions)
         this.getSelectedRegionImagesURL()
       },
-      addNewFeature () {
-        this.tableHeader.push({ name: this.featureName })
-        for (let i = 0; i < this.tableBody.length; i++) {
-          this.tableBody[ i ].push({ value: '' })
-        }
-        this.featureName = 'Add New'
-      },
       getSelectedRegionImagesURL () {
         let selectId = this.selectRegionTableBody[ 0 ].value - 1
         if (selectId < 0) {
@@ -246,9 +239,12 @@
         // 获取特定组合下12张图片路径
         let date = config.date
         let selectedImageSplit = this.selectedImage.split('_')
-        let basePath = config.baseDataPath + selectedImageSplit[ 0 ] + '/'
+        // let basePath = config.baseDataPath + selectedImageSplit[ 0 ] + '/'
+//        let imagePaths = date.map(function (d) {
+//          return basePath + selectedImageSplit[ 0 ] + '_' + d + '.png'
+//        })
         let imagePaths = date.map(function (d) {
-          return basePath + selectedImageSplit[ 0 ] + '_' + d + '.png'
+          return DATA[selectedImageSplit[ 0 ] + '_' + d]
         })
 
         let area = getBoundaryToArray(this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y)
