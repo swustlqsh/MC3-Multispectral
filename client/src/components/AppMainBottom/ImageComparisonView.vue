@@ -81,6 +81,7 @@
       },
       comparedMessage: {
         handler (curVal, oldVal) {
+          console.log('dfdfdfdfdfdf')
           this.loadComparisonImages()
         },
         deep: true
