@@ -233,8 +233,8 @@ class GraphTag extends Render {
     let regions = this._via_img_metadata[ this._via_image_id ].regions
     console.log('regions', regions)
     this._via_canvas_regions = []
-    // let canvasScale = this._via_canvas_scale
-    let canvasScale = 1
+    let canvasScale = this._via_canvas_scale
+    console.log('canvasScale', canvasScale)
     for (let i = 0; i < regions.length; i++) {
       let regioni = new ImageRegion()
       regioni.is_user_tagged = regions[ i ].is_user_tagged
@@ -1457,11 +1457,11 @@ class GraphTag extends Render {
       // copy region shape_attributes
       for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
         let value = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
-        // if (Array.isArray(value)) {
-        //   value = value.map(function (item) {
-        //     return Math.round(item * scale)
-        //   })
-        // }
+        if (Array.isArray(value)) {
+          value = value.map(function (item) {
+            return Math.round(item * scale)
+          })
+        }
 
         image_data.regions[ i ].shape_attributes[ key ] = value
       }
@@ -1476,7 +1476,7 @@ class GraphTag extends Render {
         image_data.regions[ i ].shape_attributes = {}
         image_data.regions[ i ].region_attributes = {}
         image_data.regions[ i ].is_user_selected = this._via_img_metadata[ image_id ].regions[i].get('is_user_selected')
-          image_data.regions[ i ].is_user_tagged = this._via_img_metadata[ image_id ].regions[i].get('is_user_tagged')
+        image_data.regions[ i ].is_user_tagged = this._via_img_metadata[ image_id ].regions[i].get('is_user_tagged')
         // copy region shape_attributes
         for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
           let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
@@ -1540,8 +1540,8 @@ class GraphTag extends Render {
             //     return Math.round(item / scale)
             //   })
             // }
+            console.log('value', value)
             regioni.shape_attributes.set(key, value)
-
           }
           // region_attributes
           for (let key in regions[ i ].region_attributes) {
