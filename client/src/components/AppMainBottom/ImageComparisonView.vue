@@ -208,13 +208,11 @@
         time = time.map(function (d, i) {
           return d.trim()
         })
-        this.currentChannel = this.comparedMessage.img1.feature.name
         this.time = time
         let belongedLineWidth = height / 200
-        if (this.comparedMessage.type === 'originalImgs') {
-          if (this.comparedMessage.img2 === null) {
-            let comparedMessage = $.extend(true, {}, this.comparedMessage)
-            this.localComparedMessage = comparedMessage
+        let comparedMessage = $.extend(true, {}, this.comparedMessage)
+        if (comparedMessage.type === 'originalImgs') {
+          if (comparedMessage.img2 === null) {
             let img1Name = comparedMessage.img1.imgName
             if (img1Name !== null) {
               let prefix = img1Name.split('_')[ 0 ]
@@ -249,13 +247,12 @@
             }
             return
           }
-          let arr1 = this.comparedMessage.img1.imgName.split('_')
+          let arr1 = comparedMessage.img1.imgName.split('_')
           let date1 = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
-          let arr2 = this.comparedMessage.img2.imgName.split('_')
+          let arr2 = comparedMessage.img2.imgName.split('_')
           let date2 = arr2[ 1 ] + '_' + arr2[ 2 ] + '_' + arr2[ 3 ]
           let index1 = this.time.indexOf(date1)
           let index2 = this.time.indexOf(date2)
-          let comparedMessage = $.extend(true, {}, this.comparedMessage)
           if (index1 > index2) {
             let mid = $.extend(true, {}, comparedMessage.img1)
             comparedMessage.img1 = $.extend(true, {}, comparedMessage.img2)
@@ -263,7 +260,6 @@
             date1 = this.time[ index2 ]
             date2 = this.time[ index1 ]
           }
-          this.localComparedMessage = comparedMessage
 //          no png
           let img1Name = comparedMessage.img1.imgName
           let img2Name = comparedMessage.img2.imgName
@@ -320,7 +316,6 @@
         }
       },
       localEventSubmit () {
-        let comparedMessage = this.localComparedMessage
         let arr1 = comparedMessage.img1.imgName.split('_')
         let startChannel = arr1[ 0 ]
         let startFeature = comparedMessage.img1.feature.name
@@ -336,7 +331,6 @@
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
         console.log(event)
         this.eventSubmit(event)
-        this.updatePanel(this.currentChannel)
       }
     },
     ready () {
