@@ -80,6 +80,7 @@ class GraphTag extends Render {
     this._via_current_image = undefined
     this._via_current_image_width = 0
     this._via_current_image_height = 0
+    this._via_is_current_cmp = false
 
     // image canvas
     this._via_img_canvas = undefined
@@ -186,6 +187,9 @@ class GraphTag extends Render {
     let imgId = this.getImageId(fileName, size)
     let imgIndex = this.getImageIdToIndex(imgId)
     if (imgIndex !== -1) {
+      if (this._via_img_metadata[ imgId ].fileref !== fileRef) {
+        this._via_img_metadata[ imgId ].fileref = fileRef
+      }
       return imgIndex
     } else {
       this._via_img_metadata[ imgId ] = new ImageMetadata(fileRef, fileName, size)
@@ -196,9 +200,14 @@ class GraphTag extends Render {
   }
 
   loadCompareLocalImg (fileRef, fileName, size) {
+    this._via_is_current_cmp = true
     let imgId = this.getImageId(fileName, size)
     let imgIndex = this.getImageIdToIndex(imgId)
+    console.log(imgId, imgIndex)
     if (imgIndex !== -1) {
+      if (this._via_img_metadata[ imgId ].fileref !== fileRef) {
+        this._via_img_metadata[ imgId ].fileref = fileRef
+      }
       return imgIndex
     } else {
       this._via_img_metadata = {}
@@ -222,6 +231,7 @@ class GraphTag extends Render {
   // image to canvas space transform：（从原始图到 canvas space 空间转换）
   loadCanvasRegions () {
     let regions = this._via_img_metadata[ this._via_image_id ].regions
+    console.log('regions', regions)
     this._via_canvas_regions = []
     // let canvasScale = this._via_canvas_scale
     let canvasScale = 1
@@ -286,8 +296,9 @@ class GraphTag extends Render {
 
       this._via_reg_ctx.fillStyle = VIA_THEME_SEL_REGION_FILL_COLOR
       this._via_reg_ctx.globalAlpha = VIA_THEME_SEL_REGION_OPACITY
-      this._via_reg_ctx.fillStyle = 'red'
-      this._via_reg_ctx.fillStyle = region_attributes.get('color') || 'blue'
+      if (!this._via_is_current_cmp) {
+        this._via_reg_ctx.fillStyle = region_attributes.get('color') || 'blue'
+      }
       this._via_reg_ctx.fill()
       this._via_reg_ctx.globalAlpha = 1.0
     }

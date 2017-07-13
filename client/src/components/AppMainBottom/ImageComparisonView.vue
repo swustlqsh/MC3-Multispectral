@@ -1,15 +1,27 @@
 <template>
   <div id='imageCompare' style='padding-left: 0; padding-right: 0; padding-top: 0'>
-    <div v-el:graph1 id="graph1" v-el:graph1>
-      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-      <canvas id="image_canvas1" class="image_canvas"></canvas>
-      <canvas id="region_canvas1" class="region_canvas"></canvas>
+    <div class="uk-grid image-tagged-view-main">
+      <div id="graph1" class="uk-thumbnail uk-thumbnail-expand del-padding" v-el:graph1>
+        <canvas id="image_canvas1" class="image_canvas"></canvas>
+        <canvas id="region_canvas1" class="region_canvas"></canvas>
+      </div>
     </div>
-    <div v-el:graph2 id="graph2" v-el:graph2>
-      <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-      <canvas id="image_canvas2" class="image_canvas"></canvas>
-      <canvas id="region_canvas2" class="region_canvas"></canvas>
+    <div class="uk-grid image-tagged-view-main">
+      <div id="graph2" class="uk-thumbnail uk-thumbnail-expand del-padding" v-el:graph2>
+        <canvas id="image_canvas2" class="image_canvas"></canvas>
+        <canvas id="region_canvas2" class="region_canvas"></canvas>
+      </div>
     </div>
+    <!--<div v-el:graph1 id="graph1" v-el:graph1>-->
+      <!--&lt;!&ndash;<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">&ndash;&gt;-->
+      <!--<canvas id="image_canvas1" class="image_canvas"></canvas>-->
+      <!--<canvas id="region_canvas1" class="region_canvas"></canvas>-->
+    <!--</div>-->
+    <!--<div v-el:graph2 id="graph2" v-el:graph2>-->
+      <!--&lt;!&ndash;<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">&ndash;&gt;-->
+      <!--<canvas id="image_canvas2" class="image_canvas"></canvas>-->
+      <!--<canvas id="region_canvas2" class="region_canvas"></canvas>-->
+    <!--</div>-->
   </div>
   <div id='statistics'>
     <div id='tagChannel'></div>
@@ -43,10 +55,6 @@
   import DATA from '../../../data/index'
   import EG from 'ENGINES'
   import _ from 'lodash'
-//  let d3 = require('../../../plugins/d3v3.min.js')
-
-  console.log('DATA', DATA)
-
   export default {
     vuex: {
       actions: {
@@ -249,13 +257,14 @@
             let comparedMessage = $.extend(true, {}, this.comparedMessage)
             this.localComparedMessage = comparedMessage
             let img1Name = comparedMessage.img1.imgName
+            let channel1Image = img1Name.split('_')[0]
             // load first image
             if (img1Name !== null) {
               // let prefix = img1Name.split('_')[ 0 ]
               // let path = '../../../data/' + prefix + '/' + img1Name + '.png'
-              let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], img1Name)
+              let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], channel1Image)
               // this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
-              let activeRegionByIds = this.getSelectedFeatureById(img1Name, [this.currentChannel.substr(7) - 1])
+              let activeRegionByIds = this.getSelectedFeatureById(channel1Image, [this.currentChannel.substr(7) - 1])
               this.$graph1.importAnnotationsFromJson(activeRegionByIds)
               this.$graph1.showImage(imgIndex)
 //              let g = svg1.append('g')
@@ -300,11 +309,12 @@
           this.localComparedMessage = comparedMessage
           let img1Name = comparedMessage.img1.imgName
           let img2Name = comparedMessage.img2.imgName
+          let channel1Image = img1Name.split('_')[0]
+          let channel2Image = img2Name.split('_')[0]
           if (img1Name !== null) {
             let currentChanne1 = this.comparedMessage.img1.feature.name
-            let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], img1Name)
-//            this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
-            let activeRegionByIds = this.getSelectedFeatureById(img1Name, [currentChanne1.substr(7) - 1])
+            let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], channel1Image)
+            let activeRegionByIds = this.getSelectedFeatureById(channel1Image, [currentChanne1.substr(7) - 1])
             this.$graph1.importAnnotationsFromJson(activeRegionByIds)
             this.$graph1.showImage(imgIndex)
 //            let prefix = img1Name.split('_')[ 0 ]
@@ -334,11 +344,9 @@
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
           if (img2Name !== null) {
             let currentChanne2 = this.comparedMessage.img2.feature.name
-            console.log('this.currentChanne2', currentChanne2.substr(7) - 1)
-            let imgIndex = this.$graph2.loadCompareLocalImg(DATA[img2Name], img2Name)
-//            this.activeRegionSelectionIds(img2Name, [currentChanne2.substr(7) - 1]) // ['0'] feature 编号b
-//            console.log('this.activeRegionByIds 2', this.activeRegionByIds)
-            let activeRegionByIds = this.getSelectedFeatureById(img2Name, [currentChanne2.substr(7) - 1])
+            let imgIndex = this.$graph2.loadCompareLocalImg(DATA[img2Name], channel2Image)
+
+            let activeRegionByIds = this.getSelectedFeatureById(channel2Image, [currentChanne2.substr(7) - 1])
             this.$graph2.importAnnotationsFromJson(activeRegionByIds)
             this.$graph2.showImage(imgIndex)
 //            let prefix = img2Name.split('_')[ 0 ]
@@ -392,6 +400,33 @@
   }
 </script>
 <style lang="less" scoped>
+  .image-tagged-view-main {
+    box-sizing: border-box;
+    margin: 0;
+    #image_canvas1 {
+      position: absolute;
+      left: 0;
+      z-index: 1;
+    }
+    #region_canvas1 {
+      position: absolute;
+      left: 0;
+      z-index: 2;
+    }
+    #image_canvas2 {
+      position: absolute;
+      left: 0;
+      z-index: 1;
+    }
+    #region_canvas2 {
+      position: absolute;
+      left: 0;
+      z-index: 2;
+    }
+    .del-padding {
+      padding: 0;
+    }
+  }
   #imageCompare {
     position: absolute;
     width: 80%;
