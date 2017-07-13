@@ -17,7 +17,7 @@ export default {
     store.dispatch(types.ACTIVE_REGION_SELECTION, imgId, regionId)
   },
   activeRegionSelectionIds (store, imgId, ids) {
-    store.dispatch(types.ACTIVE_REGION_SELECTION, imgId, ids)
+    return store.dispatch(types.ACTIVE_REGION_SELECTION_IDS, imgId, ids)
   },
   activeRegionSelectionImages (store, imgId, images) {
     store.dispatch(types.ACTIVE_REGION_SELECTION_IMAGES, imgId, images)

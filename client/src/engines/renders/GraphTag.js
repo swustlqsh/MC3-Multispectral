@@ -1429,11 +1429,11 @@ class GraphTag extends Render {
       // copy region shape_attributes
       for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
         let value = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
-        if (Array.isArray(value)) {
-          value = value.map(function (item) {
-            return Math.round(item * scale)
-          })
-        }
+        // if (Array.isArray(value)) {
+        //   value = value.map(function (item) {
+        //     return Math.round(item * scale)
+        //   })
+        // }
 
         image_data.regions[ i ].shape_attributes[ key ] = value
       }
@@ -1447,6 +1447,8 @@ class GraphTag extends Render {
         image_data.regions[ i ] = {}
         image_data.regions[ i ].shape_attributes = {}
         image_data.regions[ i ].region_attributes = {}
+        image_data.regions[ i ].is_user_selected = this._via_img_metadata[ image_id ].regions[i].get('is_user_selected')
+          image_data.regions[ i ].is_user_tagged = this._via_img_metadata[ image_id ].regions[i].get('is_user_tagged')
         // copy region shape_attributes
         for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
           let value = this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.get(key)
@@ -1490,17 +1492,28 @@ class GraphTag extends Render {
     if (data === '' || typeof (data) === 'undefined') {
       return
     }
-    let d = JSON.parse(data)
+    let d = data
+    let scale = this._via_canvas_scale
     for (let image_id in d) {
       if (this._via_img_metadata.hasOwnProperty(image_id)) {
         // 复制 file_attributes
         // 复制 regions
         let regions = d[ image_id ].regions
         for (let i in regions) {
+          if (this._via_img_metadata[ image_id ].regions.hasOwnProperty(i)) {
+            return
+          }
           let regioni = new ImageRegion()
           // shape_attributes
           for (let key in regions[ i ].shape_attributes) {
-            regioni.shape_attributes.set(key, regions[ i ].shape_attributes[ key ])
+            let value = regions[ i ].shape_attributes[ key ]
+            // if (Array.isArray(value)) {
+            //   value = value.map(function (item) {
+            //     return Math.round(item / scale)
+            //   })
+            // }
+            regioni.shape_attributes.set(key, value)
+
           }
           // region_attributes
           for (let key in regions[ i ].region_attributes) {
@@ -1510,7 +1523,10 @@ class GraphTag extends Render {
               this._via_region_attributes.add(key)
             }
           }
+          regioni.is_user_tagged = true
+          regioni.is_user_selected = false
           // 只有存在是才添加到区域中
+          console.log('regioni', regioni)
           if (regioni.shape_attributes.size > 0 || regioni.region_attributes.size > 0) {
             this._via_img_metadata[ image_id ].regions.push(regioni)
           }

@@ -25,12 +25,16 @@ export const event = eventGetters.event
 export const comparedMessage = imgCompareGetters.comparedMessage
 export const lassoArea = colorDistributionGetters.lassoArea
 export const selectedImage = imageToTaggedViewGetters.selectedImage
+
 export const activeRegion = selectionGetters.activeRegion
 export const activeImages = selectionGetters.activeImages
-export const activeRegions = selectionGetters.activeRegions
+// export const activeRegions = selectionGetters.activeRegions
+export const allRegions = selectionGetters.allRegions
 export const activeRegionsImages = selectionGetters.activeRegionsImages
+export const activeRegionByIds = selectionGetters.activeRegionByIds
 
 export const addedFeatures = addFeaturesGetters.addedFeatures
 export const transedFeatures = transFeaturesGetters.transedFeatures
 export const featureColors = changeIconListGetters.featureColors
+
 
