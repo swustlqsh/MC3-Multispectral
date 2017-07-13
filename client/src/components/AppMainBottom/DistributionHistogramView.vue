@@ -78,8 +78,6 @@
           for (let i = 0; i < num; i++) {
             area.push([ this.lassoArea[ 0 ][ i ], this.lassoArea[ 1 ][ i ] ])
           }
-//          console.log(area)
-//          console.log(getPointsOfArea)
           this.updateDistribution(getPointsOfArea(area))
         },
         deep: true

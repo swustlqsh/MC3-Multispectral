@@ -277,6 +277,7 @@
           selectedRegions[ selectId ] = urls
           this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
           this.featureIndex = this.featureIndex + 1
+          console.log('selectedRegions', selectedRegions)
           this.addFeatures({
             featureName: 'feature' + this.featureIndex,
             imageName: this.selectedImage,

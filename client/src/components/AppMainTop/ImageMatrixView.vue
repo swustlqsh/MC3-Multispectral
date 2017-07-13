@@ -6,12 +6,12 @@
   import ImageRow from '../ImageRow/ImageRow.vue'
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
-  import { imgCompare, imageToTaggedView } from '../../vuex/actions'
-  import { pageSize, event, addedFeatures } from '../../vuex/getters'
+  import {imgCompare, imageToTaggedView} from '../../vuex/actions'
+  import {pageSize, event, addedFeatures, transedFeatures} from '../../vuex/getters'
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: { pageSize, event, addedFeatures },
+      getters: { pageSize, event, addedFeatures, transedFeatures },
       actions: {
         imgCompare,
         imageToTaggedView
@@ -51,12 +51,18 @@
         },
         deep: true
       },
-//      transedFeatures: {
-//        handler (curVal, oldVal) { // object
-//          console.log('transedFeatures', this.transedFeatures)
-//        },
-//        deep: true
-//      },
+      transedFeatures: {
+        handler (curVal, oldVal) { // object
+          let cloneTransedFeatures = $.extend(true, {}, this.transedFeatures)
+          let featureName = cloneTransedFeatures.featureName
+          let imageName1 = cloneTransedFeatures.imageName1
+          let imageName2 = cloneTransedFeatures.imageName2
+          let featuresArray = [ imageName1 + '-' + featureName, imageName2 + '-' + featureName ]
+          console.log('featuresArray', featuresArray)
+          this.update_comparison_features(featuresArray)
+        },
+        deep: true
+      },
       pageSize: {
         handler (curVal, oldVal) {
           this.initSize()
@@ -1009,25 +1015,10 @@
           .classed('click-feature-highlight', false)
         let comparisonFeaturesArray = []
         for (let sI = 0; sI < selectionFeaturesArray.length; sI++) {
-          if (sI === 0) {
-            d3.select('#' + selectionFeaturesArray[ sI ])
-              .classed('click-selection', true)
-          } else {
-            d3.select('#' + selectionFeaturesArray[ sI ])
-              .classed('click-selection', true)
-          }
+          d3.select('#' + selectionFeaturesArray[ sI ])
+            .classed('click-selection', true)
           let featureId = selectionFeaturesArray[ sI ]
           comparisonFeaturesArray.push(featureId)
-//          d3.select('.image-components#' + imageNameId)
-//            .select('.background-image')
-//            .classed('click-feature-highlight', true)
-//          if (sI === 0) {
-//            d3.selectAll('.first-feature-selection-line')
-//              .remove()
-//          } else {
-//            d3.selectAll('.second-feature-selection-line')
-//              .remove()
-//          }
         }
         this.update_comparison_features(comparisonFeaturesArray)
         //  对于features Image的高亮操作
@@ -1160,6 +1151,12 @@
        * 更新下方比较的feature
        */
       update_comparison_features (featuresArray) {
+        d3.selectAll('.click-selection')
+          .classed('click-selection', false)
+        for (let fI = 0; fI < featuresArray.length; fI++) {
+          d3.select('#' + featuresArray[ fI ])
+            .classed('click-selection', true)
+        }
         if (featuresArray.length === 1) {
           let imageFeature1Name = featuresArray[ 0 ]
           let feature1NameArray = imageFeature1Name.split('-')
@@ -1193,7 +1190,7 @@
         let startObj = this.event.start
         let eventCategory = this.event.type
         eventArray.push(this.event)
-        let eventIndex = eventArray.length - 1
+        let eventIndex = eventArray.length
         if (typeof (startObj) !== 'undefined') {
           this.addEventStart(startObj, eventCategory, eventIndex, 'start')
         }
@@ -1291,11 +1288,6 @@
           //  传递空图片
           this.imageToTaggedView(null)
         }
-      },
-      //  接收选择不同的事件, 更新feature
-      updateSelectedFeaturesHandler (featuresArray) {
-        //  接收的是选择的feature, 得到featureArray
-        this.update_comparison_features(featuresArray)
       }
     }
   }

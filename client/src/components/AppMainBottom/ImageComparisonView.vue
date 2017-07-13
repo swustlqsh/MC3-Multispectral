@@ -41,8 +41,9 @@
   import {eventSubmit, activeRegionSelectionIds} from '../../vuex/actions'
   import config from '../../commons/config'
   import DATA from '../../../data/index'
-  let d3 = require('../../../plugins/d3v3.min.js')
   import EG from 'ENGINES'
+  import _ from 'lodash'
+//  let d3 = require('../../../plugins/d3v3.min.js')
 
   console.log('DATA', DATA)
 
@@ -88,8 +89,7 @@
       },
       comparedMessage: {
         handler (curVal, oldVal) {
-//          console.log('comparedMessage--------------')
-//          this.loadComparisonImages()
+          this.loadComparisonImages()
         },
         deep: true
       },
@@ -112,6 +112,12 @@
           region_canvas_id: 'region_canvas1',
           image_real_width: Math.round($('#graph1').width()),
           image_real_height: Math.round($('#graph1').height())
+        })
+        this.$graph2.init({
+          image_canvas_id: 'image_canvas2',
+          region_canvas_id: 'region_canvas2',
+          image_real_width: Math.round($('#graph2').width()),
+          image_real_height: Math.round($('#graph2').height())
         })
       },
       init () {
@@ -190,6 +196,29 @@
           .attr('x', channelTagNum[ channel ] * cellWidth + textWidth + 2)
           .text(channelTagNum[ channel ])
       },
+      getSelectedFeatureById (imgId, ids) {
+        let imageMeta = this.allRegions[imgId]
+        let newRegions = {}
+        let newMeta = {}
+        let regions = imageMeta.regions
+        newMeta = _.cloneDeep(imageMeta)
+        if (Array.isArray(ids)) {
+          ids.forEach((id) => {
+            if (regions.hasOwnProperty(id)) {
+              newRegions[id] = regions[id]
+            }
+          })
+          newMeta.regions = newRegions
+        } else {
+          if (regions.hasOwnProperty(ids)) {
+            newRegions[ids] = regions[ids]
+          }
+          newMeta.regions = newRegions
+        }
+        let resMeta = {}
+        resMeta[imgId] = newMeta
+        return resMeta
+      },
       loadComparisonImages () {
         let width = $('#graph1').width()
         let height = $('#graph1').height()
@@ -198,10 +227,11 @@
         let size = width - padding.left - padding.right
         let toTop = padding.top + size + 10
         let lineToTop = toTop - 5
+        console.log(lineToTop)
 //        $('#graph1').empty()
 //        $('#graph2').empty()
-        let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
-        let svg2 = d3.select('#graph2').append('svg').attr('width', width).attr('height', height)
+//        let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
+//        let svg2 = d3.select('#graph2').append('svg').attr('width', width).attr('height', height)
         let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03_06, ' +
           '2016_06_26, 2016_09_06, 2016_12_19'
         time = time.split(',')
@@ -211,18 +241,20 @@
         this.currentChannel = this.comparedMessage.img1.feature.name
         this.time = time
         let belongedLineWidth = height / 200
+        console.log(belongedLineWidth)
         if (this.comparedMessage.type === 'originalImgs') {
           if (this.comparedMessage.img2 === null) {
             let comparedMessage = $.extend(true, {}, this.comparedMessage)
             this.localComparedMessage = comparedMessage
             let img1Name = comparedMessage.img1.imgName
+            // load first image
             if (img1Name !== null) {
-              let prefix = img1Name.split('_')[ 0 ]
-              let path = '../../../data/' + prefix + '/' + img1Name + '.png'
-              let imgIndex = this.$graph1.loadStoreLocalImg(path, img1Name)
-              console.log('imgIndex', imgIndex)
-              this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
-              this.$graph1.importAnnotationsFromJson(this.activeRegionByIds)
+              // let prefix = img1Name.split('_')[ 0 ]
+              // let path = '../../../data/' + prefix + '/' + img1Name + '.png'
+              let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], img1Name)
+              // this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
+              let activeRegionByIds = this.getSelectedFeatureById(img1Name, [this.currentChannel.substr(7) - 1])
+              this.$graph1.importAnnotationsFromJson(activeRegionByIds)
               this.$graph1.showImage(imgIndex)
 //              let g = svg1.append('g')
 //              let arr1 = this.comparedMessage.img1.imgName.split('_')
@@ -264,58 +296,71 @@
             date2 = this.time[ index1 ]
           }
           this.localComparedMessage = comparedMessage
-//          no png
           let img1Name = comparedMessage.img1.imgName
           let img2Name = comparedMessage.img2.imgName
           if (img1Name !== null) {
-            let prefix = img1Name.split('_')[ 0 ]
-            this.currentChannel = prefix
-            let path = '../../../data/' + prefix + '/' + img1Name + '.png'
-            let g = svg1.append('g')
-            g.append('image')
-              .attr('xlink:href', path)
-              .attr('width', size)
-              .attr('height', size)
-              .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
-            svg1.append('text')
-              .attr('y', toTop)
-              .attr('x', width / 2)
-              .text(date1)
-              .attr('alignment-baseline', 'hanging')
-              .attr('text-anchor', 'middle')
-              .attr('font-size', emSize)
-            svg1.append('line')
-              .attr('y1', lineToTop)
-              .attr('x1', padding.left)
-              .attr('x2', width - padding.right)
-              .attr('y2', lineToTop)
-              .style('stroke', comparedMessage.img1.color)
-              .style('stroke-width', belongedLineWidth + 'px')
+            let currentChanne1 = this.comparedMessage.img1.feature.name
+            let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], img1Name)
+//            this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
+            let activeRegionByIds = this.getSelectedFeatureById(img1Name, [currentChanne1.substr(7) - 1])
+            this.$graph1.importAnnotationsFromJson(activeRegionByIds)
+            this.$graph1.showImage(imgIndex)
+//            let prefix = img1Name.split('_')[ 0 ]
+//            this.currentChannel = prefix
+//            let path = '../../../data/' + prefix + '/' + img1Name + '.png'
+//            let g = svg1.append('g')
+//            g.append('image')
+//              .attr('xlink:href', path)
+//              .attr('width', size)
+//              .attr('height', size)
+//              .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+//            svg1.append('text')
+//              .attr('y', toTop)
+//              .attr('x', width / 2)
+//              .text(date1)
+//              .attr('alignment-baseline', 'hanging')
+//              .attr('text-anchor', 'middle')
+//              .attr('font-size', emSize)
+//            svg1.append('line')
+//              .attr('y1', lineToTop)
+//              .attr('x1', padding.left)
+//              .attr('x2', width - padding.right)
+//              .attr('y2', lineToTop)
+//              .style('stroke', comparedMessage.img1.color)
+//              .style('stroke-width', belongedLineWidth + 'px')
           }
 //          this.renderIns.loadStoreLocalImg('../../../resource/3B/B1B5B6_2014_03_17.png', 'B1B5B6_2014_03_17')
           if (img2Name !== null) {
-            let prefix = img2Name.split('_')[ 0 ]
-            let path = '../../../data/' + prefix + '/' + img2Name + '.png'
-            let g = svg2.append('g')
-            g.append('image')
-              .attr('xlink:href', path)
-              .attr('width', size)
-              .attr('height', size)
-              .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
-            svg2.append('text')
-              .attr('y', toTop)
-              .attr('x', width / 2)
-              .attr('alignment-baseline', 'hanging')
-              .attr('text-anchor', 'middle')
-              .text(date2)
-              .attr('font-size', emSize)
-            svg2.append('line')
-              .attr('y1', lineToTop)
-              .attr('x1', padding.left)
-              .attr('x2', width - padding.right)
-              .attr('y2', lineToTop)
-              .style('stroke', comparedMessage.img2.color)
-              .style('stroke-width', belongedLineWidth + 'px')
+            let currentChanne2 = this.comparedMessage.img2.feature.name
+            console.log('this.currentChanne2', currentChanne2.substr(7) - 1)
+            let imgIndex = this.$graph2.loadCompareLocalImg(DATA[img2Name], img2Name)
+//            this.activeRegionSelectionIds(img2Name, [currentChanne2.substr(7) - 1]) // ['0'] feature 编号b
+//            console.log('this.activeRegionByIds 2', this.activeRegionByIds)
+            let activeRegionByIds = this.getSelectedFeatureById(img2Name, [currentChanne2.substr(7) - 1])
+            this.$graph2.importAnnotationsFromJson(activeRegionByIds)
+            this.$graph2.showImage(imgIndex)
+//            let prefix = img2Name.split('_')[ 0 ]
+//            let path = '../../../data/' + prefix + '/' + img2Name + '.png'
+//            let g = svg2.append('g')
+//            g.append('image')
+//              .attr('xlink:href', path)
+//              .attr('width', size)
+//              .attr('height', size)
+//              .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+//            svg2.append('text')
+//              .attr('y', toTop)
+//              .attr('x', width / 2)
+//              .attr('alignment-baseline', 'hanging')
+//              .attr('text-anchor', 'middle')
+//              .text(date2)
+//              .attr('font-size', emSize)
+//            svg2.append('line')
+//              .attr('y1', lineToTop)
+//              .attr('x1', padding.left)
+//              .attr('x2', width - padding.right)
+//              .attr('y2', lineToTop)
+//              .style('stroke', comparedMessage.img2.color)
+//              .style('stroke-width', belongedLineWidth + 'px')
           }
         }
       },

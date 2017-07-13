@@ -195,6 +195,23 @@ class GraphTag extends Render {
     }
   }
 
+  loadCompareLocalImg (fileRef, fileName, size) {
+    let imgId = this.getImageId(fileName, size)
+    let imgIndex = this.getImageIdToIndex(imgId)
+    if (imgIndex !== -1) {
+      return imgIndex
+    } else {
+      this._via_img_metadata = {}
+      this._via_img_count = 0
+      this._via_image_id_list = []
+      this._via_image_id = 0
+      this._via_img_metadata[ imgId ] = new ImageMetadata(fileRef, fileName, size)
+      this._via_image_id_list.push(imgId)
+      this._via_img_count = this._via_img_count + 1
+      return this._via_image_id_list.length - 1
+    }
+  }
+
   setAllCanvasSize (w, h) {
     this._via_img_canvas.height = h
     this._via_img_canvas.width = w
