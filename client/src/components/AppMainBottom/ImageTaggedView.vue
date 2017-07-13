@@ -1,13 +1,11 @@
 <template>
+  <ul class="uk-grid uk-grid-width-1-6 menu-ul">
+    <li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"
+        v-on:click.stop.prevent="getMenuMsg(menu.index)">
+      <a href="#"><i class="uk-icon-justify {{menu.icon}}"></i></a>
+    </li>
+  </ul>
   <div class="uk-grid image-tagged-view-main">
-    <div class="uk-width-1-1 image-tagged-menu" id="image_menu">
-      <ul class="uk-list">
-        <li :class="{'active': index == selectedId}" v-for="(index, menu) in imageMenu"
-            v-on:click.stop.prevent="getMenuMsg(menu.index)">
-          <a href="#"><i class="uk-icon-justify {{menu.icon}}"></i></a>
-        </li>
-      </ul>
-    </div>
     <div class="uk-thumbnail uk-thumbnail-expand del-padding" v-el:graph>
       <canvas id="image_canvas"></canvas>
       <canvas id="region_canvas"></canvas>
@@ -52,7 +50,6 @@
       <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
     </template>
   </div>
-  <div class="image-time">{{imageTime}}</div>
 </template>
 <script>
   import $ from 'jquery'
@@ -76,8 +73,8 @@
     data () {
       return {
         isShowSelect: true,
-        selectedTime: '', // 选择的时间 2014 2015 2016
-        selectedChannels: '', // 单个通道 或者 有意义的组合
+        selectedTime: '',
+        selectedChannels: '',
         $$renderIns: null,
         selectedId: 0,
         imageIndex: 0,
@@ -139,21 +136,11 @@
           window.currentSelectionChannel = channels
           if ((typeof (this.selectedImage) !== 'undefined') && (this.selectedImage != null)) {
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
-            // let path = process.SkyEye.ENV === 'dev' ? '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png' : '/static/data'
-
             if (this.$renderIns) {
-              let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[this.selectedImage], this.selectedImage)
-              console.log('imgIndex', imgIndex)
-              console.log('this._via_img_metadata', this.$renderIns._via_img_metadata[ this.selectedImage ])
+              let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[this.selectedImage], this.getChannel)
               this.imageIndex = imgIndex
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
-              // this.imageIndex = this.imageIndex + 1
-//              this.$renderIns.updateDivContainer({
-//                image_real_width: Math.round($('#image-tagged').width()),
-//                image_real_height: Math.round($('#image-tagged').height())
-//              })
-//              this.$renderIns.goUpdate()
             }
           } else {
             //  清空所选择的图片
@@ -167,8 +154,10 @@
         return Object.keys(this.$regions).length === 0 || Object.keys(this.$regions.regions).length === 0
       },
       isShowSelectTable () {
-        console.log('this.$renderIns._via_user_sel_region_id', this.$renderIns._via_user_sel_region_id)
         return this.$renderIns._via_user_sel_region_id === -1
+      },
+      getChannel () {
+        return this.selectedImage.split('_')[0]
       }
     },
     methods: {
@@ -228,10 +217,9 @@
         this.willShow = false
         let selectId = this.selectIndex
         this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
-        console.log('this.$regions', this.$regions)
         // 传递lasso区域，只支持一个区域
         this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
-        this.createSelection(this.selectedImage, this.$regions)
+        this.createSelection(this.getChannel, this.$regions)
         this.getSelectedRegionImagesURL()
       },
       addNewFeature () {
@@ -293,10 +281,27 @@
   }
 </script>
 <style lang="less" scoped>
+  .menu-ul {
+    height: 33px;
+    line-height: 33px;
+    border-bottom: 1px solid gray;
+    margin: 0 auto;
+    li {
+      text-align: center;
+      i {
+        color: black;
+      }
+    }
+    li:hover {
+      background: #324057;
+    }
+    .active {
+      background: #324057;
+    }
+  }
   .image-tagged-view-main {
-    border: 1px solid gray;
     box-sizing: border-box;
-    padding: 0 8px;
+    margin: 0;
   .image-tagged-menu {
     height: 30px;
     margin: 0 auto;
@@ -306,16 +311,16 @@
     float: left;
     width: 30px;
     text-align: center;
-  i {
-    color: black;
-  }
-  }
-  li:hover {
-    background: #324057;
-  }
-  .active {
-    background: #324057;
-  }
+    i {
+      color: black;
+    }
+    }
+    li:hover {
+      background: #324057;
+    }
+    .active {
+      background: #324057;
+    }
   }
   .select-tagged-menu {
     position: relative;
@@ -334,7 +339,7 @@
     z-index: 2;
   }
   .del-padding {
-    padding: 0;
+/*    padding: 0;*/
   }
   }
 
@@ -363,11 +368,10 @@
     margin: 0;
   }
   }
-
   .image-time {
     position: absolute;
     width: 100%;
-    top: 96%;
+    top: 33px;
     text-align: center;
     font-size: 12px;
   }
