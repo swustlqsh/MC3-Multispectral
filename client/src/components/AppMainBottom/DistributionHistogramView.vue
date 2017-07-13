@@ -43,6 +43,7 @@
   import {transFeatures} from '../../vuex/actions'
   import {getPointsOfArea} from '../../commons/utils'
   import config from '../../commons/config'
+  let d3 = require('../../../plugins/d3v3.min.js')
   export default {
     vuex: {
       getters: {pageSize, lassoArea, addedFeatures},
@@ -178,7 +179,6 @@
 //          .style('font-size', '0.5em')
       },
       updateDistribution (points) {
-        let d3 = require('../../../plugins/d3v3.min.js')
         let self = this
         self.points = points
         self.xScale = d3.scale.linear()
@@ -391,6 +391,7 @@
         let dmax = d3.max(diffs, function (d) {
           return d.value
         })
+        let opacity = 0.8
         for (let i = 0; i < diffs.length && i < 12; i++) {
           let h = diffs[ i ].value / dmax
           svg.append('rect')
@@ -399,14 +400,29 @@
             .attr('y', H / 2 - barH / 2 + i * H)
             .attr('height', barH * (1 - h))
             .style('fill', 'white')
-            .attr('id', 'rect' + i)
+            .attr('id', 'wrect' + i)
+            .attr('class', 'rectBar' + ' rect' + i)
             .on('mouseover', function () {
               $('.linkline').css('display', 'none')
               let id = $(this).attr('id').split('ect')[ 1 ]
               $('#pathu' + id).css('display', 'block')
               $('#pathd' + id).css('display', 'block')
+              let start = diffs[ id ].start
+              let end = diffs[ id ].end
+              let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
+              let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+              self.transFeatures({
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'mouseover'
+              })
+            })
+            .on('mouseout', function () {
+              $('.linkline').css('display', 'none')
+              let id = self.id
+              $('#pathu' + id).css('display', 'block')
+              $('#pathd' + id).css('display', 'block')
             })
             .style('stroke', 'gray')
+            .style('stroke-opacity', opacity)
             .on('click', function () {
               let id = +$(this).attr('id').split('ect')[ 1 ]
               self.id = id
@@ -414,8 +430,10 @@
               let end = diffs[ id ].end
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
               let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+              $('.mask').css('display', 'none')
+              $('#mask' + id).css('display', 'block')
               self.transFeatures({
-                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'click'
               })
             })
           svg.append('rect')
@@ -424,12 +442,27 @@
             .attr('y', H / 2 - barH / 2 + i * H + barH * (1 - h))
             .attr('height', barH * h)
             .style('fill', 'gray')
-            .attr('id', 'rect' + i)
+            .attr('id', 'brect' + i)
+            .style('opacity', opacity)
+            .attr('class', 'rectBar' + ' rect' + i)
+            .on('mouseout', function () {
+              $('.linkline').css('display', 'none')
+              let id = self.id
+              $('#pathu' + id).css('display', 'block')
+              $('#pathd' + id).css('display', 'block')
+            })
             .on('mouseover', function () {
               $('.linkline').css('display', 'none')
               let id = $(this).attr('id').split('ect')[ 1 ]
               $('#pathu' + id).css('display', 'block')
               $('#pathd' + id).css('display', 'block')
+              let start = diffs[ id ].start
+              let end = diffs[ id ].end
+              let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
+              let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+              self.transFeatures({
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'mouseover'
+              })
             })
             .style('stroke', 'gray')
             .on('click', function () {
@@ -439,10 +472,25 @@
               let end = diffs[ id ].end
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
               let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+              $('.mask').css('display', 'none')
+              $('#mask' + id).css('display', 'block')
+//              d3.selectAll('.rectBar').style('stroke', 'gray')
+//              d3.selectAll('.rect' + id).style('stroke', 'black')
               self.transFeatures({
-                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'click'
               })
             })
+          svg.append('rect')
+            .attr('x', xc - barW / 2)
+            .attr('width', barW)
+            .attr('y', H / 2 - barH / 2 + i * H)
+            .attr('height', barH)
+            .attr('id', 'mask' + i)
+            .attr('class', 'mask')
+            .style('fill', 'none')
+            .style('stroke-width', '2')
+            .style('stroke', 'black')
+            .attr('display', 'none')
           let start = +diffs[ i ].start
           let points = []
           let x0 = 0
@@ -474,8 +522,10 @@
             .attr('class', 'linkline')
             .attr('id', 'pathd' + i)
           if (i === 0) {
+            self.id = 0
             $('#pathu' + i).css('display', 'block')
             $('#pathd' + i).css('display', 'block')
+            $('#mask' + i).css('display', 'block')
             let start = diffs[ 0 ].start
             let end = diffs[ 0 ].end
             let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]

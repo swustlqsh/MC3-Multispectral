@@ -98,7 +98,7 @@
       comparedMessage: {
         handler (curVal, oldVal) {
 //          console.log('comparedMessage--------------')
-        this.loadComparisonImages()
+          this.loadComparisonImages()
         },
         deep: true
       },
