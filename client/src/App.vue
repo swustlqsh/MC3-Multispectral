@@ -20,6 +20,7 @@
   import UTIF from './commons/utif'
   import config from './commons/config'
   import $ from 'jquery'
+  import DATA from '../data/index'
   // import Promise from 'bluebird'
   // var fs = Promise.promisifyAll(require('.／commons/fs.js'))
   export default {
@@ -85,7 +86,7 @@
         let tag = '' + (i + 1)
         let xhr = new XMLHttpRequest()
         if (i + 1 < 10) tag = '0' + tag
-        xhr.open('GET', '../data/tiffile/image' + tag + '_' + date[ i ] + '.tif', true)
+        xhr.open('GET', DATA[ 'tif_image' + tag + '_' + date[ i ] ], true)
         xhr.responseType = 'arraybuffer'
         xhr.onload = function (e) {
           let pages = UTIF.decode(e.target.response)

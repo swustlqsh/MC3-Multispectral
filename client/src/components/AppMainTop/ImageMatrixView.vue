@@ -317,7 +317,6 @@
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
             let imageName = imageObjArray2[ iI ][ jI ].imageName
-            let channelName = imageObjArray2[ iI ][ jI ].channelName
             let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
             imageMatrixSvg.select('#' + imageName)
               .append('rect')
