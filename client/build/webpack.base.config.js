@@ -65,10 +65,10 @@ module.exports = {
       test: /\.vars\.less$/,
       loader: 'less-vars-loader?resolveVariables&camelCase'
     }, {
-      test: /\.(png|jpg|gif)\??.*$/,
+      test: /\.(png|jpg|gif|tif)\??.*$/,
       loader: 'url',
       query: {
-        limit: 10000,
+        limit: 10,
         name: 'images/[name].[hash:7].[ext]'
       }
     }, {
@@ -77,6 +77,13 @@ module.exports = {
       query: {
         limit: 10000,
         name: 'fonts/[name].[hash:7].[ext]'
+      }
+    }, {
+      test: /\.csv$/,
+      loader: 'url',
+      query: {
+        limit: 10,
+        name: 'csv/[name].[hash:7].[ext]'
       }
     } ]
   },

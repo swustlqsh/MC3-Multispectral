@@ -476,6 +476,14 @@
           if (i === 0) {
             $('#pathu' + i).css('display', 'block')
             $('#pathd' + i).css('display', 'block')
+            let start = diffs[ 0 ].start
+            let end = diffs[ 0 ].end
+            console.log( self.features)
+            let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
+            let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
+            self.transFeatures({
+              'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2
+            })
           } else {
             $('#pathu' + i).css('display', 'none')
             $('#pathd' + i).css('display', 'none')

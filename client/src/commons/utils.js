@@ -133,15 +133,15 @@ export const transSelectRegionToBase64 = (metaData, area, color) => {
   // points.forEach(function(d) {
   //   marked[d[0]][d[1]] = 1
   // })
-  points.forEach(function (d) {
-    let tmpX = d[ 0 ]
-    let tmpY = d[ 1 ]
-    if (tmpX < 0 || tmpY < 0 || tmpX >= width || tmpY >= height) {
-
-    } else {
-      marked[ tmpX ][ tmpY ] = 1
-    }
-  })
+  // points.forEach(function (d) {
+  //   let tmpX = d[ 0 ]
+  //   let tmpY = d[ 1 ]
+  //   if (tmpX < 0 || tmpY < 0 || tmpX >= width || tmpY >= height) {
+	//
+  //   } else {
+  //     marked[ tmpX ][ tmpY ] = 1
+  //   }
+  // })
 
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {

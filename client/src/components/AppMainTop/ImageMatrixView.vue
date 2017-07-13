@@ -6,8 +6,8 @@
   import ImageRow from '../ImageRow/ImageRow.vue'
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
-  import {imgCompare, imageToTaggedView} from '../../vuex/actions'
-  import {pageSize, event, addedFeatures } from '../../vuex/getters'
+  import { imgCompare, imageToTaggedView } from '../../vuex/actions'
+  import { pageSize, event, addedFeatures } from '../../vuex/getters'
   import config from '../../commons/config'
   export default {
     vuex: {

@@ -38,20 +38,52 @@ export default {
     state.selections.activeRegion = {imgId: imgId, id: regionId}
   },
   [types.ACTIVE_REGION_SELECTION_IDS] (state, imgId, ids) {
-    state.selections.activeRegions = {}
+    state.selections.activeRegionByIds = {}
     let imageMeta = state.selections.regions[imgId]
     let newRegions = {}
-    let newMeta = {imgId: {}}
+    let newMeta = {}
     let regions = imageMeta.regions
     newMeta = _.cloneDeep(imageMeta)
     if (Array.isArray(ids)) {
       ids.forEach((id) => {
-        newRegions = regions[id]
+        if (regions.hasOwnProperty(id)) {
+          newRegions[id] = regions[id]
+        }
       })
       newMeta.regions = newRegions
+    } else {
+      if (regions.hasOwnProperty(ids)) {
+        newRegions[ids] = regions[ids]
+      }
+      newMeta.regions = newRegions
     }
-    state.selections.activeRegions = newMeta
+    let resMeta = {}
+    resMeta[imgId] = newMeta
+    state.selections.activeRegionByIds = resMeta
+    return state.selections.activeRegionByIds
   },
+  // [types.ACTIVE_REGION_SELECTION_IDS] (state, imgId, ids) {
+  //   state.selections.activeRegions = {}
+  //   let imageMeta = state.selections.regions[imgId]
+  //   let newRegions = {}
+  //   let newMeta = {imgId: {}}
+  //   let regions = imageMeta.regions
+  //   newMeta = _.cloneDeep(imageMeta)
+  //   if (Array.isArray(ids)) {
+  //     ids.forEach((id) => {
+  //       if (regions.hasOwnProperty(id)) {
+  //         newRegions = regions[id]
+  //       }
+  //     })
+  //     newMeta.regions = newRegions
+  //   } else {
+  //     if (regions.hasOwnProperty(ids)) {
+  //       newRegions = regions[ids]
+  //     }
+  //     newMeta.regions = newRegions
+  //   }
+  //   state.selections.activeRegions = newMeta
+  // },
   [types.ACTIVE_REGION_SELECTION_IMAGES] (state, imgId, Images) {
     state.selections.activeRegionsImages = {}
     state.selections.activeRegionsImages[imgId] = Images

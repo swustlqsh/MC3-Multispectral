@@ -1,14 +1,14 @@
 <template>
   <div id='imageCompare' style='padding-left: 0; padding-right: 0; padding-top: 0'>
-    <div v-el:graph1 id="graph1">
+    <div v-el:graph1 id="graph1" v-el:graph1>
       <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-      <!--<canvas id="image_canvas1" class="image_canvas"></canvas>-->
-      <!--<canvas id="region_canvas1" class="region_canvas"></canvas>-->
+      <canvas id="image_canvas1" class="image_canvas"></canvas>
+      <canvas id="region_canvas1" class="region_canvas"></canvas>
     </div>
-    <div v-el:graph2 id="graph2">
+    <div v-el:graph2 id="graph2" v-el:graph2>
       <!--<img class="uk-thumbnail" src="../../../resource/3B/B1B5B6_2014_03_17.png" alt="">-->
-      <!--<canvas id="image_canvas2" class="image_canvas"></canvas>-->
-      <!--<canvas id="region_canvas2" class="region_canvas"></canvas>-->
+      <canvas id="image_canvas2" class="image_canvas"></canvas>
+      <canvas id="region_canvas2" class="region_canvas"></canvas>
     </div>
   </div>
   <div id='statistics'>
@@ -37,17 +37,21 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize, comparedMessage} from '../../vuex/getters'
-  import {eventSubmit} from '../../vuex/actions'
+  import {pageSize, comparedMessage, addedFeatures, activeRegionByIds, allRegions} from '../../vuex/getters'
+  import {eventSubmit, activeRegionSelectionIds} from '../../vuex/actions'
   import config from '../../commons/config'
+  import DATA from '../../../data/index'
   let d3 = require('../../../plugins/d3v3.min.js')
-//  import EG from 'ENGINES'
+  import EG from 'ENGINES'
+
+  console.log('DATA', DATA)
+
   export default {
     vuex: {
       actions: {
-        eventSubmit
+        eventSubmit, activeRegionSelectionIds
       },
-      getters: { pageSize, comparedMessage }
+      getters: { pageSize, comparedMessage, addedFeatures, activeRegionByIds, allRegions }
     },
     data () {
       return {
@@ -66,7 +70,9 @@
           'B4': 0,
           'B5': 0,
           'B6': 0
-        }
+        },
+        $graph1: null,
+        $graph2: null
       }
     },
     watch: {
@@ -75,20 +81,20 @@
           if (!this.load) {
             this.init()
           }
+          this.pageSizeForGrape()
           this.load = true
         },
         deep: true
       },
       comparedMessage: {
         handler (curVal, oldVal) {
-          console.log('dfdfdfdfdfdf')
-          this.loadComparisonImages()
+//          console.log('comparedMessage--------------')
+//          this.loadComparisonImages()
         },
         deep: true
       },
       addedFeatures: {
         handler (curVal, oldVal) {
-//          console.log(this.addedFeatures)
           let imageName = this.addedFeatures.imageName
           this.updatePanel(imageName.split('_')[0])
         },
@@ -96,6 +102,18 @@
       }
     },
     methods: {
+      initGraphAll () {
+        this.$graph1 = new EG.renders.GraphTag({ selector: this.$els.graph1 })
+        this.$graph2 = new EG.renders.GraphTag({ selector: this.$els.graph2 })
+      },
+      pageSizeForGrape () {
+        this.$graph1.init({
+          image_canvas_id: 'image_canvas1',
+          region_canvas_id: 'region_canvas1',
+          image_real_width: Math.round($('#graph1').width()),
+          image_real_height: Math.round($('#graph1').height())
+        })
+      },
       init () {
         let self = this
         $('#sbutton').click(function () {
@@ -180,8 +198,8 @@
         let size = width - padding.left - padding.right
         let toTop = padding.top + size + 10
         let lineToTop = toTop - 5
-        $('#graph1').empty()
-        $('#graph2').empty()
+//        $('#graph1').empty()
+//        $('#graph2').empty()
         let svg1 = d3.select('#graph1').append('svg').attr('width', width).attr('height', height)
         let svg2 = d3.select('#graph2').append('svg').attr('width', width).attr('height', height)
         let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03_06, ' +
@@ -201,28 +219,33 @@
             if (img1Name !== null) {
               let prefix = img1Name.split('_')[ 0 ]
               let path = '../../../data/' + prefix + '/' + img1Name + '.png'
-              let g = svg1.append('g')
-              let arr1 = this.comparedMessage.img1.imgName.split('_')
-              let date1 = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
-              g.append('image')
-                .attr('xlink:href', path)
-                .attr('width', size)
-                .attr('height', size)
-                .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
-              svg1.append('text')
-                .attr('y', toTop)
-                .attr('x', width / 2)
-                .attr('alignment-baseline', 'hanging')
-                .attr('text-anchor', 'middle')
-                .text(date1)
-                .attr('font-size', emSize)
-              svg1.append('line')
-                .attr('y1', lineToTop)
-                .attr('x1', padding.left)
-                .attr('x2', width - padding.right)
-                .attr('y2', lineToTop)
-                .style('stroke', comparedMessage.img1.color)
-                .style('stroke-width', belongedLineWidth + 'px')
+              let imgIndex = this.$graph1.loadStoreLocalImg(path, img1Name)
+              console.log('imgIndex', imgIndex)
+              this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
+              this.$graph1.importAnnotationsFromJson(this.activeRegionByIds)
+              this.$graph1.showImage(imgIndex)
+//              let g = svg1.append('g')
+//              let arr1 = this.comparedMessage.img1.imgName.split('_')
+//              let date1 = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
+//              g.append('image')
+//                .attr('xlink:href', path)
+//                .attr('width', size)
+//                .attr('height', size)
+//                .attr('transform', 'translate(' + padding.left + ',' + padding.top + ')')
+//              svg1.append('text')
+//                .attr('y', toTop)
+//                .attr('x', width / 2)
+//                .attr('alignment-baseline', 'hanging')
+//                .attr('text-anchor', 'middle')
+//                .text(date1)
+//                .attr('font-size', emSize)
+//              svg1.append('line')
+//                .attr('y1', lineToTop)
+//                .attr('x1', padding.left)
+//                .attr('x2', width - padding.right)
+//                .attr('y2', lineToTop)
+//                .style('stroke', comparedMessage.img1.color)
+//                .style('stroke-width', belongedLineWidth + 'px')
             }
             return
           }
@@ -317,7 +340,7 @@
       }
     },
     ready () {
-
+      this.initGraphAll()
     }
   }
 </script>

@@ -63,6 +63,9 @@
   import config from '../../commons/config'
   import {getBoundaryToArray, getBoundary} from '../../commons/utils'
   import VirtulDomOpt from './VirtualDomOpt'
+
+  import DATA from '../../../data/index'
+
   export default {
     vuex: {
       getters: { pageSize, selectedImage },
@@ -136,9 +139,10 @@
           window.currentSelectionChannel = channels
           if ((typeof (this.selectedImage) !== 'undefined') && (this.selectedImage != null)) {
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
-            let path = '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png'
+            // let path = process.SkyEye.ENV === 'dev' ? '../../../data/' + this.selectedImage.split('_')[ 0 ] + '/' + this.selectedImage + '.png' : '/static/data'
+
             if (this.$renderIns) {
-              let imgIndex = this.$renderIns.loadStoreLocalImg(path, this.selectedImage)
+              let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[this.selectedImage], this.selectedImage)
               console.log('imgIndex', imgIndex)
               console.log('this._via_img_metadata', this.$renderIns._via_img_metadata[ this.selectedImage ])
               this.imageIndex = imgIndex
