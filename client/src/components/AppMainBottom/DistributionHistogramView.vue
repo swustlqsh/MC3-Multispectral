@@ -409,6 +409,7 @@
             .style('stroke', 'gray')
             .on('click', function () {
               let id = +$(this).attr('id').split('ect')[ 1 ]
+              self.id = id
               let start = diffs[ id ].start
               let end = diffs[ id ].end
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
@@ -433,6 +434,7 @@
             .style('stroke', 'gray')
             .on('click', function () {
               let id = +$(this).attr('id').split('ect')[ 1 ]
+              self.id = id
               let start = diffs[ id ].start
               let end = diffs[ id ].end
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
@@ -476,7 +478,6 @@
             $('#pathd' + i).css('display', 'block')
             let start = diffs[ 0 ].start
             let end = diffs[ 0 ].end
-            console.log( self.features)
             let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
             let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
             self.transFeatures({
