@@ -37,7 +37,7 @@ const state = {
 
 const mutations = Object.assign(
   {},
-  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations, imageToTaggedMutations,
+  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations,
   changeIconListMutations, addFeaturesMutations, transFeaturesMutations, imageToTaggedMutations)
 
 export default new Vuex.Store({

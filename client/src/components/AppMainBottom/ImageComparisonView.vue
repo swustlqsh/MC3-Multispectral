@@ -97,6 +97,7 @@
       },
       comparedMessage: {
         handler (curVal, oldVal) {
+//          console.log('comparedMessage--------------')
           this.loadComparisonImages()
         },
         deep: true
@@ -247,6 +248,7 @@
           return d.trim()
         })
         this.currentChannel = this.comparedMessage.img1.feature.name
+        console.log('currentChannel', this.currentChannel)
         this.time = time
         let belongedLineWidth = height / 200
         console.log(belongedLineWidth)
