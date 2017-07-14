@@ -10,7 +10,7 @@
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: { pageSize, event }
+      getters: { pageSize, event },
       actions: {
         highlightEvent
       }
@@ -85,6 +85,7 @@
       },
       highlightEventLinkHandler (eventId) {
         let self = this
+        console.log('highlightEventLinkHandler')
         self.highlightEvent({ 'eventId': eventId, 'type': 'hover' })
       },
       selectEventLinkHandler (eventId) {
@@ -131,7 +132,7 @@
             let eventId = d3.select(this).attr('id')
             let encodeColor = d3.select('.event-rect#' + eventId).attr('fill')
             let rectHeight = d3.select('.event-rect#' + eventId).attr('height')
-            let strokeWidth = rectHeight / 10
+            let strokeWidth = rectHeight / 7
             d3.select(this).classed('mouseover-highlight', true)
             d3.select('.event-rect#' + eventId).style('stroke', encodeColor).attr('stroke-width', strokeWidth + 'px')
             self.highlightEventLinkHandler(eventId)
@@ -139,8 +140,8 @@
           .on('mouseout', function (d, i) {
             let eventId = d3.select(this).attr('id')
             if (!d3.select(this).classed('selection-highlight')) {
-            d3.select('.event-rect#' + eventId).attr('stroke-width', '0px')
-            d3.select(this).classed('mouseover-highlight', false)
+              d3.select('.event-rect#' + eventId).attr('stroke-width', '0px')
+              d3.select(this).classed('mouseover-highlight', false)
               self.highlightEventLinkHandler('null')
             }
           })
@@ -184,15 +185,16 @@
             let eventId = d3.select(this).attr('id')
             let encodeColor = d3.select(this).attr('fill')
             let rectHeight = d3.select(this).attr('height')
-            let strokeWidth = rectHeight / 10
+            let strokeWidth = rectHeight / 7
             d3.select('.event-label#' + eventId).classed('mouseover-highlight', true)
             d3.select(this).style('stroke', encodeColor).attr('stroke-width', strokeWidth + 'px')
+            self.highlightEventLinkHandler(eventId)
           })
           .on('mouseout', function (d, i) {
             let eventId = d3.select(this).attr('id')
             if (!d3.select(this).classed('selection-highlight')) {
-            d3.select('.event-label#' + eventId).classed('mouseover-highlight', false)
-            d3.select(this).attr('stroke-width', '0px')
+              d3.select('.event-label#' + eventId).classed('mouseover-highlight', false)
+              d3.select(this).attr('stroke-width', '0px')
               self.highlightEventLinkHandler('null')
             }
           })

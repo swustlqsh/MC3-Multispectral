@@ -33,12 +33,13 @@ const state = {
   },
   selectedImage: {},
   addedFeatures: {},
-  transedFeatures: {}
+  transedFeatures: {},
+  hoveringEvent: {}
 }
 
 const mutations = Object.assign(
   {},
-  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations, imageToTaggedMutations,
+  pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations,
   changeIconListMutations, addFeaturesMutations, transFeaturesMutations, imageToTaggedMutations, highlightEventMutations)
 
 export default new Vuex.Store({
