@@ -98,7 +98,8 @@
         imageTime: '',
         selectRegionTableBody: [], // 当前选中的region 开始从meta data中获取
         $selectRegionsObs: {}, // 不执行vue绑定操作
-        selectIndex: -1
+        selectIndex: -1,
+        apiUrl: 'http://127.0.0.1:8002/test/'
       }
     },
     watch: {
@@ -282,6 +283,16 @@
     },
     ready () {
       this.$selectRegionsObs = {}
+      console.log(this.vHttp, 'vHttp-----------------------------')
+      this.vHttp.get(this.apiUrl).then((response) => {
+        // TODO: 响应成功回调
+        console.log('response success')
+        // get body data
+        console.log(response.body)
+      }, (response) => {
+        // TODO: 响应错误回调
+        console.log('response error', response)
+      })
     }
   }
 </script>
