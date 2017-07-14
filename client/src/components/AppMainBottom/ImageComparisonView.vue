@@ -437,10 +437,10 @@
   }
   #statistics {
     position: absolute;
-    left: 81%;
-    width: 19%;
+    left: 80%;
+    width: 20%;
     height: 100%;
-    border: 1px solid grey;
+    border: 1px grey;
   }
   .image_canvas {
     position: absolute;

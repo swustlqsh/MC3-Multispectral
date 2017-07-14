@@ -14,6 +14,7 @@ import imageToTaggedMutations from './imageToTaggedView/mutations'
 import addFeaturesMutations from './addFeatures/mutations'
 import transFeaturesMutations from './transFeatures/mutations'
 import changeIconListMutations from './changeIconList/mutations'
+import highlightEventMutations from './highlightEvent/mutations'
 Vue.use(Vuex)
 // 在Vue实例中通过this.vxMutations进行使用
 frame.vueInstall({ module: 'vx', name: 'mutations' }, types)
@@ -32,13 +33,14 @@ const state = {
   },
   selectedImage: {},
   addedFeatures: {},
-  transedFeatures: {}
+  transedFeatures: {},
+  hoveringEvent: {}
 }
 
 const mutations = Object.assign(
   {},
   pageLayoutMutations, eventSubmitMutations, imgCompareMutations, colorDistributionMutations, selectionMutations,
-  changeIconListMutations, addFeaturesMutations, transFeaturesMutations, imageToTaggedMutations)
+  changeIconListMutations, addFeaturesMutations, transFeaturesMutations, imageToTaggedMutations, highlightEventMutations)
 
 export default new Vuex.Store({
   strict: true,

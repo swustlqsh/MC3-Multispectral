@@ -1,15 +1,19 @@
 <template>
-    <div class="event-view-main" id="eventList">
-    </div>
+  <div class="event-view-main" id="eventList">
+  </div>
 </template>
 <script>
   //  import d3 from 'd3'
   import $ from 'jquery'
   import {pageSize, event} from '../../vuex/getters'
+  import {highlightEvent} from '../../vuex/actions'
   import config from '../../commons/config'
   export default {
     vuex: {
-      getters: {pageSize, event}
+      getters: { pageSize, event },
+      actions: {
+        highlightEvent
+      }
     },
     props: [ 'detectedEvent' ],
     data () {
@@ -52,9 +56,10 @@
         this.height = height
         this.svgL = svgL
         let rectValue = this.rectValue = (width * ratio - padding.left - padding.right) / 12
+        this.fontSize = this.rectValue / 2
         this.svgLWidth = width * ratio
         this.padding = padding
-        let years = [2014, 2015, 2016]
+        let years = [ 2014, 2015, 2016 ]
         this.svgL.selectAll('text')
           .data(years)
           .enter()
@@ -77,6 +82,26 @@
           .style('stroke', 'grey')
           .attr('class', 'listLine')
           .attr('stroke-width', '1px')
+        let date = config.date
+        let self = this
+        date.forEach(function (mon, i) {
+          let txt = mon.split('_')[1]
+          self.svgL.append('text')
+            .text(txt)
+            .attr('x', padding.left + i * rectValue + rectValue / 2)
+            .attr('y', config.emSize + padding.top + config.emSize / 2)
+            .style('font-size', '0.7em')
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+        })
+      },
+      highlightEventLinkHandler (eventId) {
+        let self = this
+        self.highlightEvent({ 'eventId': eventId, 'type': 'hover' })
+      },
+      selectEventLinkHandler (eventId) {
+        let self = this
+        self.highlightEvent({ 'eventId': eventId, 'type': 'click' })
       },
       addEvent (event) {
 //        let detectedEvent = this.detectedEvent
@@ -88,10 +113,21 @@
         let padding = this.padding
         let svg = this.svgL
         let height = this.height
-        let top = padding.top + config.emSize
+        let top = padding.top + config.emSize * 2.1
+        let colors = this.colors
         if (eventNum * rectValue > height - padding.top * 2) {
           let height = $('#eSvg').height()
           d3.select('#eSvg').attr('height', height + rectValue)
+        }
+        if (eventNum === 0) {
+          svg.append('line')
+            .attr('x1', padding.left)
+            .attr('y1', top)
+            .attr('x2', this.svgLWidth - padding.right)
+            .attr('y2', top)
+            .attr('class', 'listLine')
+            .style('stroke', 'grey')
+            .attr('stroke-width', '1px')
         }
         svg.append('line')
           .attr('x1', padding.left)
@@ -101,14 +137,52 @@
           .attr('class', 'listLine')
           .style('stroke', 'grey')
           .attr('stroke-width', '1px')
+        let eventIndex = this.eventNum + 1
         svg.append('text')
-          .text(this.eventNum + 1)
+          .text(eventIndex)
+          .attr('id', 'event-' + eventIndex)
+          .attr('class', 'event-label')
           .attr('x', padding.left - 2)
           .attr('y', top + eventNum * rectValue + rectValue / 2)
           .attr('alignment-baseline', 'middle')
           .attr('text-anchor', 'end')
           .attr('font-size', config.emSize)
-//          .attr('alignment-baseline', 'middle')
+          .attr('cursor', 'pointer')
+          .attr('fill', colors[ event.type ])
+          .on('mouseover', function (d, i) {
+            let eventId = d3.select(this).attr('id')
+            let encodeColor = d3.select('.event-rect#' + eventId).attr('fill')
+            let rectHeight = d3.select('.event-rect#' + eventId).attr('height')
+            let strokeWidth = rectHeight / 7
+            d3.select(this).classed('mouseover-highlight', true)
+            d3.select('.event-rect#' + eventId).style('stroke', encodeColor).attr('stroke-width', strokeWidth + 'px')
+            self.highlightEventLinkHandler(eventId)
+          })
+          .on('mouseout', function (d, i) {
+            let eventId = d3.select(this).attr('id')
+            if (!d3.select(this).classed('selection-highlight')) {
+              d3.select('.event-rect#' + eventId).attr('stroke-width', '0px')
+              d3.select(this).classed('mouseover-highlight', false)
+              self.highlightEventLinkHandler('null')
+            }
+          })
+          .on('click', function (d, i) {
+            let eventId = d3.select(this).attr('id')
+            let encodeColor = d3.select('.event-rect#' + eventId).attr('fill')
+            let rectHeight = d3.select('.event-rect#' + eventId).attr('height')
+            let strokeWidth = rectHeight / 7
+            if (d3.select(this).classed('selection-highlight')) {
+              d3.select('.event-rect#' + eventId).attr('stroke-width', '0px')
+              d3.select(this).classed('selection-highlight', false)
+              self.selectEventLinkHandler('null')
+            } else {
+              d3.selectAll('.event-rect').attr('stroke-width', '0px')
+              d3.selectAll('selection-highlight').classed('selection-highlight', false)
+              d3.select(this).classed('selection-highlight', true)
+              d3.select('.event-rect#' + eventId).style('stroke', encodeColor).attr('stroke-width', strokeWidth + 'px')
+              self.selectEventLinkHandler(eventId)
+            }
+          })
         for (let i = 0; i < 13; i++) {
           svg.append('line')
             .attr('x1', i * rectValue + padding.left)
@@ -120,14 +194,48 @@
         }
         let startT = 3
         let endT = 5
-        let colors = this.colors
         svg.append('rect')
+          .attr('class', 'event-rect')
+          .attr('id', 'event-' + eventIndex)
           .attr('x', startT * rectValue + padding.left)
           .attr('y', eventNum * rectValue + top)
-          .attr('id', 'event' + eventNum)
           .attr('width', rectValue * (endT - startT))
           .attr('height', rectValue)
-          .style('fill', colors[ event.type ])
+          .attr('fill', colors[ event.type ])
+          .on('mouseover', function (d, i) {
+            let eventId = d3.select(this).attr('id')
+            let encodeColor = d3.select(this).attr('fill')
+            let rectHeight = d3.select(this).attr('height')
+            let strokeWidth = rectHeight / 7
+            d3.select('.event-label#' + eventId).classed('mouseover-highlight', true)
+            d3.select(this).style('stroke', encodeColor).attr('stroke-width', strokeWidth + 'px')
+            self.highlightEventLinkHandler(eventId)
+          })
+          .on('mouseout', function (d, i) {
+            let eventId = d3.select(this).attr('id')
+            if (!d3.select(this).classed('selection-highlight')) {
+              d3.select('.event-label#' + eventId).classed('mouseover-highlight', false)
+              d3.select(this).attr('stroke-width', '0px')
+              self.highlightEventLinkHandler('null')
+            }
+          })
+          .on('click', function (d, i) {
+            let eventId = d3.select(this).attr('id')
+            let encodeColor = d3.select('.event-rect#' + eventId).attr('fill')
+            let rectHeight = d3.select('.event-rect#' + eventId).attr('height')
+            let strokeWidth = rectHeight / 7
+            if (d3.select(this).classed('selection-highlight')) {
+              d3.select('.event-rect#' + eventId).attr('stroke-width', '0px')
+              d3.select(this).classed('selection-highlight', false)
+              self.selectEventLinkHandler('null')
+            } else {
+              d3.selectAll('.event-rect').attr('stroke-width', '0px')
+              d3.selectAll('selection-highlight').classed('selection-highlight', false)
+              d3.select(this).classed('selection-highlight', true)
+              d3.select('.event-rect#' + eventId).style('stroke', encodeColor).attr('stroke-width', strokeWidth + 'px')
+              self.selectEventLinkHandler(eventId)
+            }
+          })
           .append('title')
           .text(event.comments)
         this.eventNum += 1
@@ -137,7 +245,7 @@
     }
   }
 </script>
-<style lang="less" scoped>
+<style>
   .event-view-main {
     /*border: 1px solid gray;*/
     padding: 2px 1px;
@@ -145,5 +253,11 @@
   .listLine {
     stroke: gray;
     stroke-width: 1px;
+  }
+  .event-label[class~=mouseover-highlight] {
+    font-size: 1.2em;
+  }
+  .event-label[class~=selection-highlight] {
+    font-size: 1.2em;
   }
 </style>

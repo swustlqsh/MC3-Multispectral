@@ -1,41 +1,41 @@
 <template>
-    <div id = 'distribution'>
-        <div id='timelineLeft'>
-            <div id='timeline1'>
-            </div>
-            <div id='timeline2'>
-            </div>
-            <div id='timeline3'>
-            </div>
-            <div id='timeline4'>
-            </div>
-            <div id='timeline5'>
-            </div>
-            <div id='timeline6'>
-            </div>
-            <div id='timeline7'>
-            </div>
-            <div id='timeline8'>
-            </div>
-            <div id='timeline9'>
-            </div>
-            <div id='timeline10'>
-            </div>
-            <div id='timeline11'>
-            </div>
-            <div id='timeline12'>
-            </div>
-        </div>
-        <div id='timelineRight' style='text-align: center;'>
-        </div>
+  <div id = 'distribution'>
+    <div id='timelineLeft'>
+      <div id='timeline1'>
+      </div>
+      <div id='timeline2'>
+      </div>
+      <div id='timeline3'>
+      </div>
+      <div id='timeline4'>
+      </div>
+      <div id='timeline5'>
+      </div>
+      <div id='timeline6'>
+      </div>
+      <div id='timeline7'>
+      </div>
+      <div id='timeline8'>
+      </div>
+      <div id='timeline9'>
+      </div>
+      <div id='timeline10'>
+      </div>
+      <div id='timeline11'>
+      </div>
+      <div id='timeline12'>
+      </div>
     </div>
-    <div id = 'pannel' style = 'text-align: center'>
-        <select id = 'compareSelect'>
-            <option value="Near" class="option-text">Near</option>
-            <option value="Year" class="option-text">Year</option>
-            <option value="Random" class="option-text">Random</option>
-        </select>
+    <div id='timelineRight' style='text-align: center;'>
     </div>
+  </div>
+  <div id = 'pannel' style = 'text-align: center'>
+    <select id = 'compareSelect'>
+      <option value="Near" class="option-text">Near</option>
+      <option value="Year" class="option-text">Year</option>
+      <option value="Random" class="option-text">Random</option>
+    </select>
+  </div>
 </template>
 <script>
   import $ from 'jquery'
@@ -185,6 +185,7 @@
         let dataArr = window.dataArr
         let calNum = {}
         let tmp = window.currentSelectionChannel
+//        console.log('points', points)
         if (tmp === 'NDVI' && !self.NDVI) {
           let max = -1
           let min = 1000
@@ -606,54 +607,55 @@
     top: 0%;
     width: 70%;
     height: 100%;
-    border: 1px solid grey;
-    #timeline1 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline2 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline3 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline4 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline5 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline6 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline7 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline8 {
-      height: 8%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline9 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline10 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline11 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline12 {
-      height: 8.1%;
-    }
+    border-right: 1px solid grey;
+    border-bottom: 1px solid grey;
+  #timeline1 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline2 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline3 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline4 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline5 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline6 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline7 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline8 {
+    height: 8%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline9 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline10 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline11 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline12 {
+    height: 8.1%;
+  }
   }
   #timelineRight {
     position: absolute;

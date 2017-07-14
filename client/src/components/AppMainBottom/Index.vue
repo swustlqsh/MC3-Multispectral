@@ -85,7 +85,7 @@
       left: 25%;
       width: 75%;
       height: 10%;
-      border: 1px solid gray;
+      /*border: 1px solid gray;*/
     }
     #image-tagged {
       position: absolute;
@@ -106,7 +106,8 @@
       left: 87.5%;
       width: 12.5%;
       height: 66.6%;
-      border: 1px solid gray;
+      border-bottom: 1px solid gray;
+      border-top: 1px solid gray;
     }
   }
 </style>

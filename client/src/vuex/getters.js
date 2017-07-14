@@ -12,6 +12,7 @@ import imageToTaggedViewGetters from './imageToTaggedView/getters'
 import addFeaturesGetters from './addFeatures/getters'
 import transFeaturesGetters from './transFeatures/getters'
 import changeIconListGetters from './changeIconList/getters'
+import highlightEventGetters from './highlightEvent/getters'
 /**
  * |————————————————————————————————|
  * |            PageLayout         |
@@ -25,7 +26,7 @@ export const event = eventGetters.event
 export const comparedMessage = imgCompareGetters.comparedMessage
 export const lassoArea = colorDistributionGetters.lassoArea
 export const selectedImage = imageToTaggedViewGetters.selectedImage
-
+export const hoveringEvent = highlightEventGetters.hoveringEvent
 export const activeRegion = selectionGetters.activeRegion
 export const activeImages = selectionGetters.activeImages
 // export const activeRegions = selectionGetters.activeRegions

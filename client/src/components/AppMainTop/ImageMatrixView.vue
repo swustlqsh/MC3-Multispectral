@@ -7,12 +7,12 @@
   import $ from 'jquery'
   let d3 = require('../../../plugins/d3v3.min.js')
   import {imgCompare, imageToTaggedView} from '../../vuex/actions'
-  import {pageSize, event, addedFeatures, transedFeatures} from '../../vuex/getters'
+  import {pageSize, event, addedFeatures, transedFeatures, hoveringEvent} from '../../vuex/getters'
   import config from '../../commons/config'
   import DATA from '../../../data/index'
   export default {
     vuex: {
-      getters: { pageSize, event, addedFeatures, transedFeatures },
+      getters: { pageSize, event, addedFeatures, transedFeatures, hoveringEvent },
       actions: {
         imgCompare,
         imageToTaggedView
@@ -55,12 +55,12 @@
       transedFeatures: {
         handler (curVal, oldVal) { // object
           let cloneTransedFeatures = $.extend(true, {}, this.transedFeatures)
+          let featureType = this.transedFeatures.type
           let featureName = cloneTransedFeatures.featureName
           let imageName1 = cloneTransedFeatures.imageName1
           let imageName2 = cloneTransedFeatures.imageName2
           let featuresArray = [ imageName1 + '-' + featureName, imageName2 + '-' + featureName ]
-          console.log('featuresArray', featuresArray)
-          this.update_comparison_features(featuresArray)
+          this.update_comparison_features(featuresArray, featureType)
         },
         deep: true
       },
@@ -77,6 +77,36 @@
           this.renderEvents()
         },
         deep: true
+      },
+      hoveringEvent: {
+        handler (curVal, oldVal) {
+          let eventId = this.hoveringEvent.eventId
+          let eventType = this.hoveringEvent.type
+          if (eventType === 'hover') {
+            d3.select('#image-matrix-svg').selectAll('.event-highlight').classed('event-highlight', false)
+            if (eventId !== 'null') {
+              d3.select('#image-matrix-svg').selectAll('.' + eventId).classed('event-highlight', true)
+            }
+          } else if (eventType === 'click') {
+            d3.select('#image-matrix-svg').selectAll('.event-highlight').classed('selection-highlight', false)
+            if (eventId !== 'null') {
+              d3.select('#image-matrix-svg').selectAll('.' + eventId).classed('selection-highlight', true)
+              let featureIdArray = []
+              d3.select('#image-matrix-svg').selectAll('.' + eventId).each(function (d, i) {
+                let elementId = d3.select(this).attr('id')
+                if (featureIdArray.indexOf(elementId) === -1) {
+                  featureIdArray.push(elementId)
+                }
+              })
+              for (let fI = 0; fI < featureIdArray.length; fI++) {
+                featureIdArray[ fI ] = featureIdArray[ fI ].split('-')[ 0 ]
+              }
+              console.log('featureIdArray', featureIdArray)
+//              this.update_comparison_features(featureIdArray, 'click')
+            }
+          }
+        },
+        deep: true
       }
     },
     ready () {
@@ -91,7 +121,6 @@
         let globalYInterval = globalHeight / 11
         let paddingY = globalYInterval * 0.1
         let originalImageWidth = globalYInterval * 0.9
-        config.matrixWidth = originalImageWidth
         let globalXInterval = 6.25 / 100 * globalWidth
         let featureImagesInterval = globalXInterval - originalImageWidth
         let featureImageEachInterval = featureImagesInterval / 8
@@ -99,6 +128,7 @@
         let paddingFeatureX = featureImageEachInterval * 0.1
         let imageHeight = originalImageWidth + paddingY
         let paddingX = 4.3 / 100 * globalWidth
+        config.matrixWidth = originalImageWidth
         this.globalWidth = globalWidth
         this.padding = paddingY
         this.paddingTop = 0
@@ -330,7 +360,7 @@
               .attr('class', 'original-image')
               .attr('id', imageName)
               .attr('xlink:href', function (d, i) {
-                return DATA[imageName]
+                return DATA[ imageName ]
               })
               .attr('cursor', 'pointer')
               .attr('width', function (d, i) {
@@ -373,10 +403,10 @@
           .selectAll('.channel-name')
           .classed('selection-unhighlight', true)
         d3.select('#image-matrix-svg')
-          .select('.channel-name#' + channelName)
+          .select('.channel-name#text-' + channelName)
           .classed('selection-unhighlight', false)
         d3.select('#image-matrix-svg')
-          .select('.channel-name#' + channelName)
+          .select('.channel-name#text-' + channelName)
           .classed('selection-highlight', true)
       },
       unhighlightChannelText () {
@@ -810,7 +840,7 @@
           })
           .attr('y', featureImageWidth)
           .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
+          .attr('dominant-baseline', 'ideographic')
           .attr('cursor', 'pointer')
           .attr('font-family', 'FontAwesome')
           .text(function (d) {
@@ -1023,7 +1053,9 @@
           let featureId = selectionFeaturesArray[ sI ]
           comparisonFeaturesArray.push(featureId)
         }
-        this.update_comparison_features(comparisonFeaturesArray)
+        let featureType = 'click'
+        console.log('comparisonFeaturesArray', comparisonFeaturesArray)
+        this.update_comparison_features(comparisonFeaturesArray, featureType)
         //  对于features Image的高亮操作
         if (d3.select('.click-feature-highlight').empty()) {
           d3.selectAll('.image-components')
@@ -1153,7 +1185,7 @@
       /**
        * 更新下方比较的feature
        */
-      update_comparison_features (featuresArray) {
+      update_comparison_features (featuresArray, featureType) {
         d3.selectAll('.click-selection')
           .classed('click-selection', false)
         for (let fI = 0; fI < featuresArray.length; fI++) {
@@ -1165,11 +1197,13 @@
           let feature1NameArray = imageFeature1Name.split('-')
           let image1Name = feature1NameArray[ 0 ]
           let feature1Name = feature1NameArray[ 1 ]
-          this.imgCompare({
-            'type': 'originalImgs', 'img1': {
-              'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name, 'color': '#ff7f00'
-            }, 'img2': null
-          })
+          if (featureType === 'click') {
+            this.imgCompare({
+              'type': 'originalImgs', 'img1': {
+                'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name, 'color': '#ff7f00'
+              }, 'img2': null
+            })
+          }
         } else if (featuresArray.length === 2) {
           let imageFeature1Name = featuresArray[ 0 ]
           let feature1NameArray = imageFeature1Name.split('-')
@@ -1179,11 +1213,13 @@
           let feature2NameArray = imageFeature2Name.split('-')
           let image2Name = feature2NameArray[ 0 ]
           let feature2Name = feature2NameArray[ 1 ]
-          this.imgCompare({
-            'type': 'originalImgs', 'img1': {
-              'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name, 'color': '#ff7f00'
-            }, 'img2': { 'feature': { 'name': feature2Name, 'path': [] }, 'imgName': image2Name, 'color': '#1b9e77' }
-          })
+          if (featureType === 'click') {
+            this.imgCompare({
+              'type': 'originalImgs', 'img1': {
+                'feature': { 'name': feature1Name, 'path': [] }, 'imgName': image1Name, 'color': '#ff7f00'
+              }, 'img2': { 'feature': { 'name': feature2Name, 'path': [] }, 'imgName': image2Name, 'color': '#1b9e77' }
+            })
+          }
         }
       },
       dealWithEvent () {
@@ -1247,7 +1283,7 @@
         let timeIndex = dateArray.indexOf(time)
         let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
         let featuresArray = imageObj.featuresArray
-        let eventName = 'event' + eventIndex
+        let eventName = 'event-' + eventIndex
         for (let fI = 0; fI < featuresArray.length; fI++) {
           if (featuresArray[ fI ].featureName === feature) {
             featuresArray[ fI ].eventObj = {}
@@ -1270,7 +1306,7 @@
         let timeIndex = dateArray.indexOf(time)
         let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
         let featuresArray = imageObj.featuresArray
-        let eventName = 'event' + eventIndex
+        let eventName = 'event-' + eventIndex
         for (let fI = 0; fI < featuresArray.length; fI++) {
           if (featuresArray[ fI ].featureName === feature) {
             featuresArray[ fI ].eventObj = {}
@@ -1297,9 +1333,10 @@
 </script>
 <style>
   .image-matrix-view {
-    border: 1px solid gray;
+    border-left: 1px solid grey;
     width: 100%;
     margin-left: 0%;
+    overflow: hidden;
   }
   .background-image {
     fill: white;
@@ -1381,10 +1418,16 @@
   .feature-event[class~=event-highlight] {
     font-size: 0.8em;
   }
+  .feature-event[class~=selection-highlight] {
+    font-size: 0.8em;
+  }
   .feature-event-index {
     font-size: 0.6em;
   }
   .feature-event-index[class~=event-highlight] {
+    font-size: 0.7em;
+  }
+  .feature-event-index[class~=selection-highlight] {
     font-size: 0.7em;
   }
   .feature-image[class~=feature-highlight] {
