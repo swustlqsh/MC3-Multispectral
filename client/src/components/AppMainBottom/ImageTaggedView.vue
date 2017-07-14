@@ -240,10 +240,6 @@
         // 获取特定组合下12张图片路径
         let date = config.date
         let selectedImageSplit = this.selectedImage.split('_')
-        // let basePath = config.baseDataPath + selectedImageSplit[ 0 ] + '/'
-//        let imagePaths = date.map(function (d) {
-//          return basePath + selectedImageSplit[ 0 ] + '_' + d + '.png'
-//        })
         let imagePaths = date.map(function (d) {
           return DATA[selectedImageSplit[ 0 ] + '_' + d]
         })
