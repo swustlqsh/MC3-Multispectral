@@ -183,7 +183,7 @@
           // 传递lasso区域，只支持一个区域
           let selectId = this.selectIndex
           this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
-          this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
+//          this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
         }
       },
       getMenuMsg (index) {
@@ -277,7 +277,13 @@
             imageUrl: urls,
             selectedRegions: selectedRegions
           })
-          this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y ])
+          let features = {
+            featureName: 'feature' + selectId,
+            imageName: this.selectedImage,
+            imageUrl: urls,
+            selectedRegions: selectedRegions
+          }
+          this.exportArea([ this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y, features ])
         }.bind(this))
       }
     },
@@ -381,7 +387,7 @@
     display: block;
     height: 30px;
     width: 100%;
-    position: relative;
+    position: refflative;
     padding: 0;
     margin: 0;
   }
