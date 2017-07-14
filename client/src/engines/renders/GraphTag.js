@@ -405,6 +405,9 @@ class GraphTag extends Render {
   }
 
   is_inside_this_region (px, py, region_id) {
+    if (this._via_canvas_regions[ region_id ] === undefined) {
+      return false
+    }
     let attr = this._via_canvas_regions[ region_id ].shape_attributes
     let result = false
     switch (attr.get('name')) {
@@ -1460,14 +1463,13 @@ class GraphTag extends Render {
       image_data.regions[ i ].region_attributes = {}
       // copy region shape_attributes
       for (let key of this._via_img_metadata[ image_id ].regions[ i ].shape_attributes.keys()) {
-        let value = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
+        // let value = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
         // if (Array.isArray(value)) {
         //   value = value.map(function (item) {
         //     return Math.round(item * scale)
         //   })
         // }
-
-        image_data.regions[ i ].shape_attributes[ key ] = value
+        image_data.regions[ i ].shape_attributes[ key ] = this._via_img_metadata[ image_id].regions[ i ].shape_attributes.get(key)
       }
       // copy region_attributes
       for (let key of this._via_img_metadata[ this._via_image_id ].regions[ i ].region_attributes.keys()) {

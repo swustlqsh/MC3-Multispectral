@@ -33,6 +33,9 @@
         handler (curVal, oldVal) { // object
           //  接收到select image提取通道然后更新icon List
           console.log('iconListView selectedImage', this.selectedImage)
+          if (!this.selectedImage || this.selectedImage === undefined) {
+            return
+          }
           let channels = this.selectedImage.split('_')[ 0 ]
           if (channels.length > 4) {
             this.updateFeaturesList(config.featureColors[channels])
