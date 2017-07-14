@@ -127,14 +127,6 @@
           .attr('id', 'event' + eventNum)
           .attr('width', rectValue * (endT - startT))
           .attr('height', rectValue)
-          .attr('click', function () {
-            let eid = d3.select(this).attr('id').split('ent')[ 1 ]
-            let startT = self.event.start.time
-            let endT = self.event.end.time
-            let type = self.event.type
-            let channel = self.event.channel
-            let message = { 'eventId': eid, 'start': startT, 'end': endT, 'type': type, 'channel': channel }
-          })
           .style('fill', colors[ event.type ])
           .append('title')
           .text(event.comments)
