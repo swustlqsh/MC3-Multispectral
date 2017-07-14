@@ -149,7 +149,6 @@
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
             if (this.$renderIns) {
               let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[this.selectedImage], this.getChannel)
-              this.$renderIns
               this.imageIndex = imgIndex
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
@@ -249,7 +248,7 @@
         })
 
         let area = getBoundaryToArray(this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y)
-
+        // let area = [this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y]
         // let color = config.defaultFeaturesObj[this.selectRegionTableBody[1].value]
         let color = '#D6E2D7'
         let requests = []

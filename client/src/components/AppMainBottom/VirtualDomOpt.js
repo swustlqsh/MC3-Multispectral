@@ -89,6 +89,8 @@ class VirtulCanvas {
         this.cutImgCanvas.width = this.cutImgWidth
         this.cutImgCanvas.height = this.cutImgHeight
         let data = this.sourceImgCtx.getImageData(bbox[0], bbox[1], this.cutImgWidth, this.cutImgHeight)
+        let wScale = this.cutImgWidth / this.imgWidth
+        let hScale = this.cutImgHeight / this.imgHeight
         transSelectRegionToBase64(data, area, this.color)
         this.cutImgCtx.clearRect(0, 0, this.cutImgWidth, this.cutImgHeight)
         this.cutImgCtx.putImageData(data, 0, 0)

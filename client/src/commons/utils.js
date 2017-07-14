@@ -21,13 +21,20 @@ export const getPageSize = () => {
   return { width: winWidth, height: winHeight }
 }
 
-export const getPointsOfArea = (oArea) => {
+export const getPointsOfArea = (oArea, isTrans = true) => {
   // return the points arr, like [[x0,y0], [x1, y1]....]
   let area = []
-  let num = oArea[ 0 ].length
-  for (let i = 0; i < num; i++) {
-    area.push([ oArea[ 0 ][ i ], oArea[ 1 ][ i ] ])
+  let num = 0
+  if (isTrans) {
+    num = oArea[ 0 ].length
+    for (let i = 0; i < num; i++) {
+      area.push([ oArea[ 0 ][ i ], oArea[ 1 ][ i ] ])
+    }
+  } else {
+    area = oArea
+    num = area.length
   }
+
   // [[2,3], [3,4]]
   let minX = 100000
   let maxX = -1
@@ -117,7 +124,6 @@ export const getColorRgb = (color, type = 0) => {
 // }
 
 export const transSelectRegionToBase64 = (metaData, area, color) => {
-  // let color = getColorRgb(color2)
   let width = metaData.width
   let height = metaData.height
 
@@ -125,34 +131,26 @@ export const transSelectRegionToBase64 = (metaData, area, color) => {
   for (let i = 0; i < height; i++) {
     marked[ i ] = Array(width).fill(0)
   }
-  let points = getPointsOfArea(area)
-  // let points = []
-  // for (let i=0; i< 100; i++) {
-  //   points.push([i, i+1])
-  // }
-  // points.forEach(function(d) {
-  //   marked[d[0]][d[1]] = 1
-  // })
-  // points.forEach(function (d) {
-  //   let tmpX = d[ 0 ]
-  //   let tmpY = d[ 1 ]
+  // let points = getPointsOfArea(area, false)
+  // for (let i = 0; i < points.length; i++) {
+  //   let tmpX = Math.round(points[i][0])
+  //   let tmpY = Math.round(points[i][1])
   //   if (tmpX < 0 || tmpY < 0 || tmpX >= width || tmpY >= height) {
-	//
   //   } else {
   //     marked[ tmpX ][ tmpY ] = 1
   //   }
-  // })
-
-  for (let i = 0; i < height; i++) {
-    for (let j = 0; j < width; j++) {
-      if (marked[ i ][ j ] === 1) {
-        let tmp = 4 * (i * width + j)
-        metaData.data[ tmp ] = color[ 0 ]
-        metaData.data[ tmp + 1 ] = color[ 1 ]
-        metaData.data[ tmp + 2 ] = color[ 2 ]
-      }
-    }
-  }
+  // }
+  // marked = isInsidePolygonForAll(area, 651, 651)
+  // for (let i = 0; i < height; i++) {
+  //   for (let j = 0; j < width; j++) {
+  //     if (marked[ j ][ i ] === 1) {
+  //       let tmp = 4 * (i * width + j)
+  //       metaData.data[ tmp ] = color[ 0 ]
+  //       metaData.data[ tmp + 1 ] = color[ 1 ]
+  //       metaData.data[ tmp + 2 ] = color[ 2 ]
+  //     }
+  //   }
+  // }
   return metaData
 }
 
@@ -194,4 +192,45 @@ export const getBoundaryToArray = (boundaryX, boundaryY) => {
     area[ i ] = [ d, boundaryY[ i ] ]
   })
   return area
+}
+
+export const isLeft = (x0, y0, x1, y1, x2, y2) => {
+  return (((x1 - x0) * (y2 - y0)) - ((x2 - x0) * (y1 - y0)))
+}
+
+export const isInsidePolygonForOne = (area, px, py) => {
+  let wn = 0
+  for (let i = 0; i < area.length - 1; ++i) {
+    let isLeftValue = isLeft(area[ i ][0], area[ i ][1], area[ i + 1 ][0], area[ i + 1 ][1], px, py)
+    if (area[ i ][1] <= py) {
+      if (area[ i + 1 ][1] > py && isLeftValue > 0) {
+        ++wn
+      }
+    } else {
+      if (area[ i + 1 ][1] <= py && isLeftValue < 0) {
+        --wn
+      }
+    }
+  }
+  if (wn === 0) {
+    return 0
+  } else {
+    return 1
+  }
+}
+export const isInsidePolygonForAll = (area, width, height) => {
+  let marked = Array(height).fill([])
+  for (let i = 0; i < height; i++) {
+    marked[ i ] = Array(width).fill(0)
+  }
+  let box = getBoundary(area)
+  for (let i = 0; i < 651; i++) {
+    for (let j = 0; j < 651; j++) {
+      if (i < box[0] || i > box[2] || j < box[1] || j > box[3]) {
+      } else {
+        marked[i][j] = 1
+      }
+    }
+  }
+  return marked
 }
