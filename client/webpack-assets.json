@@ -1,10 +1,10 @@
 {
   "index": {
-    "js": "/static/dist/index.bundle.fe76305a.js",
+    "js": "/static/dist/index.bundle.js",
     "css": "/static/dist/index.bundle.fe76305a.css"
   },
   "index.test": {
-    "js": "/static/dist/index.test.bundle.fe76305a.js"
+    "js": "/static/dist/index.test.bundle.js"
   },
   "vendor": {
     "js": "/static/dist/vendor.bundle.fe76305a.js"
