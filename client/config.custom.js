@@ -121,6 +121,7 @@ var config = {
   alias: {
     'FRAME': 'frame',
     'COMPONENTS': 'src/components',
+    'COMMONS': 'src/commons',
     'ENGINES': 'src/engines',
     'PLUGINS': 'plugins',
     'RESOURCE': 'resource',

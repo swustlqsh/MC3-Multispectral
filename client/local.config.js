@@ -5,7 +5,7 @@ module.exports = {
   // 当为数组时 `path`的设置参考http://expressjs.com/en/4x/api.html#app.use, `config`的设置参考https://www.npmjs.com/package/http-proxy-middleware
   devServer: {
     host: '0.0.0.0',
-    port: 5010
+    port: 5010,
     // proxy: [ {
     //   path: '', // your backend url path rules
     //   config: {

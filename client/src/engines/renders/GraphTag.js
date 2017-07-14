@@ -27,7 +27,7 @@ let VIA_THEME_BOUNDARY_LINE_COLOR = '#1a1a1a'
 let VIA_THEME_BOUNDARY_FILL_COLOR = '#aaeeff'
 let VIA_THEME_SEL_REGION_FILL_COLOR = '#808080'
 let VIA_THEME_SEL_REGION_FILL_BOUNDARY_COLOR = '#000000'
-let VIA_THEME_SEL_REGION_OPACITY = 0.5
+let VIA_THEME_SEL_REGION_OPACITY = 0 //
 let VIA_THEME_MESSAGE_TIMEOUT_MS = 2500
 let VIA_THEME_ATTRIBUTE_VALUE_FONT = '10pt Sans'
 let VIA_THEME_CONTROL_POINT_COLOR = '#ff0000'
@@ -293,9 +293,9 @@ class GraphTag extends Render {
 
       this._via_reg_ctx.fillStyle = VIA_THEME_SEL_REGION_FILL_COLOR
       this._via_reg_ctx.globalAlpha = VIA_THEME_SEL_REGION_OPACITY
-      if (!this._via_is_current_cmp) {
-        this._via_reg_ctx.fillStyle = region_attributes.get('color') || 'blue'
-      }
+      // if (!this._via_is_current_cmp) {
+      //   // this._via_reg_ctx.fillStyle = region_attributes.get('color') || 'blue'
+      // }
       this._via_reg_ctx.fill()
       this._via_reg_ctx.globalAlpha = 1.0
     }
@@ -312,7 +312,7 @@ class GraphTag extends Render {
       this._via_reg_ctx.fillStyle = VIA_THEME_SEL_REGION_FILL_COLOR
       this._via_reg_ctx.globalAlpha = VIA_THEME_SEL_REGION_OPACITY
       this._via_reg_ctx.fill()
-      this._via_reg_ctx.globalAlpha = 1.0
+      // this._via_reg_ctx.globalAlpha = 1.0
 
       for (let i = 1; i < all_points_x.length; ++i) {
         this._viaDrawControlPoint(all_points_x[ i ], all_points_y[ i ])
@@ -519,14 +519,14 @@ class GraphTag extends Render {
     this._via_reg_ctx.shadowColor = 'transparent'
     for (let i = 0; i < this._via_img_metadata[ this._via_image_id ].regions.length; ++i) {
       let canvas_reg = this._via_canvas_regions[ i ]
-
       let bbox = this.getRegionBoundingBox(canvas_reg)
       let x = bbox[ 0 ]
       let y = bbox[ 1 ]
       let w = Math.abs(bbox[ 2 ] - bbox[ 0 ])
       let h = Math.abs(bbox[ 3 ] - bbox[ 1 ])
       this._via_reg_ctx.font = VIA_THEME_ATTRIBUTE_VALUE_FONT
-      let annotation_str = canvas_reg.is_user_tagged ? canvas_reg.region_attributes.get('type') : (i + 1)
+      let annotation_str = this._via_is_current_cmp ? canvas_reg.region_attributes.get('type') : (i + 1)
+      // let annotation_str = (i + 1)
       let bgnd_rect_width = this._via_reg_ctx.measureText(annotation_str).width * 2
 
       let char_width = this._via_reg_ctx.measureText('M').width
@@ -551,9 +551,13 @@ class GraphTag extends Render {
       }
 
       if (canvas_reg.shape_attributes.get('name') === VIA_REGION_SHAPE.POLYGON) {
+        // x = canvas_reg.shape_attributes.get('all_points_x')[ 0 ]
+        // y = canvas_reg.shape_attributes.get('all_points_y')[ 0 ]
         // put label near the first vertex
-        x = canvas_reg.shape_attributes.get('all_points_x')[ 0 ]
-        y = canvas_reg.shape_attributes.get('all_points_y')[ 0 ]
+        x = bbox[2]
+        let all_points_x = canvas_reg.shape_attributes.get('all_points_x')
+        let index = all_points_x.findIndex(function (d) { d === x })
+        y = index !== -1 ? canvas_reg.shape_attributes.get('all_points_x')[index]: bbox[3]
       } else {
         // center the label
         x = x - (bgnd_rect_width / 2 - w / 2)
@@ -561,7 +565,7 @@ class GraphTag extends Render {
 
       // first, draw a background rectangle first
       this._via_reg_ctx.fillStyle = 'black'
-      this._via_reg_ctx.globalAlpha = 0.5
+      this._via_reg_ctx.globalAlpha = 1.0
       this._via_reg_ctx.fillRect(Math.floor(x), Math.floor(y - 1.1 * char_height), Math.floor(bgnd_rect_width), Math.floor(char_height))
 
       // then, draw text over this background rectangle
