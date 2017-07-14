@@ -532,7 +532,7 @@
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
               let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
               self.transFeatures({
-                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2
+                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'click'
               })
             }
           } else {
