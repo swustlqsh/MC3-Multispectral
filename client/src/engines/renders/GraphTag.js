@@ -523,8 +523,7 @@ class GraphTag extends Render {
       let w = Math.abs(bbox[ 2 ] - bbox[ 0 ])
       let h = Math.abs(bbox[ 3 ] - bbox[ 1 ])
       this._via_reg_ctx.font = VIA_THEME_ATTRIBUTE_VALUE_FONT
-
-      let annotation_str = (i + 1)
+      let annotation_str = canvas_reg.is_user_tagged ? canvas_reg.region_attributes.get('type') : (i + 1)
       let bgnd_rect_width = this._via_reg_ctx.measureText(annotation_str).width * 2
 
       let char_width = this._via_reg_ctx.measureText('M').width
@@ -559,7 +558,7 @@ class GraphTag extends Render {
 
       // first, draw a background rectangle first
       this._via_reg_ctx.fillStyle = 'black'
-      this._via_reg_ctx.globalAlpha = 0.8
+      this._via_reg_ctx.globalAlpha = 0.5
       this._via_reg_ctx.fillRect(Math.floor(x), Math.floor(y - 1.1 * char_height), Math.floor(bgnd_rect_width), Math.floor(char_height))
 
       // then, draw text over this background rectangle
@@ -1526,7 +1525,6 @@ class GraphTag extends Render {
       return
     }
     let d = data
-    let scale = this._via_canvas_scale
     for (let image_id in d) {
       if (this._via_img_metadata.hasOwnProperty(image_id)) {
         // 复制 file_attributes

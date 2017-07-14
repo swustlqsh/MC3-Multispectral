@@ -149,6 +149,7 @@
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
             if (this.$renderIns) {
               let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[this.selectedImage], this.getChannel)
+              this.$renderIns
               this.imageIndex = imgIndex
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
@@ -269,9 +270,9 @@
           })
           selectedRegions[ selectId ] = urls
           this.activeRegionSelectionImages(this.selectedImage, selectedRegions)
-          this.featureIndex = this.featureIndex + 1
+          // this.featureIndex = this.featureIndex + 1
           this.addFeatures({
-            featureName: 'feature' + this.featureIndex,
+            featureName: 'feature' + selectId,
             imageName: this.selectedImage,
             imageUrl: urls,
             selectedRegions: selectedRegions
@@ -293,12 +294,14 @@
     margin: 0 auto;
     li {
       text-align: center;
+      margin: 0;
+      padding: 0;
       i {
         color: black;
       }
     }
     li:hover {
-      background: #324057;
+      background: gray;
     }
     .active {
       background: #324057;

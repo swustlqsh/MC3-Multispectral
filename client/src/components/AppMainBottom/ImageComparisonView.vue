@@ -97,7 +97,6 @@
       },
       comparedMessage: {
         handler (curVal, oldVal) {
-//          console.log('comparedMessage--------------')
           this.loadComparisonImages()
         },
         deep: true
@@ -264,6 +263,7 @@
               // let path = '../../../data/' + prefix + '/' + img1Name + '.png'
               let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], channel1Image)
               // this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
+              console.log(this.currentChannel.substr(7) - 1, 'ddddddd')
               let activeRegionByIds = this.getSelectedFeatureById(channel1Image, [this.currentChannel.substr(7) - 1])
               this.$graph1.importAnnotationsFromJson(activeRegionByIds)
               this.$graph1.showImage(imgIndex)
@@ -314,7 +314,7 @@
           if (img1Name !== null) {
             let currentChanne1 = this.comparedMessage.img1.feature.name
             let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], channel1Image)
-            let activeRegionByIds = this.getSelectedFeatureById(channel1Image, [currentChanne1.substr(7) - 1])
+            let activeRegionByIds = this.getSelectedFeatureById(channel1Image, [currentChanne1.substr(7)])
             this.$graph1.importAnnotationsFromJson(activeRegionByIds)
             this.$graph1.showImage(imgIndex)
 //            let prefix = img1Name.split('_')[ 0 ]
@@ -346,7 +346,7 @@
             let currentChanne2 = this.comparedMessage.img2.feature.name
             let imgIndex = this.$graph2.loadCompareLocalImg(DATA[img2Name], channel2Image)
 
-            let activeRegionByIds = this.getSelectedFeatureById(channel2Image, [currentChanne2.substr(7) - 1])
+            let activeRegionByIds = this.getSelectedFeatureById(channel2Image, [currentChanne2.substr(7)])
             this.$graph2.importAnnotationsFromJson(activeRegionByIds)
             this.$graph2.showImage(imgIndex)
 //            let prefix = img2Name.split('_')[ 0 ]
