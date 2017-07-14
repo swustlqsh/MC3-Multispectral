@@ -91,6 +91,7 @@
         let globalYInterval = globalHeight / 11
         let paddingY = globalYInterval * 0.1
         let originalImageWidth = globalYInterval * 0.9
+        config.matrixWidth = originalImageWidth
         let globalXInterval = 6.25 / 100 * globalWidth
         let featureImagesInterval = globalXInterval - originalImageWidth
         let featureImageEachInterval = featureImagesInterval / 8

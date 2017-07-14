@@ -39,14 +39,14 @@
 </template>
 <script>
   import $ from 'jquery'
-  import {pageSize, lassoArea, addedFeatures} from '../../vuex/getters'
+  import {pageSize, lassoArea} from '../../vuex/getters'
   import {transFeatures} from '../../vuex/actions'
   import {getPointsOfArea} from '../../commons/utils'
   import config from '../../commons/config'
   let d3 = require('../../../plugins/d3v3.min.js')
   export default {
     vuex: {
-      getters: {pageSize, lassoArea, addedFeatures},
+      getters: {pageSize, lassoArea},
       actions: {transFeatures}
     },
     data () {
@@ -79,16 +79,12 @@
           for (let i = 0; i < num; i++) {
             area.push([ this.lassoArea[ 0 ][ i ], this.lassoArea[ 1 ][ i ] ])
           }
-          this.updateDistribution(getPointsOfArea(area))
-        },
-        deep: true
-      },
-      addedFeatures: {
-        handler (curVal, oldVal) {
+          let addedFeatures = this.lassoArea[2]
           this.features = {}
-          this.features[ 'featureName' ] = this.addedFeatures[ 'featureName' ]
-          let imgName = this.addedFeatures[ 'imageName' ]
+          this.features[ 'featureName' ] = addedFeatures[ 'featureName' ]
+          let imgName = addedFeatures[ 'imageName' ]
           this.features[ 'featureChannel' ] = imgName.split('_')[ 0 ]
+          this.updateDistribution(getPointsOfArea(area))
         },
         deep: true
       }
@@ -97,6 +93,7 @@
       init (panelSelector, data, index) {
 //        console.log(data)
         let self = this
+        let fill = '#242020'
         let d3 = require('../../../plugins/d3v3.min.js')
         self.width = $(panelSelector).width()
         self.height = $(panelSelector).height()
@@ -161,7 +158,7 @@
           .attr('y', function (d) { return self.yScale(self.barHeight(d.num)) })
           .attr('width', self.barWidth)
           .attr('height', function (d) { return self.height - self.yScale(self.barHeight(d.num)) })
-          .style('fill', 'grey')
+          .style('fill', fill)
 
         if (index === 0) {
           for (let i = 0; i < self.currentChannels.length; i++) {
@@ -260,8 +257,6 @@
             })
           })
         }) ])
-        console.log(self.xScale.domain())
-        console.log(self.yScale.domain())
         for (let i = 0; i < allData.length; i++) {
           self.init('#timeline' + (i + 1), allData[ i ], i)
         }
@@ -528,6 +523,7 @@
             $('#mask' + i).css('display', 'block')
             let start = diffs[ 0 ].start
             let end = diffs[ 0 ].end
+            console.log('features', self.features)
             if (self.features) {
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
               let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]

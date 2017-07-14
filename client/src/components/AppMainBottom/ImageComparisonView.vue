@@ -246,8 +246,9 @@
         time = time.map(function (d, i) {
           return d.trim()
         })
+        console.log('comparedMessage', this.comparedMessage)
+        this.currentCmpChannel = this.comparedMessage.img1.imgName.split('_')[0]
         this.currentChannel = this.comparedMessage.img1.feature.name
-        console.log('currentChannel', this.currentChannel)
         this.time = time
         let belongedLineWidth = height / 200
         console.log(belongedLineWidth)
@@ -255,6 +256,10 @@
           if (this.comparedMessage.img2 === null) {
             let comparedMessage = $.extend(true, {}, this.comparedMessage)
             this.localComparedMessage = comparedMessage
+            let cxt = document.getElementById('image_canvas2').getContext('2d')
+            cxt.clearRect(0, 0, width, height)
+            cxt = document.getElementById('region_canvas2').getContext('2d')
+            cxt.clearRect(0, 0, width, height)
             let img1Name = comparedMessage.img1.imgName
             let channel1Image = img1Name.split('_')[0]
             // load first image
@@ -263,7 +268,6 @@
               // let path = '../../../data/' + prefix + '/' + img1Name + '.png'
               let imgIndex = this.$graph1.loadCompareLocalImg(DATA[img1Name], channel1Image)
               // this.activeRegionSelectionIds(img1Name, [this.currentChannel.substr(7) - 1]) // ['0'] feature 编号b
-              console.log(this.currentChannel.substr(7) - 1, 'ddddddd')
               let activeRegionByIds = this.getSelectedFeatureById(channel1Image, [this.currentChannel.substr(7) - 1])
               this.$graph1.importAnnotationsFromJson(activeRegionByIds)
               this.$graph1.showImage(imgIndex)
@@ -389,9 +393,8 @@
         event.type = $('#eventSelect').val()
         event.start = { 'time': startT, 'channel': startChannel, 'feature': startFeature }
         event.end = { 'time': endT, 'channel': endChannel, 'feature': endFeature }
-        console.log(event)
+        event.channel = this.currentCmpChannel
         this.eventSubmit(event)
-        this.updatePanel(this.currentChannel)
       }
     },
     ready () {

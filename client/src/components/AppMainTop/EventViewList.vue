@@ -42,7 +42,7 @@
         let height = $('#event-list').height()
         let d3 = window.d3
         let ratio = 1
-        let padding = { top: 5, left: 20, right: 5, bottom: 2 }
+        let padding = { top: 5, left: 20, right: 8, bottom: 2 }
         this.eventNum = 0
         padding.left = config.emSize * 1.2
         d3.select('#eventList').html('')
@@ -52,7 +52,6 @@
         this.height = height
         this.svgL = svgL
         let rectValue = this.rectValue = (width * ratio - padding.left - padding.right) / 12
-        this.fontSize = this.rectValue / 2
         this.svgLWidth = width * ratio
         this.padding = padding
         let years = [2014, 2015, 2016]
@@ -82,6 +81,7 @@
       addEvent (event) {
 //        let detectedEvent = this.detectedEvent
 //        console.log(event.comments, event.type)
+        let self = this
         let d3 = window.d3
         let eventNum = this.eventNum
         let rectValue = this.rectValue
@@ -124,8 +124,17 @@
         svg.append('rect')
           .attr('x', startT * rectValue + padding.left)
           .attr('y', eventNum * rectValue + top)
+          .attr('id', 'event' + eventNum)
           .attr('width', rectValue * (endT - startT))
           .attr('height', rectValue)
+          .attr('click', function () {
+            let eid = d3.select(this).attr('id').split('ent')[ 1 ]
+            let startT = self.event.start.time
+            let endT = self.event.end.time
+            let type = self.event.type
+            let channel = self.event.channel
+            let message = { 'eventId': eid, 'start': startT, 'end': endT, 'type': type, 'channel': channel }
+          })
           .style('fill', colors[ event.type ])
           .append('title')
           .text(event.comments)

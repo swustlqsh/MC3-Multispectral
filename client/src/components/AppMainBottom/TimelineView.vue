@@ -76,17 +76,16 @@
             .attr('text-anchor', 'middle')
         })
         let date = config.date
-        let month = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ]
-        let rectW = $('#image-matrix-div').height() / 11 * 0.9
+//        let month = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ]
+//        let rectW = $('#image-matrix-div').height() / 11 * 0.9
         date.forEach(function (d, i) {
           let txt = d.split('_')
-          txt = +txt[ 1 ]
-          let mon = month[txt - 1]
+          let mon = txt[ 1 ] + '.' + txt[ 2 ]
           svg.append('text')
             .attr('y', 2)
-            .attr('x', width / 12 * i + rectW / 2)
+            .attr('x', width / 12 * i)
             .attr('alignment-baseline', 'hanging')
-            .attr('text-anchor', 'middle')
+            .attr('text-anchor', 'start')
             .text(mon)
             .attr('font-size', '0.7em')
         })
@@ -102,12 +101,7 @@
         }
         $('.timeCurve').remove()
         let localComparedMessage = $.extend(true, {}, this.comparedMessage)
-        let time = '2014_03_17, 2014_08_24, 2014_11_28, 2014_12_30, 2015_02_15, 2015_06_24, 2015_09_12, 2015_11_15, 2016_03, ' +
-          '2016_06_26, 2016_09_06, 2016_12_19'
-        time = time.split(',')
-        time = time.map(function (d, i) {
-          return d.trim()
-        })
+        let time = config.date
         if (localComparedMessage.img2 === null) {
           let arr1 = localComparedMessage.img1.imgName.split('_')
           let startT = arr1[ 1 ] + '_' + arr1[ 2 ] + '_' + arr1[ 3 ]
@@ -137,7 +131,7 @@
         let padding = this.padding
         let d3 = window.d3
         let source = [ 0, padding.top + height / 3 ]
-        source[ 0 ] = index / 12 * width
+        source[ 0 ] = index / 12 * width + config.matrixWidth / 2
         let target = [ width / 6 + width / 3 * type, height ]
         let midP1x = (target[ 0 ] - source[ 0 ]) / 4 + source[ 0 ]
         let midP1y = (source[ 1 ] + target[ 1 ]) / 2
@@ -148,7 +142,7 @@
         let points = [ source, midP1, midP2, target ]
         console.log(points)
         let line = d3.line()
-          .x(function (d) { return d[ 0 ] + width / 12 / 3 })
+          .x(function (d) { return d[ 0 ] })
           .y(function (d) { return d[ 1 ] })
           .curve(d3.curveBundle.beta(0.5))
         svg.append('path')
