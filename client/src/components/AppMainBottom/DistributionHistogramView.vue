@@ -46,7 +46,7 @@
   let d3 = require('../../../plugins/d3v3.min.js')
   export default {
     vuex: {
-      getters: {pageSize, lassoArea, addedFeatures},
+      getters: {pageSize, lassoArea},
       actions: {transFeatures}
     },
     data () {
