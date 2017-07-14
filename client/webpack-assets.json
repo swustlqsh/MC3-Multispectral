@@ -1,12 +1,12 @@
 {
   "index": {
-    "js": "/static/dist/index.bundle.js",
-    "css": "/static/dist/index.bundle.fe76305a.css"
+    "js": "/static/dist/index.bundle.f3ac1ba0.js",
+    "css": "/static/dist/index.bundle.f3ac1ba0.css"
   },
   "index.test": {
-    "js": "/static/dist/index.test.bundle.js"
+    "js": "/static/dist/index.test.bundle.f3ac1ba0.js"
   },
   "vendor": {
-    "js": "/static/dist/vendor.bundle.fe76305a.js"
+    "js": "/static/dist/vendor.bundle.f3ac1ba0.js"
   }
 }
