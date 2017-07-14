@@ -1,41 +1,41 @@
 <template>
-    <div id = 'distribution'>
-        <div id='timelineLeft'>
-            <div id='timeline1'>
-            </div>
-            <div id='timeline2'>
-            </div>
-            <div id='timeline3'>
-            </div>
-            <div id='timeline4'>
-            </div>
-            <div id='timeline5'>
-            </div>
-            <div id='timeline6'>
-            </div>
-            <div id='timeline7'>
-            </div>
-            <div id='timeline8'>
-            </div>
-            <div id='timeline9'>
-            </div>
-            <div id='timeline10'>
-            </div>
-            <div id='timeline11'>
-            </div>
-            <div id='timeline12'>
-            </div>
-        </div>
-        <div id='timelineRight' style='text-align: center;'>
-        </div>
+  <div id='distribution'>
+    <div id='timelineLeft'>
+      <div id='timeline1'>
+      </div>
+      <div id='timeline2'>
+      </div>
+      <div id='timeline3'>
+      </div>
+      <div id='timeline4'>
+      </div>
+      <div id='timeline5'>
+      </div>
+      <div id='timeline6'>
+      </div>
+      <div id='timeline7'>
+      </div>
+      <div id='timeline8'>
+      </div>
+      <div id='timeline9'>
+      </div>
+      <div id='timeline10'>
+      </div>
+      <div id='timeline11'>
+      </div>
+      <div id='timeline12'>
+      </div>
     </div>
-    <div id = 'pannel' style = 'text-align: center'>
-        <select id = 'compareSelect'>
-            <option value="Near" class="option-text">Near</option>
-            <option value="Year" class="option-text">Year</option>
-            <option value="Random" class="option-text">Random</option>
-        </select>
+    <div id='timelineRight' style='text-align: center;'>
     </div>
+  </div>
+  <div id='pannel' style='text-align: center'>
+    <select id='compareSelect'>
+      <option value="Near" class="option-text">Near</option>
+      <option value="Year" class="option-text">Year</option>
+      <option value="Random" class="option-text">Random</option>
+    </select>
+  </div>
 </template>
 <script>
   import $ from 'jquery'
@@ -46,8 +46,8 @@
   let d3 = require('../../../plugins/d3v3.min.js')
   export default {
     vuex: {
-      getters: {pageSize, lassoArea},
-      actions: {transFeatures}
+      getters: { pageSize, lassoArea, addedFeatures },
+      actions: { transFeatures }
     },
     data () {
       return {
@@ -62,7 +62,7 @@
             for (var j = 1; j < 13; j++) {
               let data = []
               for (var i = 0; i < 20; i++) {
-                data.push({'time': i, 'num': parseInt(Math.random() * 20)})
+                data.push({ 'time': i, 'num': parseInt(Math.random() * 20) })
               }
 //              this.init('#timeline' + j, data)
             }
@@ -104,8 +104,8 @@
         let W = self.w
         self.w = self.w - self.margin.left - self.margin.right
         self.height = self.height - self.margin.top - self.margin.bottom
-        self.xScale.range([0, self.w])
-        self.yScale.range([self.height, 0])
+        self.xScale.range([ 0, self.w ])
+        self.yScale.range([ self.height, 0 ])
 //        self.xAxis = d3.svg.axis()
 //          .scale(self.xScale)
 //          .orient('bottom')
@@ -147,7 +147,7 @@
           .style('fill', 'none')
           .style('stroke', 'black')
           .style('stroke-width', '0.5px')
-        self.barWidth = self.w / data[0].length
+        self.barWidth = self.w / data[ 0 ].length
         self.svg.selectAll('.arrbar')
           .data(function (d) {
             return d
@@ -180,7 +180,7 @@
         self.points = points
         self.xScale = d3.scale.linear()
         self.yScale = d3.scale.linear()
-        let channels = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'NDVI']
+        let channels = [ 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'NDVI' ]
         this.allChannels = channels
         let dataArr = window.dataArr
         let calNum = {}
@@ -338,8 +338,8 @@
         let barH = H * ratio
         let xc = width / 1.5
         let lineFunction = d3.svg.line()
-          .x(function (d) { return d[0] })
-          .y(function (d) { return d[1] })
+          .x(function (d) { return d[ 0 ] })
+          .y(function (d) { return d[ 1 ] })
           .interpolate('linear')
 //        for (let i = 0; i < diffs.length; i++) {
 //          svg.append('rect')
@@ -407,7 +407,12 @@
               if (self.features) { // 防止为空
                 let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
                 let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
-                self.transFeatures({'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'mouseover'})
+                self.transFeatures({
+                  'featureName': self.features[ 'featureName' ],
+                  'imageName1': imageName1,
+                  'imageName2': imageName2,
+                  'type': 'mouseover'
+                })
               }
             })
             .on('mouseout', function () {
@@ -428,7 +433,10 @@
               $('.mask').css('display', 'none')
               $('#mask' + id).css('display', 'block')
               self.transFeatures({
-                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'click'
+                'featureName': self.features[ 'featureName' ],
+                'imageName1': imageName1,
+                'imageName2': imageName2,
+                'type': 'click'
               })
             })
           svg.append('rect')
@@ -456,7 +464,10 @@
               let imageName1 = self.features[ 'featureChannel' ] + '_' + config.date[ start ]
               let imageName2 = self.features[ 'featureChannel' ] + '_' + config.date[ end ]
               self.transFeatures({
-                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'mouseover'
+                'featureName': self.features[ 'featureName' ],
+                'imageName1': imageName1,
+                'imageName2': imageName2,
+                'type': 'mouseover'
               })
             })
             .style('stroke', 'gray')
@@ -472,7 +483,10 @@
 //              d3.selectAll('.rectBar').style('stroke', 'gray')
 //              d3.selectAll('.rect' + id).style('stroke', 'black')
               self.transFeatures({
-                'featureName': self.features[ 'featureName' ], 'imageName1': imageName1, 'imageName2': imageName2, 'type': 'click'
+                'featureName': self.features[ 'featureName' ],
+                'imageName1': imageName1,
+                'imageName2': imageName2,
+                'type': 'click'
               })
             })
           svg.append('rect')
@@ -607,53 +621,53 @@
     width: 70%;
     height: 100%;
     border: 1px solid grey;
-    #timeline1 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline2 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline3 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline4 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline5 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline6 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline7 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline8 {
-      height: 8%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline9 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline10 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline11 {
-      height: 8.1%;
-      border-bottom: 1px solid grey;
-    }
-    #timeline12 {
-      height: 8.1%;
-    }
+  #timeline1 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline2 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline3 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline4 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline5 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline6 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline7 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline8 {
+    height: 8%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline9 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline10 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline11 {
+    height: 8.1%;
+    border-bottom: 1px solid grey;
+  }
+  #timeline12 {
+    height: 8.1%;
+  }
   }
   #timelineRight {
     position: absolute;
