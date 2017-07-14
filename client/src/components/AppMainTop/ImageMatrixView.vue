@@ -82,7 +82,6 @@
         handler (curVal, oldVal) {
           let eventId = this.hoveringEvent.eventId
           let eventType = this.hoveringEvent.type
-          console.log('eventId', eventId)
           if (eventType === 'hover') {
             d3.select('#image-matrix-svg').selectAll('.event-highlight').classed('event-highlight', false)
             if (eventId !== 'null') {

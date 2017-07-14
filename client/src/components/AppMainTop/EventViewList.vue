@@ -85,7 +85,6 @@
       },
       highlightEventLinkHandler (eventId) {
         let self = this
-        console.log('highlightEventLinkHandler')
         self.highlightEvent({ 'eventId': eventId, 'type': 'hover' })
       },
       selectEventLinkHandler (eventId) {
