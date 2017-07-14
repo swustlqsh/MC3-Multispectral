@@ -25,6 +25,7 @@ export const event = eventGetters.event
 export const comparedMessage = imgCompareGetters.comparedMessage
 export const lassoArea = colorDistributionGetters.lassoArea
 export const selectedImage = imageToTaggedViewGetters.selectedImage
+export const hoveringEvent = imageToTaggedViewGetters.hoveringEvent
 
 export const activeRegion = selectionGetters.activeRegion
 export const activeImages = selectionGetters.activeImages

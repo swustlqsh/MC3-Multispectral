@@ -373,10 +373,10 @@
           .selectAll('.channel-name')
           .classed('selection-unhighlight', true)
         d3.select('#image-matrix-svg')
-          .select('.channel-name#' + channelName)
+          .select('.channel-name#text-' + channelName)
           .classed('selection-unhighlight', false)
         d3.select('#image-matrix-svg')
-          .select('.channel-name#' + channelName)
+          .select('.channel-name#text-' + channelName)
           .classed('selection-highlight', true)
       },
       unhighlightChannelText () {
@@ -810,7 +810,7 @@
           })
           .attr('y', featureImageWidth)
           .attr('text-anchor', 'middle')
-          .attr('dominant-baseline', 'middle')
+          .attr('dominant-baseline', 'ideographic')
           .attr('cursor', 'pointer')
           .attr('font-family', 'FontAwesome')
           .text(function (d) {
