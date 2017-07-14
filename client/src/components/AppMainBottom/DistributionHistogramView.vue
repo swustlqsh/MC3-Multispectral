@@ -595,11 +595,11 @@
     left: 0;
     top: 0;
     width: 100%;
-    height: 92%;
+    height: 90%;
   }
   #pannel {
     position: absolute;
-    bottom: 1%;
+    bottom: 3.5%;
     height: 20px;
     left: 0;
     width: 70%;

@@ -475,7 +475,7 @@
   }
   #submitButton {
     position: absolute;
-    bottom: 2%;
+    bottom: 7%;
     width: 100%;
     /*margin-top: 8%;*/
   }
