@@ -13,5 +13,8 @@
     "transform"
   ],
   "author": "liqiusheng",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^2.2.30"
+  }
 }
