@@ -155,7 +155,7 @@
               if (this.$features && this.$features[this.getChannel] && this.$features[this.getChannel].length !== 0) {
                 let regions = {}
                 regions[this.getChannel] = this.$features[this.getChannel]
-                if (Object.keys(regions).length !==0) {
+                if (Object.keys(regions).length !== 0) {
                   this.$renderIns.importAnnotationsFromJson(regions, true)
                   this.$features[this.getChannel] = []
                 }
@@ -321,17 +321,6 @@
     ready () {
       this.initRender()
       this.$selectRegionsObs = {}
-//      $.ajax({
-//        type: "GET",
-//        url: "http://127.0.0.1:8002/test?url=123&name=321",
-//        dataType: "json",
-//        success: function(data){
-//          console.log('data', data)
-//        }
-//      })
-//      $.get('http://127.0.0.1:8003/test', { name: 'John' }, function (data) {
-//        console.log('Data Loaded get:', data)
-//      })
     }
   }
 </script>
