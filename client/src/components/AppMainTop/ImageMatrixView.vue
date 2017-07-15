@@ -294,14 +294,17 @@
        **/
       transmitArray1toArry2 (imageObjArray1) {
         let imageObjArray2 = []
+        let channelArray = this.channelArray
+        let dateArray = this.dateArray
         for (let aI = 0; aI < imageObjArray1.length; aI++) {
           let imageObj = imageObjArray1[ aI ]
           let channelName = imageObj.channelName
-          let channelArray = this.channelArray
           let channelIndex = channelArray.indexOf(channelName)
           let date = imageObj.date
-          let dateArray = imageObj.dateArray
           let dateIndex = dateArray.indexOf(date)
+          if (typeof (imageObjArray2[ channelIndex ]) === 'undefined') {
+            imageObjArray2[ channelIndex ] = []
+          }
           imageObjArray2[ channelIndex ][ dateIndex ] = imageObj
         }
         //  增加imageObject的位置
@@ -1364,7 +1367,7 @@
           }
           addedFeatures.imageData = imageUrl[ imageName ]
           featuresArray.push($.extend(true, {}, addedFeatures))
-          $.post(this.apiUrl + '/api/update', { imageName: imageName, data: featuresArray })
+          $.post(this.apiUrl + '/api/addmatrixfeature', { imageName: imageName, feature: featuresArray })
             .done(function (imageObjArray1) {
               console.log('update features successfully')
             })

@@ -7,7 +7,10 @@ var bodyParser = require('body-parser')
 var app = express()
 var server = require('http').createServer(app)
 
+app.use(bodyParser.json({limit: '100mb'}));
+
 app.use(bodyParser.urlencoded({
+	limit: '100mb',
 	extended: true
 }))
 
@@ -62,6 +65,15 @@ app.post('/api/addfeature', function (req, res) {
 	res.json({ data: 'sssss' })
 })
 
+//   -----------------------------   添加feature信息   ----------------------------------
+app.post('/api/addmatrixfeature', function (req, res) {
+	let body = req.body
+	console.log('body--------', body)
+	if (Object.keys(body).length !== 0) {
+		mongoApi.updateMatrixFeatureData(body)
+	}
+	res.json({ data: 'sssss' })
+})
 
 // get
 app.get('/test', function (req, res) {

@@ -124,16 +124,18 @@ function queryData (tableName, queryFinish) {
 }
 
 // updateData("B1B5B6_2014_03_17", "event", ['uahuahau'])
-function updateMatrixFeatureData(imageName, data){
+function updateMatrixFeatureData(data){
   var DB_CONN_STR = 'mongodb://192.168.10.9:27066/vastchallenge2017mc3';
 
   var updateData = function(db, callback) {
     //连接到表
     var collection = db.collection('matrix');
+    var imageName = data.imageName
+    var featureData = data.feature
     //更新数据
     var whereStr = {"imageName": imageName};
-    console.log('updateData', data)
-    var updateStr = {$set: { 'featuresArray' : data}};
+    console.log('featureData', featureData)
+    var updateStr = {$set: { 'featuresArray' : featureData}};
     collection.update(whereStr, updateStr, function(err, result) {
       if(err)
       {
