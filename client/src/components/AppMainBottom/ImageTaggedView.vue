@@ -55,6 +55,7 @@
   import $ from 'jquery'
   import Promise from 'bluebird'
   import EG from 'ENGINES'
+  import _ from 'lodash'
   import {pageSize, selectedImage} from '../../vuex/getters'
   import {createSelection, addFeatures, exportArea, activeRegionSelectionImages} from '../../vuex/actions'
   import config from '../../commons/config'
@@ -99,7 +100,7 @@
         selectRegionTableBody: [], // 当前选中的region 开始从meta data中获取
         $selectRegionsObs: {}, // 不执行vue绑定操作
         selectIndex: -1,
-        apiUrl: 'http://127.0.0.1:8002/getOriginFileName/'
+        $features: {}
       }
     },
     watch: {
@@ -150,6 +151,15 @@
             if (this.$renderIns) {
               let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[ this.selectedImage ], this.getChannel)
               this.imageIndex = imgIndex
+              // 加载数据
+              if (this.$features && this.$features[this.getChannel] && this.$features[this.getChannel].length !== 0) {
+                let regions = {}
+                regions[this.getChannel] = this.$features[this.getChannel]
+                if (Object.keys(regions).length !==0) {
+                  this.$renderIns.importAnnotationsFromJson(regions, true)
+                  this.$features[this.getChannel] = []
+                }
+              }
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
             }
@@ -170,6 +180,21 @@
       getChannel () {
         return this.selectedImage.split('_')[ 0 ]
       }
+    },
+    created () {
+      $.post('http://127.0.0.1:8003/api/all', { databaseName: 'feature' }, function (data) {
+        this.$features = JSON.parse(JSON.stringify(data))
+        this.$features = _.groupBy(this.$features, 'channelId')
+        let newFeature = {}
+        for (let k in this.$features) {
+          newFeature[k] = {}
+          newFeature[k].regions = []
+          this.$features[k].forEach(function (d) {
+            newFeature[k].regions.push(d.regions)
+          })
+        }
+        this.$features = newFeature
+      }.bind(this))
     },
     methods: {
       chooseRegionType (attr) {
@@ -232,6 +257,14 @@
         let selectId = this.selectIndex
         this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
         this.createSelection(this.getChannel, this.$regions)
+        let data = {
+          type : "featureObj",
+          channelId: this.$regions.filename,
+          taggerId: selectId,
+          regions: this.$regions.regions[0]
+        }
+        $.post('http://127.0.0.1:8003/api/addfeature', data, function (data) {
+        }.bind(this))
         this.getSelectedRegionImagesURL()
       },
       getSelectedRegionImagesURL () {
@@ -296,12 +329,9 @@
 //          console.log('data', data)
 //        }
 //      })
-      $.get('http://127.0.0.1:8002/test', { name: 'John' }, function (data) {
-        console.log('Data Loaded get:', data)
-      })
-      $.post('http://127.0.0.1:8002/api/all', { databaseName: 'databaseName' }, function (data) {
-        console.log('Data Loaded post:', data)
-      })
+//      $.get('http://127.0.0.1:8003/test', { name: 'John' }, function (data) {
+//        console.log('Data Loaded get:', data)
+//      })
     }
   }
 </script>

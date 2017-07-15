@@ -20,16 +20,22 @@ app.all('*', function(req, res, next) {
 	else  next();
 })
 
+// let {queryData, updateData, addData} = require('./mongoDB')
+let mongoApi = require('./mongoDB')
+// console.log('mongoApi.queryData', mongoApi.queryData)
+
 // ------------------------------------------- POST ---------------------------------------------------------
 app.post('/api/all', function (req, res) {
 	let body = req.body
-	let results = []
+	let result = []
+	let queryFinish = function(result){
+		res.json(result)
+	}
 	if (Object.keys(req.body).length !== 0) {
 		let dataBaseName = body.databaseName
-		// results = queryDatabase(dataBaseName)
-		results.push(dataBaseName)
+		console.log('dataBaseName', dataBaseName)
+		mongoApi.queryData(dataBaseName, queryFinish)
 	}
-	res.json({ data: JSON.stringify(results) })
 })
 
 // -----------------------------------  init ------------------------------------------------------
@@ -46,6 +52,17 @@ app.post('/api/init', function (req, res) {
 	res.json({ data: results })
 })
 
+//   -----------------------------   添加feature信息   ----------------------------------
+app.post('/api/addfeature', function (req, res) {
+	let body = req.body
+	console.log('body--------', body)
+	if (Object.keys(body).length !== 0) {
+		mongoApi.addFeatureData(body)
+	}
+	res.json({ data: 'sssss' })
+})
+
+
 // get
 app.get('/test', function (req, res) {
 	let query = req.query
@@ -56,7 +73,7 @@ app.get('/test', function (req, res) {
 
 // ------------------- Main Function ------------------
 function main () {
-	let PORT = process.env.PORT || 8002
+	let PORT = process.env.PORT || 8003
 	console.log(PORT)
 	server.listen(PORT)
 }

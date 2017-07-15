@@ -1526,16 +1526,18 @@ class GraphTag extends Render {
   }
 
   // 加载当前的region数据
-  importAnnotationsFromJson (data) {
+  importAnnotationsFromJson (data, isGraph=false) {
     if (data === '' || typeof (data) === 'undefined') {
       return
     }
     let d = data
     for (let image_id in d) {
+      console.log('image_id', image_id)
       if (this._via_img_metadata.hasOwnProperty(image_id)) {
         // 复制 file_attributes
         // 复制 regions
         let regions = d[ image_id ].regions
+
         for (let i in regions) {
           // if (this._via_img_metadata[ image_id ].regions.hasOwnProperty(i)) {
           //   return

@@ -89,7 +89,7 @@ var MongoClient = require('mongodb').MongoClient;
 var queryFinish = function(result){
   // console.log('result', result)
 }
-queryData('matrix', queryFinish)
+// queryData('matrix', queryFinish)
 
 function queryData (tableName, queryFinish) {
   var DB_CONN_STR = 'mongodb://192.168.10.9:27066/vastchallenge2017mc3';
@@ -99,6 +99,10 @@ function queryData (tableName, queryFinish) {
     var collection = db.collection(tableName);
     //查询数据
     var whereStr = {"type":'imageObj'};
+    if (tableName === 'feature') {
+      whereStr.type = 'featureObj'
+    }
+    console.log('whereStr', whereStr)
     collection.find(whereStr).toArray(function(err, result) {
       if(err)
       {
@@ -119,8 +123,8 @@ function queryData (tableName, queryFinish) {
   });
 }
 
-updateData("B1B5B6_2014_03_17", "event", ['uahuahau'])
-function updateData(imageName, type, data){
+// updateData("B1B5B6_2014_03_17", "event", ['uahuahau'])
+function updateMatrixFeatureData(imageName, data){
   var DB_CONN_STR = 'mongodb://192.168.10.9:27066/vastchallenge2017mc3';
 
   var updateData = function(db, callback) {
@@ -129,11 +133,7 @@ function updateData(imageName, type, data){
     //更新数据
     var whereStr = {"imageName": imageName};
     console.log('updateData', data)
-    if(type === "event"){
-      var updateStr = {$set: { 'eventsArray' : data}};
-    }else if(type === "feature"){
-      var updateStr = {$set: { 'featuresArray' : data}};
-    }
+    var updateStr = {$set: { 'featuresArray' : data}};
     collection.update(whereStr, updateStr, function(err, result) {
       if(err)
       {
@@ -153,13 +153,38 @@ function updateData(imageName, type, data){
   });
 }
 
-addData({'feature': 1111})
-function addData(data){
-  var DB_CONN_STR = 'mongodb://192.168.10.9:27066/vastchallenge2017mc3';
+// addData({'feature': 1111})
 
-  var insertData = function(db, callback) {
+// channelId: B1, B2, B3,...
+// taggerId:  id-1500094495121-922905965 (id-时间-随机数)
+// taggerValue: {}
+
+function addFeatureData (data) {
+  var DB_CONN_STR = 'mongodb://192.168.10.9:27066/vastchallenge2017mc3';
+  // 查询数据
+  var findFeature = function (db, callback) {
     //连接到表 site
     var collection = db.collection('feature');
+    // 插入数据之前 需要判断是否存在
+    //查询数据
+    var whereStr = {"taggerId": data['taggerId']};
+    // 根据查询条件 决定是否删除
+    collection.find(whereStr).toArray(function(err, result) {
+      if(err)
+      {
+        console.log('Error:'+ err);
+        return;
+      }
+      callback(result);
+    });
+  }
+
+  // 增加数据
+  var insertFeatureData = function(db, callback) {
+    //连接到表 site
+    var collection = db.collection('feature');
+    // 插入数据之前 需要判断是否存在
+
     //插入数据
     collection.insert(data, function(err, result) {
       console.log('insertData', data)
@@ -171,11 +196,38 @@ function addData(data){
       callback(result);
     });
   }
+  // 更新数据
+  var updateFeature = function(db, callback) {
+    //连接到表 site
+    var collection = db.collection('feature');
+    // 只关注更新
+    var whereStr = {"taggerId": data['taggerId']};
+    var updateStr = {$set: { 'taggerValue' : data['taggerValue']}};
+    collection.update(whereStr, updateStr, function(err, result) {
+      if(err)
+      {
+        console.log('Error:'+ err);
+        return;
+      }
+      callback(result);
+    });
+  }
 
   MongoClient.connect(DB_CONN_STR, function(err, db) {
-    insertData(db, function(result) {
-      console.log(result);
-      db.close();
-    });
+    findFeature(db, function(result) {
+      if (result.length === 0) {
+        insertFeatureData(db, function(result) {
+          console.log(result);
+          db.close();
+        });
+      } else {
+        updateFeature(db, function(result) {
+          console.log('result', result)
+          db.close()
+        })
+      }
+    })
   });
 }
+
+module.exports = {queryData, updateMatrixFeatureData, addFeatureData}
