@@ -556,8 +556,8 @@ class GraphTag extends Render {
         // put label near the first vertex
         x = bbox[2]
         let all_points_x = canvas_reg.shape_attributes.get('all_points_x')
-        let index = all_points_x.findIndex(function (d) { d === x })
-        y = index !== -1 ? canvas_reg.shape_attributes.get('all_points_x')[index]: bbox[3]
+        let index = all_points_x.lastIndexOf(x)
+        y = index !== -1 ? canvas_reg.shape_attributes.get('all_points_y')[index] : bbox[3]
       } else {
         // center the label
         x = x - (bgnd_rect_width / 2 - w / 2)
