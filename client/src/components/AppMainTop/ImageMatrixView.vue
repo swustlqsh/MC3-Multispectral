@@ -9,6 +9,7 @@
   import {imgCompare, imageToTaggedView} from '../../vuex/actions'
   import {pageSize, event, addedFeatures, transedFeatures, hoveringEvent} from '../../vuex/getters'
   import config from '../../commons/config'
+  import {initMatrixData} from '../../commons/api'
   import DATA from '../../../data/index'
   export default {
     vuex: {
@@ -35,7 +36,8 @@
         dateArray: [],
         featureSelectionIndex: 0,
         eventArray: [],
-        categoryColor: config.defaultFeaturesObj
+        categoryColor: config.defaultFeaturesObj,
+        apiUrl: 'http://127.0.0.1:5011/api/init'
       }
     },
     watch: {
@@ -193,14 +195,8 @@
             imageObj.channelName = channelName
             imageObj.date = date
             imageObj.imageName = channelName + '_' + date
-            imageObj.imageHeight = imageHeight
-            imageObj.originalImageWidth = originalImageWidth
-            imageObj.featureImageWidth = featureImageWidth
-            imageObj.globalXInterval = globalXInterval
             imageObj.locationX = locationX
             imageObj.locationY = locationY
-            imageObj.padding = padding
-            imageObj.paddingFeatureX = paddingFeatureX
             imageObj.iIndex = i
             imageObj.jIndex = j
             imageObj.featuresArray = []
@@ -211,6 +207,59 @@
           imageObjArray2.push(imageObjArray)
           this.imageObjArray2 = imageObjArray2
         }
+        let globalImageObjArray = this.transmitArray2toArray1(imageObjArray2)
+        let collectionName = 'matrixData'
+//        initMatrixData(globalImageObjArray)
+        $.ajax({
+          type: "POST",
+          url: "http://127.0.0.1:5011/api/init",
+          data: {
+            databaseName: collectionName,
+            originalData: {}
+          },
+          dataType: "json",
+          success: function(data){
+            console.log('data', data)
+          }
+        })
+//        this.vHttp.get(this.apiUrl, '{"a": "1"}').then((response) => {
+//          // TODO: 响应成功回调
+//          console.log('response success')
+//          // get body data
+//          console.log(response.body)
+//        }, (response) => {
+//          // TODO: 响应错误回调
+//          console.log('response error', response)
+//        })
+      },
+      /**
+       * 将二维数组转换成一维数组
+       **/
+      transmitArray2toArray1 (imageObjArray2) {
+        let globalImageObjArray = []
+        for (let i1 = 0; i1 < imageObjArray2.length; i1++) {
+          for (let j1 = 0; j1 < imageObjArray2[ i1 ].length; j1++) {
+            globalImageObjArray.push(imageObjArray2[ i1 ][ j1 ])
+          }
+        }
+        return globalImageObjArray
+      },
+      /**
+       * 将一维数组转换成二维数组
+       **/
+      transmitArray1toArry2(imageObjArray1){
+        let imageObjArray2 = []
+        for(let aI = 0;aI < imageObjArray1.length;aI++){
+          let imageObj = imageObjArray1[aI]
+          let channelName = imageObj.channelName
+          let channelArray = this.channelArray
+          let channelIndex = channelArray.indexOf(channelName)
+          let date = imageObj.date
+          let dateArray = imageObj.dateArray
+          let dateIndex = dateArray.indexOf(date)
+          imageObjArray2[channelIndex][dateIndex] = imageObj
+        }
+        return imageObjArray2
       },
       /**
        * 渲染视图
@@ -316,8 +365,8 @@
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
             let imageName = imageObjArray2[ iI ][ jI ].imageName
-            let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
-            let globalXInterval = imageObjArray2[ iI ][ jI ].globalXInterval
+            let originalImageWidth = self.originalImageWidth
+            let globalXInterval = self.globalXInterval
             imageMatrixSvg.select('.image-components#' + imageName)
               .append('rect')
               .attr('id', imageName)
@@ -348,7 +397,7 @@
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
             let imageName = imageObjArray2[ iI ][ jI ].imageName
-            let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
+            let originalImageWidth = self.originalImageWidth
             imageMatrixSvg.select('#' + imageName)
               .append('rect')
               .attr('class', 'original-image-bg')
@@ -480,7 +529,7 @@
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           for (let jI = 0; jI < imageObjArray2[ iI ].length; jI++) {
             let imageName = imageObjArray2[ iI ][ jI ].imageName
-            let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
+            let originalImageWidth = self.originalImageWidth
             imageMatrixSvg.select('#' + imageName)
               .append('g')
               .attr('class', 'feature-control')
@@ -687,8 +736,8 @@
         let imageName = imageObjArray2[ iI ][ jI ].imageName
         let featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
         var displayRange = imageObjArray2[ iI ][ jI ].displayRange
-        let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
-        let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
+        let originalImageWidth = self.originalImageWidth
+        let featureImageWidth = self.featureImageWidth
         let categoryColor = this.categoryColor
         if (imageMatrixSvg
             .select('#' + imageName)
@@ -929,8 +978,8 @@
         let featureImageEachInterval = this.featureImageEachInterval
         var imageMatrixSvg = d3.select('#image-matrix-svg')
         let imageName = imageObjArray2[ iI ][ jI ].imageName
-        let originalImageWidth = imageObjArray2[ iI ][ jI ].originalImageWidth
-        let featureImageWidth = imageObjArray2[ iI ][ jI ].featureImageWidth
+        let originalImageWidth = self.originalImageWidth
+        let featureImageWidth = self.featureImageWidth
         var featuresArray = imageObjArray2[ iI ][ jI ].featuresArray
         var displayRange = imageObjArray2[ iI ][ jI ].displayRange
         let selectionFeaturesArray = this.selectionFeaturesArray

@@ -69,30 +69,29 @@ class MainHandler(tornado.web.RequestHandler):
 # 		result = queryDatabase(databaseName)
 # 		self.write('vuex query handler')
 
-class InitHandler(tornado.web.RequestHandler):
-	def post(self):
-		self.content_type = 'application/json'
-		self.add_header("Access-Control-Allow-Origin", "*")
-		databaseName = self.get_argument('databaseName')
-		print('databaseName', databaseName)
-		originalData = self.get_argument('originalData')
-		print('originalData', originalData)
-		# db = client['vastchallenge2017mc3']
-		# print(databaseName)
-		# collection = db[databaseName]
-		# print(collection)
-		# print(originalData)
-		# print(databaseName)
-		# print(type(originalData))
-		# originalData = ast.literal_eval(originalData)
-		# print('originalData', originalData)
-		# print('type', type(originalData))
-		# originalObj = json.loads(originalData)
-		# print(type(originalObj))
-		# print('originalObj', originalObj)
-		# print('array', [originalObj])
-		# collection.insert_one(originalObj)
-		self.write('vuex query handler')
+# class InitHandler(tornado.web.RequestHandler):
+# 	def post(self):
+# 		print('init handler')
+# 		self.content_type = 'application/json'
+# 		self.add_header("Access-Control-Allow-Origin", "*")
+# 		databaseName = self.get_argument('databaseName')
+# 		originalData = self.get_argument('originalData')
+# 		db = client['vastchallenge2017mc3']
+# 		print(databaseName)
+# 		collection = db[databaseName]
+# 		print(collection)
+# 		print(originalData)
+# 		print(databaseName)
+# 		print(type(originalData))
+# 		originalData = ast.literal_eval(originalData)
+# 		print('originalData', originalData)
+# 		print('type', type(originalData))
+# 		originalObj = json.loads(originalData)
+# 		print(type(originalObj))
+# 		print('originalObj', originalObj)
+# 		print('array', [originalObj])
+# 		collection.insert_one(originalObj)
+# 		# self.write('vuex query handler')
 
 # class VuexInitHandler(tornado.web.RequestHandler):
 # 	def get(self):
@@ -134,9 +133,8 @@ if __name__ == "__main__":
 	tornado.options.parse_command_line()
 	print('server running at 127.0.0.1:%d ...'%(5011))
 	application = tornado.web.Application([
-    	(r'/hello', tornado.web.StaticFileHandler, {'path': client_file_root_path, 'default_filename': 'index.html'}), # fetch client files
-        (r'/api/hello', MainHandler),
-        (r'/api/init', InitHandler),
+    	# (r'/hello', tornado.web.StaticFileHandler, {'path': client_file_root_path, 'default_filename': 'index.html'}), # fetch client files
+        (r'/api/hello', MainHandler)
         # (r'/api/all', AllDataHandler)#,
         # (r"/api/update", ImageMatrixInitHandler),
         # (r"/api/imageMatrixView/update", ImageMatrixUpdateHandler),

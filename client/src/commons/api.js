@@ -6,7 +6,7 @@ import Vue from 'vue'
 import _ from 'lodash'
 import Promise from 'bluebird'
 // 启动server api服务的 url
-const HOST = 'http://172.0.0.1:8932'
+const HOST = 'http://127.0.0.1:5011'
 // TODO 标记视图
 // ----------------------------------------------------------------------
 //                             TODO 增加
@@ -23,6 +23,16 @@ const HOST = 'http://172.0.0.1:8932'
 //     },
 //     "region_attributes":{
 //     }
+export function initMatrixData (originalData) {
+  let getUrl = HOST + '/api/init'
+  let collectionName = 'matrixData'
+  let params = {
+    'databaseName': collectionName,
+    'originalData': originalData
+  }
+  let strParams = JSON.stringify(params)
+  return Vue.vHttp.get(getUrl, strParams)
+}
 
 export function addTaggerAttrInfo (channelId, taggerId, taggerValue) {
   let getUrl = HOST + '/tagger/api/addtagger/'
