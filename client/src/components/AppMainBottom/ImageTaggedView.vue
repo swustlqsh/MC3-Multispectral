@@ -105,7 +105,6 @@
     watch: {
       pageSize: {
         handler (curVal, oldVal) {
-          this.init()
           this.$renderIns.init({
             image_canvas_id: 'image_canvas',
             region_canvas_id: 'region_canvas',
@@ -217,7 +216,7 @@
       },
       loadStart () {
       },
-      init () {
+      initRender () {
         this.$renderIns = new EG.renders.GraphTag({ selector: this.$els.graph })
       },
       closeTag () {
@@ -284,6 +283,7 @@
       }
     },
     ready () {
+      this.initRender()
       this.$selectRegionsObs = {}
       console.log(this.vHttp, 'vHttp-----------------------------')
 //      this.vHttp.get(this.apiUrl).then((response) => {
