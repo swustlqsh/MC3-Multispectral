@@ -9,8 +9,8 @@
   import {imgCompare, imageToTaggedView} from '../../vuex/actions'
   import {pageSize, event, addedFeatures, transedFeatures, hoveringEvent} from '../../vuex/getters'
   import config from '../../commons/config'
-  import {initMatrixData} from '../../commons/api'
   import DATA from '../../../data/index'
+  //  import tip from '../../../node_modules/d3-tip'
   export default {
     vuex: {
       getters: { pageSize, event, addedFeatures, transedFeatures, hoveringEvent },
@@ -37,7 +37,7 @@
         featureSelectionIndex: 0,
         eventArray: [],
         categoryColor: config.defaultFeaturesObj,
-        apiUrl: 'http://127.0.0.1:5011/api/init'
+        apiUrl: 'http://127.0.0.1:8003'
       }
     },
     watch: {
@@ -68,15 +68,32 @@
       },
       pageSize: {
         handler (curVal, oldVal) {
-          this.initSize()
-          this.getImageOriginalData()
-          this.init()
-          this.render()
-          this.renderBgRect()
-          this.renderOriginalImage()
-          this.renderFeaturesControl()
-          this.renderFeaturesImage()
-          this.renderEvents()
+          let self = this
+          $.post(this.apiUrl + '/api/all', { databaseName: 'matrix' })
+            .done(function (imageObjArray1) {
+              self.imageObjArray2 = self.transmitArray1toArry2(imageObjArray1)
+              self.initSize()
+              self.getImageOriginalData()
+              self.init()
+              self.render()
+              self.renderBgRect()
+              self.renderOriginalImage()
+              self.renderFeaturesControl()
+              self.renderFeaturesImage()
+              self.renderEvents()
+            })
+            .fail(function () {
+              self.imageObjArray2 = []
+              self.initSize()
+              self.getImageOriginalData()
+              self.init()
+              self.render()
+              self.renderBgRect()
+              self.renderOriginalImage()
+              self.renderFeaturesControl()
+              self.renderFeaturesImage()
+              self.renderEvents()
+            })
         },
         deep: true
       },
@@ -155,6 +172,14 @@
           .attr('width', width)
           .attr('height', height)
           .attr('id', 'image-matrix-svg')
+//        let tip = d3.tip()
+//          .attr('class', 'd3-tip')
+//          .offset([ -10, 0 ])
+//          .html(function (d) {
+//            return "<span style='color:black'>" + d.desc + "</span>"
+//          })
+//        this.tip = tip
+//        d3.select('#image-matrix-svg').call(tip)
       },
       /**
        *  获取图片数据的对象数组
@@ -165,16 +190,25 @@
        *  在这个图片中检测得到的事件数组(EventsArray)
        */
       getImageOriginalData () {
-        let padding = this.padding
         let paddingTop = this.paddingTop
-        let originalImageWidth = this.originalImageWidth
-        let featureImageWidth = this.featureImageWidth
         let imageHeight = this.imageHeight
         let globalXInterval = this.globalXInterval
         let globalYInterval = this.globalYInterval
         let paddingX = this.paddingX
-        let paddingFeatureX = this.paddingFeatureX
         let channelArray = [ 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NDVI', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6' ]
+        let channelDescObj = {
+          B1B5B6: 'differentiate between snow, ice and clouds',
+          B3B2B1: 'rgb image',
+          B4B3B2: 'plant health changes',
+          B5B4B2: 'floods or newly burned land',
+          NDVI: 'vegetation health or detect anomalous signals',
+          B1: 'Penetrates water, shows thin clouds and general visible brightness',
+          B2: 'Shows different types of plants and general visible brightness',
+          B3: 'Vegetation color and certain mineral deposits.',
+          B4: 'Partially absorbed by water, sensitive to vegetation structure and chlorophyll',
+          B5: 'Completely absorbed by liquid water. Sensitive to moisture content of soil and vegetation; penetrates thin clouds',
+          B6: 'Insensitive to vegetation color or vigor, shows differences in soil mineral content'
+        }
         let dateArray = [ '2014_03_17', '2014_08_24', '2014_11_28', '2014_12_30',
           '2015_02_15', '2015_06_24', '2015_09_12', '2015_11_15',
           '2016_03_06', '2016_06_26', '2016_09_06', '2016_12_19' ]
@@ -182,46 +216,57 @@
         this.dateArray = dateArray
         let imageMatrixViewHeight = imageHeight * channelArray.length + paddingTop
         $('#image-matrix-div').height(imageMatrixViewHeight)
-        let imageObjArray2 = []
-        for (let i = 0; i < channelArray.length; i++) {
-          let imageObjArray = []
-          let locationY = i * globalYInterval + paddingTop
-          let channelName = channelArray[ i ]
-          for (let j = 0; j < dateArray.length; j++) {
-            let imageObj = {}
-            let date = dateArray[ j ]
-            let locationX = paddingX + globalXInterval * j
-            imageObj = {}
-            imageObj.channelName = channelName
-            imageObj.date = date
-            imageObj.imageName = channelName + '_' + date
-            imageObj.locationX = locationX
-            imageObj.locationY = locationY
-            imageObj.iIndex = i
-            imageObj.jIndex = j
-            imageObj.featuresArray = []
-            imageObj.displayRange = [ 0, 6 ]
-            imageObj.eventsArray = []
-            imageObjArray.push(imageObj)
+        let imageObjArray2 = this.imageObjArray2
+        if (imageObjArray2.length !== 0) {
+          //  如果imageObjArray2不是null, 已经被正确的初始化
+          for (let i = 0; i < channelArray.length; i++) {
+            let locationY = i * globalYInterval + paddingTop
+            let channelName = channelArray[ i ]
+            for (let j = 0; j < dateArray.length; j++) {
+              let imageObj = imageObjArray2[ i ][ j ]
+              let date = dateArray[ j ]
+              let locationX = paddingX + globalXInterval * j
+              imageObj.channelName = channelName
+              imageObj.date = date
+              imageObj.imageName = channelName + '_' + date
+              imageObj.locationX = locationX
+              imageObj.locationY = locationY
+              imageObj.iIndex = i
+              imageObj.jIndex = j
+              imageObj.displayRange = [ 0, 6 ]
+            }
           }
-          imageObjArray2.push(imageObjArray)
-          this.imageObjArray2 = imageObjArray2
+        } else if (imageObjArray2.length === 0) {
+          // imageObjectArray2是null, 没有被正确的初始化
+          let imageObjArray2 = []
+          for (let i = 0; i < channelArray.length; i++) {
+            let imageObjArray = []
+            let locationY = i * globalYInterval + paddingTop
+            let channelName = channelArray[ i ]
+            imageObjArray.channelName = channelName
+            for (let j = 0; j < dateArray.length; j++) {
+              let imageObj = {}
+              let date = dateArray[ j ]
+              let locationX = paddingX + globalXInterval * j
+              imageObj = {}
+              imageObj.channelName = channelName
+              imageObj.date = date
+              imageObj.imageName = channelName + '_' + date
+              imageObj.locationX = locationX
+              imageObj.locationY = locationY
+              imageObj.iIndex = i
+              imageObj.jIndex = j
+              imageObj.featuresArray = []
+              imageObj.displayRange = [ 0, 6 ]
+              imageObj.eventsArray = []
+              imageObjArray.push(imageObj)
+            }
+            imageObjArray2.push(imageObjArray)
+            this.imageObjArray2 = imageObjArray2
+          }
         }
-        let globalImageObjArray = this.transmitArray2toArray1(imageObjArray2)
-        let collectionName = 'matrixData'
-//        initMatrixData(globalImageObjArray)
-        $.ajax({
-          type: "POST",
-          url: "http://127.0.0.1:5011/api/init",
-          data: {
-            databaseName: collectionName,
-            originalData: {}
-          },
-          dataType: "json",
-          success: function(data){
-            console.log('data', data)
-          }
-        })
+
+//
 //        this.vHttp.get(this.apiUrl, '{"a": "1"}').then((response) => {
 //          // TODO: 响应成功回调
 //          console.log('response success')
@@ -247,18 +292,19 @@
       /**
        * 将一维数组转换成二维数组
        **/
-      transmitArray1toArry2(imageObjArray1){
+      transmitArray1toArry2 (imageObjArray1) {
         let imageObjArray2 = []
-        for(let aI = 0;aI < imageObjArray1.length;aI++){
-          let imageObj = imageObjArray1[aI]
+        for (let aI = 0; aI < imageObjArray1.length; aI++) {
+          let imageObj = imageObjArray1[ aI ]
           let channelName = imageObj.channelName
           let channelArray = this.channelArray
           let channelIndex = channelArray.indexOf(channelName)
           let date = imageObj.date
           let dateArray = imageObj.dateArray
           let dateIndex = dateArray.indexOf(date)
-          imageObjArray2[channelIndex][dateIndex] = imageObj
+          imageObjArray2[ channelIndex ][ dateIndex ] = imageObj
         }
+        //  增加imageObject的位置
         return imageObjArray2
       },
       /**
@@ -293,6 +339,7 @@
         for (let iI = 0; iI < imageObjArray2.length; iI++) {
           let imageRowObj = imageObjArray2[ iI ]
           let channelName = imageRowObj[ 0 ].channelName
+          console.log('channelName', channelName)
           let imageComponentsObj = d3.select('#image-matrix-svg')
             .select('#' + channelName)
             .selectAll('.image-components')
@@ -325,9 +372,11 @@
               .attr('dominant-baseline', 'middle')
               .on('mouseover', function (d, i) {
                 d3.select(this).classed('mouseover-highlight', true)
+//                this.tip.show(d.desc)
               })
               .on('mouseout', function (d, i) {
                 d3.select(this).classed('mouseover-highlight', false)
+//                this.tip.hide()
               })
           } else {
             d3.select('#image-matrix-svg')
@@ -1141,7 +1190,9 @@
           .classed('mouseover-highlight', true)
         let indexObj = this.getIndex(imageNameId)
         let imageObjArray2 = this.imageObjArray2
+        console.log('imageObjArray2', imageObjArray2)
         let imageObj = imageObjArray2[ indexObj.i ][ indexObj.j ]
+        console.log('imageObj', imageObj)
         let displayRange = imageObj.displayRange
         let featuresArray = imageObj.featuresArray
         d3.select('#' + imageNameId)
@@ -1313,6 +1364,13 @@
           }
           addedFeatures.imageData = imageUrl[ imageName ]
           featuresArray.push($.extend(true, {}, addedFeatures))
+          $.post(this.apiUrl + '/api/update', { imageName: imageName, data: featuresArray })
+            .done(function (imageObjArray1) {
+              console.log('update features successfully')
+            })
+            .fail(function () {
+              console.log('error features successfully')
+            })
           this.render_each_features_image(channelIndex, iI)
           for (let fI = 0; fI < featuresArray.length; fI++) {
             if (featuresArray[ fI ].belongThisImage) {
@@ -1332,6 +1390,7 @@
         let channelIndex = channelArray.indexOf(channel)
         let timeIndex = dateArray.indexOf(time)
         let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
+        let imageName = imageObj.imageName
         let featuresArray = imageObj.featuresArray
         let eventName = 'event-' + eventIndex
         for (let fI = 0; fI < featuresArray.length; fI++) {
@@ -1343,6 +1402,14 @@
             featuresArray[ fI ].eventObj.eventIndex = eventIndex
           }
         }
+        $.post(this.apiUrl + '/api/update', { imageName: imageName, data: featuresArray })
+          .done(function (imageObjArray1) {
+            console.log('update event successfully')
+          })
+          .fail(function () {
+            console.log('error features successfully')
+          })
+        console.log('addEventStart')
         this.render_each_events(channelIndex, timeIndex)
       },
       addEventEnd (endObj, eventCategory, eventIndex, eventType) {
@@ -1355,6 +1422,7 @@
         let channelIndex = channelArray.indexOf(channel)
         let timeIndex = dateArray.indexOf(time)
         let imageObj = imageObjArray2[ channelIndex ][ timeIndex ]
+        let imageName = imageObj.imageName
         let featuresArray = imageObj.featuresArray
         let eventName = 'event-' + eventIndex
         for (let fI = 0; fI < featuresArray.length; fI++) {
@@ -1366,6 +1434,14 @@
             featuresArray[ fI ].eventObj.eventIndex = eventIndex
           }
         }
+        $.post(this.apiUrl + '/api/update', { imageName: imageName, data: featuresArray })
+          .done(function (imageObjArray1) {
+            console.log('update event successfully')
+          })
+          .fail(function () {
+            console.log('error features successfully')
+          })
+        console.log('addEventEnd')
         this.render_each_events(channelIndex, timeIndex)
       },
       //  传递点击的图片的数据

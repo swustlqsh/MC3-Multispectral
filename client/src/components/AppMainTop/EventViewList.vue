@@ -20,7 +20,8 @@
       return {
         eventList: [],
         eventNum: 0,
-        colors: { 'Burnt': 'red', 'Flood': '#2b8cbe' }
+        colors: { 'Burnt': 'red', 'Flood': '#2b8cbe' },
+        apiUrl: 'http://127.0.0.1:8003'
       }
     },
     watch: {
@@ -36,6 +37,11 @@
       event: {
         handler (curVal, oldVal) { // object
           this.addEvent(this.event)
+          this.eventList.push(this.event)
+          this.event.type = 'event'
+          $.post(this.apiUrl + '/api/add_event', { event: this.event }, function (eventList) {
+            console.log('update event successfully')
+          })
         },
         deep: true
       }
@@ -242,6 +248,9 @@
       }
     },
     ready () {
+      $.post(this.apiUrl + '/api/get_eventlist', function (eventList) {
+        console.log('update event successfully')
+      })
     }
   }
 </script>
