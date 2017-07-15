@@ -286,15 +286,15 @@
     ready () {
       this.$selectRegionsObs = {}
       console.log(this.vHttp, 'vHttp-----------------------------')
-      this.vHttp.get(this.apiUrl).then((response) => {
-        // TODO: 响应成功回调
-        console.log('response success')
-        // get body data
-        console.log(response.body)
-      }, (response) => {
-        // TODO: 响应错误回调
-        console.log('response error', response)
-      })
+//      this.vHttp.get(this.apiUrl).then((response) => {
+//        // TODO: 响应成功回调
+//        console.log('response success')
+//        // get body data
+//        console.log(response.body)
+//      }, (response) => {
+//        // TODO: 响应错误回调
+//        console.log('response error', response)
+//      })
     }
   }
 </script>

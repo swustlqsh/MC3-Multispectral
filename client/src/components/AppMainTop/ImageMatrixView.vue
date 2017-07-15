@@ -1354,7 +1354,7 @@
   }
   .feature-image[class~=click-selection] {
     stroke: black !important;
-    stroke-width: 2px;
+    stroke-width: 4px;
   }
   .feature-image[class~=hovering-selection] {
     stroke: black;
