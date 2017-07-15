@@ -755,6 +755,7 @@
             let className = d3.select(this).attr('class')
             let classNameArray = className.split(' ')
             let eventName = classNameArray[ 1 ]
+            console.log('event object', d.eventObj)
             if (d.eventObj.eventType === 'start') {
               d3.selectAll('.end.' + eventName).classed('event-highlight', true)
             } else {

@@ -87,6 +87,7 @@
             .attr('alignment-baseline', 'hanging')
             .attr('text-anchor', 'start')
             .text(mon)
+            .attr('class', 'timelineText')
             .attr('font-size', '0.7em')
         })
         this.width = width
@@ -166,4 +167,8 @@
     width: 100%;
     height: 100%;
   }
+  .timelineText {
+    font-size: 0.7em;
+  }
+
 </style>

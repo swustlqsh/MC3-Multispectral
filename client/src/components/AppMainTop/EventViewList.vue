@@ -90,7 +90,7 @@
             .text(txt)
             .attr('x', padding.left + i * rectValue + rectValue / 2)
             .attr('y', config.emSize + padding.top + config.emSize / 2)
-            .style('font-size', '0.7em')
+            .attr('class', 'eventText')
             .attr('text-anchor', 'middle')
             .attr('alignment-baseline', 'middle')
         })
@@ -253,6 +253,9 @@
   .listLine {
     stroke: gray;
     stroke-width: 1px;
+  }
+  .eventText {
+    font-size: 0.7em;
   }
   .event-label[class~=mouseover-highlight] {
     font-size: 1.2em;
