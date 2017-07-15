@@ -11,12 +11,15 @@ from pymongo import MongoClient
 
 client = MongoClient('192.168.10.9', 27066)
 
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("Hello, world")
 
-class UpdateHandler(tornado.web.RequestHandler):
+class AllDataHandler(tornado.web.RequestHandler):
 	def post(self):
+		self.content_type = 'application/json'
+		self.add_header("Access-Control-Allow-Origin", "*")
 		databaseName = self.get_argument('databaseName')
 		print('...............wsHandler')
 		print(databaseName)
@@ -24,14 +27,40 @@ class UpdateHandler(tornado.web.RequestHandler):
 		print(result)
 		# self.write('vuex update handler')
 
+# class UpdateMatrixDataHandler(tornado.web.RequestHandler):
+# 	def post(self):
+# 		self.content_type = 'application/json'
+# 		self.add_header("Access-Control-Allow-Origin", "*")
+# 		databaseName = self.get_argument('databaseName')
+# 		imageName = self.get_argument('imageName')
+# 		dataType = self.get_argument('dataType')
+# 		updateData = self.get_argument('updateData')
+# 		collection = databaseName['MatrixData']
+# 		if dataType == 'FeatureData':
+# 			collection.update({'imageName': imageName},{$set:{'featuresArray':updateData}})
+# 		else if dataType == 'EventData':
+# 			collection.update({'imageName': imageName},{$set:{'eventsArrays':updateData}})
+
+class UpdateVueDataHandler(tornado.web.RequestHandler):
+	def post(self):
+		self.content_type = 'application/json'
+		self.add_header("Access-Control-Allow-Origin", "*")
+		databaseName = self.get_argument('databaseName')
+		databaseName = self.get_argument('ObjId')
+
 class QueryHandler(tornado.web.RequestHandler):
 	def get(self):
+		self.content_type = 'application/json'
+		self.add_header("Access-Control-Allow-Origin", "*")
 		databaseName = self.get_argument('databaseName')
 		result = queryDatabase(databaseName)
 		self.write('vuex query handler')
 
 class InitHandler(tornado.web.RequestHandler):
 	def post(self):
+		print('init handler')
+		self.content_type = 'application/json'
+		self.add_header("Access-Control-Allow-Origin", "*")
 		databaseName = self.get_argument('databaseName')
 		originalData = self.get_argument('originalData')
 		db = client['vastchallenge2017mc3']
@@ -41,11 +70,14 @@ class InitHandler(tornado.web.RequestHandler):
 		print(originalData)
 		print(databaseName)
 		print(type(originalData))
+		originalData = ast.literal_eval(originalData)
+		print('originalData', originalData)
+		print('type', type(originalData))
 		originalObj = json.loads(originalData)
 		print(type(originalObj))
 		print('originalObj', originalObj)
 		print('array', [originalObj])
-		collection.insert_many(originalObj)
+		collection.insert_one(originalObj)
 		# self.write('vuex query handler')
 
 class VuexInitHandler(tornado.web.RequestHandler):
@@ -85,13 +117,16 @@ def updateDatabase(databaseName, className, data):
     collection.update({'class': className}, {'$set':{'source': data}})
 
 if __name__ == "__main__":
-    application = tornado.web.Application([
-        (r"/", MainHandler),
+	tornado.options.parse_command_line()
+	print('server running at 127.0.0.1:%d ...'%(8888))
+	application = tornado.web.Application([
+    	(r"/(.*)", MainHandler),
         (r"/api/init", InitHandler),
-        (r"/api/all", UpdateHandler),
-        (r"/api/imageMatrixView/init", ImageMatrixInitHandler),
+        (r"/api/all", AllDataHandler),
+        (r"/api/update", ImageMatrixInitHandler),
         (r"/api/imageMatrixView/update", ImageMatrixUpdateHandler),
-        (r"/api/imageMatrixView/all", ImageMatrixQueryHandler),
-    ])
-    application.listen(8888)
-    tornado.ioloop.IOLoop.current().start()
+        (r"/api/imageMatrixView/all", ImageMatrixQueryHandler)
+	])
+	http_server = tornado.httpserver.HTTPServer(application)
+	http_server.listen(8888)
+	tornado.ioloop.IOLoop.current().start()

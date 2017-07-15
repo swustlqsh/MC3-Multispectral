@@ -148,7 +148,7 @@
           if ((typeof (this.selectedImage) !== 'undefined') && (this.selectedImage != null)) {
             this.imageTime = this.selectedImage.split('_').slice(1).join('_')
             if (this.$renderIns) {
-              let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[this.selectedImage], this.getChannel)
+              let imgIndex = this.$renderIns.loadStoreLocalImg(DATA[ this.selectedImage ], this.getChannel)
               this.imageIndex = imgIndex
               this.$renderIns.showImage(this.imageIndex)
               this.imageName = this.selectedImage
@@ -168,14 +168,17 @@
         return this.$renderIns._via_user_sel_region_id === -1
       },
       getChannel () {
-        return this.selectedImage.split('_')[0]
+        return this.selectedImage.split('_')[ 0 ]
       }
     },
     methods: {
       chooseRegionType (attr) {
         let newAttr = JSON.parse(JSON.stringify(attr))
         let channels = this.selectedImage.split('_')[ 0 ]
-        let info = { 'type': newAttr, 'color': config.featureColors[ channels ] && config.featureColors[ channels ][ newAttr ] || config.defaultFeaturesObj[newAttr] }
+        let info = {
+          'type': newAttr,
+          'color': config.featureColors[ channels ] && config.featureColors[ channels ][ newAttr ] || config.defaultFeaturesObj[ newAttr ]
+        }
         if (this.selectRegionTableBody.length !== 0) {
           // this.$selectRegionsObs[ this.selectRegionTableBody[ 0 ].value - 1 ] = JSON.parse(JSON.stringify(this.selectRegionTableBody))
           this.$renderIns.updateCurrentSelectRegion(info)
@@ -240,7 +243,7 @@
         let date = config.date
         let selectedImageSplit = this.selectedImage.split('_')
         let imagePaths = date.map(function (d) {
-          return DATA[selectedImageSplit[ 0 ] + '_' + d]
+          return DATA[ selectedImageSplit[ 0 ] + '_' + d ]
         })
 
         let area = getBoundaryToArray(this.$regions.regions[ selectId ].shape_attributes.all_points_x, this.$regions.regions[ selectId ].shape_attributes.all_points_y)
@@ -308,20 +311,20 @@
     line-height: 33px;
     border-bottom: 1px solid gray;
     margin: 0 auto;
-    li {
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      i {
-        color: black;
-      }
-    }
-    li:hover {
-      background: gray;
-    }
-    .active {
-      background: #324057;
-    }
+  li {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  i {
+    color: black;
+  }
+  }
+  li:hover {
+    background: gray;
+  }
+  .active {
+    background: #324057;
+  }
   }
   .image-tagged-view-main {
     box-sizing: border-box;
@@ -335,16 +338,16 @@
     float: left;
     width: 30px;
     text-align: center;
-    i {
-      color: black;
-    }
-    }
-    li:hover {
-      background: #324057;
-    }
-    .active {
-      background: #324057;
-    }
+  i {
+    color: black;
+  }
+  }
+  li:hover {
+    background: #324057;
+  }
+  .active {
+    background: #324057;
+  }
   }
   .select-tagged-menu {
     position: relative;
@@ -363,7 +366,7 @@
     z-index: 2;
   }
   .del-padding {
-/*    padding: 0;*/
+    /*    padding: 0;*/
   }
   }
 
