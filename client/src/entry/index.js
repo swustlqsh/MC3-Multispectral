@@ -17,12 +17,13 @@ Vue.config.devtools = true
 
 Vue.use(frame)
 
-
 const run = function () {
   // Vue实例中可直接通过v+Name访问对应模块，例如：this.vLogs访问logs模块
   frame.vueInstall({ module: 'v', name: 'config' }, config) // 在Vue实例中通过this.vConfig进行使用
   frame.vueInstall({ module: 'v', name: 'async' }, async) // 在Vue实例中通过this.vAsync进行使用
   frame.vueInstall({ module: 'v', name: 'http' }, http) // 在Vue实例中通过this.vHttp进行使用
+  // Vue.http.options.emulateHTTP = true
+  // Vue.http.options.emulateJSON = true
   return new Vue({
     el: 'body',
     replace: false,

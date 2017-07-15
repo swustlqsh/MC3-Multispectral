@@ -99,7 +99,7 @@
         selectRegionTableBody: [], // 当前选中的region 开始从meta data中获取
         $selectRegionsObs: {}, // 不执行vue绑定操作
         selectIndex: -1,
-        apiUrl: 'http://127.0.0.1:8002/test/'
+        apiUrl: 'http://127.0.0.1:8002/getOriginFileName/'
       }
     },
     watch: {
@@ -285,16 +285,20 @@
     ready () {
       this.initRender()
       this.$selectRegionsObs = {}
-      console.log(this.vHttp, 'vHttp-----------------------------')
-//      this.vHttp.get(this.apiUrl).then((response) => {
-//        // TODO: 响应成功回调
-//        console.log('response success')
-//        // get body data
-//        console.log(response.body)
-//      }, (response) => {
-//        // TODO: 响应错误回调
-//        console.log('response error', response)
+//      $.ajax({
+//        type: "GET",
+//        url: "http://127.0.0.1:8002/test?url=123&name=321",
+//        dataType: "json",
+//        success: function(data){
+//          console.log('data', data)
+//        }
 //      })
+      $.get('http://127.0.0.1:8002/test', { name: 'John' }, function (data) {
+        console.log('Data Loaded get:', data)
+      })
+      $.post('http://127.0.0.1:8002/api/all', { databaseName: 'databaseName' }, function (data) {
+        console.log('Data Loaded post:', data)
+      })
     }
   }
 </script>
