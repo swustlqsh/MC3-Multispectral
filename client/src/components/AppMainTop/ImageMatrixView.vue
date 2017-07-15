@@ -1193,9 +1193,7 @@
           .classed('mouseover-highlight', true)
         let indexObj = this.getIndex(imageNameId)
         let imageObjArray2 = this.imageObjArray2
-        console.log('imageObjArray2', imageObjArray2)
         let imageObj = imageObjArray2[ indexObj.i ][ indexObj.j ]
-        console.log('imageObj', imageObj)
         let displayRange = imageObj.displayRange
         let featuresArray = imageObj.featuresArray
         d3.select('#' + imageNameId)
