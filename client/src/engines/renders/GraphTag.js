@@ -1537,12 +1537,15 @@ class GraphTag extends Render {
         // 复制 file_attributes
         // 复制 regions
         let regions = d[ image_id ].regions
-
+        console.log('regions', regions)
         for (let i in regions) {
           // if (this._via_img_metadata[ image_id ].regions.hasOwnProperty(i)) {
           //   return
           // }
-          this._via_img_metadata[image_id].regions = []
+          if (!isGraph) {
+            this._via_img_metadata[image_id].regions = []
+          }
+
           let regioni = new ImageRegion()
           // shape_attributes
           for (let key in regions[ i ].shape_attributes) {

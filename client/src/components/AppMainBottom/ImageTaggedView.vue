@@ -261,7 +261,7 @@
           type : "featureObj",
           channelId: this.$regions.filename,
           taggerId: selectId,
-          regions: this.$regions.regions[0]
+          regions: this.$regions.regions[selectId]
         }
         $.post('http://127.0.0.1:8003/api/addfeature', data, function (data) {
         }.bind(this))

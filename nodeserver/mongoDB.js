@@ -167,7 +167,7 @@ function addFeatureData (data) {
     var collection = db.collection('feature');
     // 插入数据之前 需要判断是否存在
     //查询数据
-    var whereStr = {"taggerId": data['taggerId']};
+    var whereStr = {"channelId": data['channelId'], "taggerId": data['taggerId']};
     // 根据查询条件 决定是否删除
     collection.find(whereStr).toArray(function(err, result) {
       if(err)
@@ -201,8 +201,8 @@ function addFeatureData (data) {
     //连接到表 site
     var collection = db.collection('feature');
     // 只关注更新
-    var whereStr = {"taggerId": data['taggerId']};
-    var updateStr = {$set: { 'taggerValue' : data['taggerValue']}};
+    var whereStr = {"channelId": data['channelId'], "taggerId": data['taggerId']};
+    var updateStr = {$set: { 'regions' : data['regions']}};
     collection.update(whereStr, updateStr, function(err, result) {
       if(err)
       {
