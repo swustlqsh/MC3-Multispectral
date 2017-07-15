@@ -1,6 +1,11 @@
 /**
  * Created by liqiusheng on 06/07/2017.
  */
+// 生成唯一id
+export const makeId = () => {
+  return `id-${+new Date()}-${~~(Math.random() * 1e9)}`
+}
+
 export const getPageSize = () => {
   let winWidth = 0
   let winHeight = 0
