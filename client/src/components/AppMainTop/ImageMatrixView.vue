@@ -196,19 +196,19 @@
         let globalYInterval = this.globalYInterval
         let paddingX = this.paddingX
         let channelArray = [ 'B1B5B6', 'B3B2B1', 'B4B3B2', 'B5B4B2', 'NDVI', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6' ]
-        let channelDescObj = {
-          B1B5B6: 'differentiate between snow, ice and clouds',
-          B3B2B1: 'rgb image',
-          B4B3B2: 'plant health changes',
-          B5B4B2: 'floods or newly burned land',
-          NDVI: 'vegetation health or detect anomalous signals',
-          B1: 'Penetrates water, shows thin clouds and general visible brightness',
-          B2: 'Shows different types of plants and general visible brightness',
-          B3: 'Vegetation color and certain mineral deposits.',
-          B4: 'Partially absorbed by water, sensitive to vegetation structure and chlorophyll',
-          B5: 'Completely absorbed by liquid water. Sensitive to moisture content of soil and vegetation; penetrates thin clouds',
-          B6: 'Insensitive to vegetation color or vigor, shows differences in soil mineral content'
-        }
+//        let channelDescObj = {
+//          B1B5B6: 'differentiate between snow, ice and clouds',
+//          B3B2B1: 'rgb image',
+//          B4B3B2: 'plant health changes',
+//          B5B4B2: 'floods or newly burned land',
+//          NDVI: 'vegetation health or detect anomalous signals',
+//          B1: 'Penetrates water, shows thin clouds and general visible brightness',
+//          B2: 'Shows different types of plants and general visible brightness',
+//          B3: 'Vegetation color and certain mineral deposits.',
+//          B4: 'Partially absorbed by water, sensitive to vegetation structure and chlorophyll',
+//          B5: 'Completely absorbed by liquid water. Sensitive to moisture content of soil and vegetation; penetrates thin clouds',
+//          B6: 'Insensitive to vegetation color or vigor, shows differences in soil mineral content'
+//        }
         let dateArray = [ '2014_03_17', '2014_08_24', '2014_11_28', '2014_12_30',
           '2015_02_15', '2015_06_24', '2015_09_12', '2015_11_15',
           '2016_03_06', '2016_06_26', '2016_09_06', '2016_12_19' ]

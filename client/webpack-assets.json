@@ -1,8 +1,8 @@
 {
   "index": {
-    "js": "/static/dist/index.bundle.js"
+    "js": "/static/index.bundle.js"
   },
   "index.test": {
-    "js": "/static/dist/index.test.bundle.js"
+    "js": "/static/index.test.bundle.js"
   }
 }

@@ -257,14 +257,15 @@
         let selectId = this.selectIndex
         this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
         this.createSelection(this.getChannel, this.$regions)
-        let data = {
-          type : "featureObj",
-          channelId: this.$regions.filename,
-          taggerId: selectId,
-          regions: this.$regions.regions[selectId]
-        }
-        $.post('http://127.0.0.1:8003/api/addfeature', data, function (data) {
-        }.bind(this))
+//        let data = {
+//          type: 'featureObj',
+//          channelId: this.$regions.filename,
+//          taggerId: selectId,
+//          regions: this.$regions.regions[selectId]
+//        }
+//        $.post('http://127.0.0.1:8003/api/addfeature', data, function (data) {
+//          console.log(data)
+//        }.bind(this))
         this.getSelectedRegionImagesURL()
       },
       getSelectedRegionImagesURL () {

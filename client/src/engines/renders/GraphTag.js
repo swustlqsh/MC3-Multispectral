@@ -1,7 +1,6 @@
 /**
  * Created by liqiusheng@b.360.cn on 2017/7/7.
  */
-import _ from 'lodash'
 import Render from './Render'
 
 let VIA_REGION_SHAPE = {
