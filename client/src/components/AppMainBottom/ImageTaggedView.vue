@@ -86,9 +86,9 @@
           { name: '选择', icon: 'uk-icon-mouse-pointer', index: 0, image: '../../../assets/images/选择.png' },
           { name: '放大', icon: 'uk-icon-search-plus', index: 1, image: '../../../assets/images/放大.png' },
           { name: '缩小', icon: 'uk-icon-search-minus', index: 2, image: '../../../assets/images/缩小.png' },
-          { name: '平移', icon: 'uk-icon-arrows', index: 3, image: '../../../assets/images/移动.png' },
-          { name: '套索', icon: 'uk-icon-object-ungroup', index: 4, image: '../../../assets/images/套索.png' },
-          { name: '标记', icon: 'uk-icon-text-height', index: 5, image: '../../../assets/images/文字.png' }
+         // { name: '平移', icon: 'uk-icon-arrows', index: 3, image: '../../../assets/images/移动.png' },
+          { name: '套索', icon: 'uk-icon-object-ungroup', index: 3, image: '../../../assets/images/套索.png' },
+          { name: '标记', icon: 'uk-icon-text-height', index: 4, image: '../../../assets/images/文字.png' }
         ],
         tableHeader: [ { name: '#' }, { name: 'Type' } ],
         tableBody: [],
@@ -112,35 +112,19 @@
             image_real_width: Math.round($('#image-tagged').width()),
             image_real_height: Math.round($('#image-tagged').height())
           })
+          this.$renderIns.addEventListenerClick()
           this.$renderIns.addEventListenerMouseup()
           this.$renderIns.addEventListenerMousedown()
           this.$renderIns.addEventListenerMousemove()
           this.$renderIns.addEventListenerMouseover()
-//          if (!this.$renderIns) {
-//            this.init()
-//            this.$renderIns.init({
-//              image_canvas_id: 'image_canvas',
-//              region_canvas_id: 'region_canvas',
-//              image_real_width: Math.round($('#image-tagged').width()),
-//              image_real_height: Math.round($('#image-tagged').height())
-//            })
-//            this.$renderIns.addEventListenerMouseup()
-//            this.$renderIns.addEventListenerMousedown()
-//            this.$renderIns.addEventListenerMousemove()
-//            this.$renderIns.addEventListenerMouseover()
-//          } else {
-//            this.$renderIns.updateDivContainer({
-//              image_real_width: Math.round($('#image-tagged').width()),
-//              image_real_height: Math.round($('#image-tagged').height())
-//            })
-//            this.$renderIns.goUpdate()
-//          }
         },
         deep: true
       },
       selectedImage: {
         handler (curVal, oldVal) { // object
           //  接收到select image然后可以更新图片 更新option
+          this.selectedId = 3
+          this.$renderIns.updateInteraction({polygon: true})
           let channels = this.selectedImage.split('_')[ 0 ]
           if (channels.length > 5) {
             this.featuresObj = Object.keys(config.featureColors[ channels ])
@@ -219,12 +203,22 @@
         }
         this.selectedId = index
         if (this.selectedId === 0) {
+          this.$renderIns.updateInteraction({select: true})
+          return
+        }
+        if (this.selectedId === 1) {
+          this.$renderIns && this.$renderIns.zoom_in()
+          return
+        }
+        if (this.selectedId === 2) {
+          this.$renderIns && this.$renderIns.zoom_out()
+          return
+        }
+        if (this.selectedId === 3) {
+          this.$renderIns.updateInteraction({polygon: true})
           return
         }
         if (this.selectedId === 4) {
-          return
-        }
-        if (this.selectedId === 5) {
           this.selectIndex = this.$renderIns._via_user_sel_region_id
           this.willShow = true
           // 确保当前有选中的节点
@@ -233,13 +227,6 @@
             this.selectRegionTableBody.push({ value: this.selectIndex + 1 })
             this.selectRegionTableBody.push({ value: this.$renderIns.getSelectRegionValue() })
           }
-        }
-        if (this.selectedId === 1) {
-          this.$renderIns && this.$renderIns.zoom_in()
-          return
-        }
-        if (this.selectedId === 2) {
-          this.$renderIns && this.$renderIns.zoom_out()
         }
       },
       loadStart () {
@@ -253,6 +240,7 @@
       },
       goSubmit () {
         this.selectedId = 0
+        this.$renderIns.updateInteraction({select: true})
         this.willShow = false
         let selectId = this.selectIndex
         this.$regions = JSON.parse(this.$renderIns.getMetaData(selectId))
@@ -386,7 +374,7 @@
     z-index: 2;
   }
   .del-padding {
-    /*    padding: 0;*/
+    padding: 0;
   }
   }
 

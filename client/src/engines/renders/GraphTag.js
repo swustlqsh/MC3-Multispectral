@@ -59,6 +59,8 @@ function ImageRegion () {
   this.shape_attributes = new Map() // region shape attributes
   this.region_attributes = new Map() // region attributes
 }
+
+
 //  改变的 image data 中的数据
 class GraphTag extends Render {
   constructor (opts) {
@@ -226,7 +228,6 @@ class GraphTag extends Render {
     this._via_reg_canvas.width = w
   }
 
-  // image to canvas space transform：（从原始图到 canvas space 空间转换）
   loadCanvasRegions () {
     let regions = this._via_img_metadata[ this._via_image_id ].regions
     this._via_canvas_regions = []
@@ -677,7 +678,6 @@ class GraphTag extends Render {
     this._via_current_image.src = this._via_img_metadata[ imgId ].fileref
   }
 
-  // Region collision routines
   isInsideRegion (px, py, descending_order) {
     let N = this._via_canvas_regions.length
     if (N === 0) {
@@ -766,7 +766,9 @@ class GraphTag extends Render {
   toggleAllRegionsSelection (is_selected) {
     for (let i = 0; i < this._via_canvas_regions.length; ++i) {
       this._via_canvas_regions[ i ].is_user_selected = is_selected
-      this._via_img_metadata[ this._via_image_id ].regions[ i ].is_user_selected = is_selected
+      if (this._via_img_metadata[ this._via_image_id ].regions[ i ].is_user_selected) {
+        this._via_img_metadata[ this._via_image_id ].regions[ i ].is_user_selected = is_selected
+      }
     }
     this._via_is_all_region_selected = is_selected
   }
@@ -788,11 +790,28 @@ class GraphTag extends Render {
   }
 
   eventClick (e) {
+    if(!this.interaction.select) {
+      return
+    }
     this._via_click_x0 = e.offsetX
     this._via_click_y0 = e.offsetY
     let region_id = this.isInsideRegion(this._via_click_x0, this._via_click_y0)
     if (region_id !== -1) {
       // 显示region属性列表
+      // first click selects region
+      this._via_user_sel_region_id = region_id
+      this._via_is_region_selected = true
+      this._via_is_user_moving_region = false
+      this._via_is_user_drawing_region = false
+
+      // de-select all other regions if the user has not pressed Shift
+      if (!e.shiftKey) {
+        this.toggleAllRegionsSelection(false)
+      }
+      this.setRegionSelectState(region_id, true)
+      this.update_attributes_panel()
+      this._viaRedrawRegCanvas()
+      this._via_reg_canvas.focus()
     }
   }
 
@@ -857,6 +876,9 @@ class GraphTag extends Render {
   }
 
   eventMouseup (e) {
+    if(this.interaction.select) {
+      return
+    }
     this._via_click_x1 = e.offsetX
     this._via_click_y1 = e.offsetY
 
@@ -1139,6 +1161,9 @@ class GraphTag extends Render {
     if (!this._via_current_image_loaded) {
       return
     }
+    if(this.interaction.select) {
+      return
+    }
     this._via_current_x = e.offsetX
     this._via_current_y = e.offsetY
 
@@ -1311,7 +1336,7 @@ class GraphTag extends Render {
   }
 
   addEventListenerDBClick () {
-    this._via_reg_canvas.addEventListener('dblclick', this.eventClick.bind(this), false)
+    this._via_reg_canvas.addEventListener('dblclick', this.eventDBClick.bind(this), false)
     return this
   }
 
@@ -1336,7 +1361,6 @@ class GraphTag extends Render {
   }
 
   removeEventListener (eventName) {
-    this._via_reg_canvas.addEventListener(eventName, null, false)
   }
 
   // go update
@@ -1531,12 +1555,10 @@ class GraphTag extends Render {
     }
     let d = data
     for (let image_id in d) {
-      console.log('image_id', image_id)
       if (this._via_img_metadata.hasOwnProperty(image_id)) {
         // 复制 file_attributes
         // 复制 regions
         let regions = d[ image_id ].regions
-        console.log('regions', regions)
         for (let i in regions) {
           // if (this._via_img_metadata[ image_id ].regions.hasOwnProperty(i)) {
           //   return
@@ -1587,6 +1609,12 @@ class GraphTag extends Render {
     } else {
       return this._via_canvas_regions[ this._via_user_sel_region_id ].region_attributes.get('type')
     }
+  }
+  updateInteraction (options) {
+    for(let i in this.interaction) {
+      this.interaction[i] =false
+    }
+    Object.assign(this.interaction, options)
   }
 }
 export default GraphTag
