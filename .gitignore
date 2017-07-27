@@ -31,3 +31,4 @@ client/npm-debug.log
 /server/templates
 /nodeserver/node_modules
 /nodeserver/package.json
+/public

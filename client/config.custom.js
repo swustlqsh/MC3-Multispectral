@@ -129,9 +129,9 @@ var config = {
   },
   // pro编译输出文件相关路径配置, 请填写绝对路径
   buildDist: {
-    public: '/static/dist', // script src 或 link href 链接静态文件时路径前缀
-    bundle: path.resolve(__dirname, '../server/static/dist'), // entry产生的文件路径
-    template: path.resolve(__dirname, '../server/templates/dist') // html模板
+    public: '/static/', // script src 或 link href 链接静态文件时路径前缀
+    bundle: path.resolve(__dirname, '../public/static'), // entry产生的文件
+    template: path.resolve(__dirname, '../public/templates') // html模板
   },
   devServer: localConfig.devServer,
   PACKAGE_JSON: PACKAGE_JSON
