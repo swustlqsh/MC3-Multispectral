@@ -94,5 +94,6 @@ if (winWidth < 2000) {
   emSize = 50
 }
 config.emSize = emSize
-config.prefix = '/vastchallenge/2017/mc3'
+config.prefix = ''
+// config.prefix = '/vastchallenge/2017/mc3'
 export default config
