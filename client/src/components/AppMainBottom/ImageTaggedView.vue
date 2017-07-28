@@ -310,6 +310,11 @@
     ready () {
       this.initRender()
       this.$selectRegionsObs = {}
+      if (process.SkyEye.ENV !== 'dev') {
+        for (let key in DATA) {
+          DATA[key] = config.prefix + DATA[key]
+        }
+      }
     }
   }
 </script>

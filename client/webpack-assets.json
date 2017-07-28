@@ -1,8 +1,12 @@
 {
   "index": {
-    "js": "/static/index.bundle.js"
+    "js": "/vastchallenge/2017/mc3/static/index.bundle.c95bcd06.js",
+    "css": "/vastchallenge/2017/mc3/static/index.bundle.c95bcd06.css"
   },
   "index.test": {
-    "js": "/static/index.test.bundle.js"
+    "js": "/vastchallenge/2017/mc3/static/index.test.bundle.c95bcd06.js"
+  },
+  "vendor": {
+    "js": "/vastchallenge/2017/mc3/static/vendor.bundle.c95bcd06.js"
   }
 }
