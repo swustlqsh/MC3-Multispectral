@@ -1,12 +1,8 @@
 {
   "index": {
-    "js": "/static/index.bundle.f5130f20.js",
-    "css": "/static/index.bundle.f5130f20.css"
+    "js": "/static/index.bundle.js"
   },
   "index.test": {
-    "js": "/static/index.test.bundle.f5130f20.js"
-  },
-  "vendor": {
-    "js": "/static/vendor.bundle.f5130f20.js"
+    "js": "/static/index.test.bundle.js"
   }
 }

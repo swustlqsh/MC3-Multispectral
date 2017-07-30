@@ -129,6 +129,7 @@ var config = {
   },
   // pro编译输出文件相关路径配置, 请填写绝对路径
   buildDist: {
+    // public: '/vastchallenge/2017/mc3/static/', // script src 或 link href 链接静态文件时路径前缀 发布的是够
     public: '/static/', // script src 或 link href 链接静态文件时路径前缀
     bundle: path.resolve(__dirname, '../public/static'), // entry产生的文件
     template: path.resolve(__dirname, '../public/templates') // html模板

@@ -6,7 +6,7 @@
     </li>
   </ul>
   <div class="uk-grid image-tagged-view-main">
-    <div class="uk-thumbnail uk-thumbnail-expand del-padding" v-el:graph>
+    <div id="tag" class="uk-thumbnail uk-thumbnail-expand del-padding" v-el:graph>
       <canvas id="image_canvas"></canvas>
       <canvas id="region_canvas"></canvas>
     </div>
@@ -322,7 +322,6 @@
   .menu-ul {
     height: 33px;
     line-height: 33px;
-    border-bottom: 1px solid gray;
     margin: 0 auto;
   li {
     text-align: center;
@@ -372,14 +371,17 @@
     position: absolute;
     left: 0;
     z-index: 1;
+    padding: 5px;
   }
   #region_canvas {
     position: absolute;
     left: 0;
     z-index: 2;
+    padding: 5px;
   }
   .del-padding {
     padding: 0;
+    height: 100%;
   }
   }
 
@@ -403,7 +405,7 @@
     display: block;
     height: 30px;
     width: 100%;
-    position: refflative;
+    position: relative;
     padding: 0;
     margin: 0;
   }
@@ -414,6 +416,9 @@
     top: 33px;
     text-align: center;
     font-size: 12px;
+  }
+  #tag {
+    height: 100%;
   }
 
 </style>
