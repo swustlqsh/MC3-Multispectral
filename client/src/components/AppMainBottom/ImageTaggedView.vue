@@ -36,20 +36,12 @@
           </td>
           <!--<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">-->
         </tr>
-        <!--<tr v-for="tbody in tableBody">-->
-        <!--<td v-for="(i, attr) in tbody">-->
-        <!--<input v-if="!i" type="text" placeholder="{{ attr.value | json}}" class="uk-form-width-small" disabled>-->
-        <!--<select v-else v-model="attr.value">-->
-        <!--<option v-for="opt in featuresObj">{{ opt }}</option>-->
-        <!--</select>-->
-        <!--&lt;!&ndash;<input v-else type="text" placeholder="{{attr.value | json}}" class="uk-form-width-small" v-model="attr.value">&ndash;&gt;-->
-        <!--</td>-->
-        <!--</tr>-->
         </tbody>
       </table>
       <button class="uk-button uk-width-1-1 uk-margin-small-bottom" @click.stop.prevent="goSubmit">Submit</button>
     </template>
   </div>
+
 </template>
 <script>
   import $ from 'jquery'
@@ -88,7 +80,7 @@
           { name: '缩小', icon: 'uk-icon-search-minus', index: 2, image: '../../../assets/images/缩小.png' },
          // { name: '平移', icon: 'uk-icon-arrows', index: 3, image: '../../../assets/images/移动.png' },
           { name: '套索', icon: 'uk-icon-object-ungroup', index: 3, image: '../../../assets/images/套索.png' },
-          { name: '标记', icon: 'uk-icon-text-height', index: 4, image: '../../../assets/images/文字.png' }
+          { name: '标记', icon: 'uk-icon-text-height', index: 4, image: '../../../assets/images/文字.png', 'model': '#menu-tag' }
         ],
         tableHeader: [ { name: '#' }, { name: 'Type' } ],
         tableBody: [],
@@ -388,8 +380,6 @@
   #attributes-panel {
     position: absolute;
     z-index: 10;
-    width: 100%;
-    max-height: 30%;
     overflow: auto;
     background-color: #fff;
     border: 1px solid #324057;
@@ -397,18 +387,19 @@
     padding-bottom: 2em;
     font-size: small;
     left: 100%;
-  .error-msg {
-    text-align: center;
-    width: 100%;
-  }
-  .close {
-    display: block;
-    height: 30px;
-    width: 100%;
-    position: relative;
-    padding: 0;
-    margin: 0;
-  }
+    .error-msg {
+      text-align: center;
+      width: 300px;
+      position: relative;
+    }
+    .close {
+      display: block;
+      height: 30px;
+      width: 100%;
+      position: relative;
+      padding: 0;
+      margin: 0;
+    }
   }
   .image-time {
     position: absolute;
